@@ -1,6 +1,6 @@
 spring:
   application:
-    name: extended-mongo-skeleton
+    name: fatodo-item-service
 
   cloud:
     config:
