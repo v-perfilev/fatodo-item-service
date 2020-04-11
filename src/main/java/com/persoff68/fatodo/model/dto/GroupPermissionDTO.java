@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -13,7 +13,7 @@ import java.util.Set;
 public class GroupPermissionDTO extends AbstractDTO {
     private static final long serialVersionUID = AppConstants.SERIAL_VERSION_UID;
 
-    private Set<String> groupIds;
+    private List<String> groupIds;
     private String userId;
 
 }

@@ -7,9 +7,8 @@ import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.exception.PermissionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -18,17 +17,17 @@ public class PermissionHelper {
     private final JwtTokenProvider jwtTokenProvider;
     private final GroupServiceClient groupServiceClient;
 
-    public boolean canRead(Set<String> groupIds) {
+    public boolean canRead(List<String> groupIds) {
         GroupPermissionDTO dto = new GroupPermissionDTO(groupIds, getUserId());
         return groupServiceClient.canRead(dto);
     }
 
-    public boolean canEdit(Set<String> groupIds) {
+    public boolean canEdit(List<String> groupIds) {
         GroupPermissionDTO dto = new GroupPermissionDTO(groupIds, getUserId());
         return groupServiceClient.canEdit(dto);
     }
 
-    public boolean canAdmin(Set<String> groupIds) {
+    public boolean canAdmin(List<String> groupIds) {
         GroupPermissionDTO dto = new GroupPermissionDTO(groupIds, getUserId());
         return groupServiceClient.canAdmin(dto);
     }

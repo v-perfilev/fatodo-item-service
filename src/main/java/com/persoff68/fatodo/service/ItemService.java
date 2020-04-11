@@ -4,13 +4,11 @@ import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
-import com.persoff68.fatodo.service.util.ItemUtils;
 import com.persoff68.fatodo.service.util.PermissionValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +17,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final PermissionValidator permissionValidator;
 
-    public List<Item> getAllByGroupIds(Set<String> groupIds) {
+    public List<Item> getAllByGroupIds(List<String> groupIds) {
         permissionValidator.validateGetPermission(groupIds);
         return itemRepository.findAllByGroupIdIn(groupIds);
     }
@@ -27,7 +25,7 @@ public class ItemService {
     public Item getById(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionValidator.validateGetPermission(Set.of(item.getGroupId()));
+        permissionValidator.validateGetPermission(List.of(item.getGroupId()));
         return item;
     }
 
