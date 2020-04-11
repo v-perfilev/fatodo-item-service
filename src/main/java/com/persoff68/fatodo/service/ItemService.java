@@ -5,6 +5,7 @@ import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import com.persoff68.fatodo.service.util.ItemUtils;
+import com.persoff68.fatodo.service.util.PermissionValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,17 +17,17 @@ import java.util.Set;
 public class ItemService {
 
     private final ItemRepository itemRepository;
-    private final PermissionService permissionService;
+    private final PermissionValidator permissionValidator;
 
     public List<Item> getAllByGroupIds(Set<String> groupIds) {
-        permissionService.checkRead(groupIds);
+        permissionValidator.validateGetPermission(groupIds);
         return itemRepository.findAllByGroupIdIn(groupIds);
     }
 
     public Item getById(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkRead(item.getGroupId());
+        permissionValidator.validateGetPermission(Set.of(item.getGroupId()));
         return item;
     }
 
@@ -34,29 +35,21 @@ public class ItemService {
         if (item.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
-        permissionService.checkAdmin(item.getGroupId());
+        permissionValidator.validateCreatePermission(item);
         return itemRepository.save(item);
     }
 
     public Item update(Item item) {
         Item oldItem = itemRepository.findById(item.getId())
                 .orElseThrow(ModelNotFoundException::new);
-
-        if (!ItemUtils.areGroupIdsEquals(item, oldItem)) {
-            permissionService.checkAdmin(Set.of(item.getGroupId(), oldItem.getGroupId()));
-        } else if (!ItemUtils.areStatusesEquals(item, oldItem)) {
-            permissionService.checkAdmin(item.getGroupId());
-        } else {
-            permissionService.checkEdit(item.getGroupId());
-        }
-
+        permissionValidator.validateUpdatePermission(item, oldItem);
         return itemRepository.save(item);
     }
 
     public void delete(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkAdmin(item.getGroupId());
+        permissionValidator.validateDeletePermission(item);
         itemRepository.deleteById(id);
     }
 
