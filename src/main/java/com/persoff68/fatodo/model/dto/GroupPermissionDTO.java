@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -13,7 +14,9 @@ import java.util.List;
 public class GroupPermissionDTO extends AbstractDTO {
     private static final long serialVersionUID = AppConstants.SERIAL_VERSION_UID;
 
+    @NotNull
     private List<String> groupIds;
+    @NotNull
     private String userId;
 
 }
