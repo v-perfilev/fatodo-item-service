@@ -4,6 +4,9 @@ import com.persoff68.fatodo.model.Item;
 
 public class ItemUtils {
 
+    private ItemUtils() {
+    }
+
     public static boolean areGroupIdsEquals(Item a, Item b) {
         return a.getGroupId().equals(b.getGroupId());
     }

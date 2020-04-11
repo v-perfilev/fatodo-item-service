@@ -13,7 +13,7 @@ import java.util.Set;
 public class GroupPermissionDTO extends AbstractDTO {
     private static final long serialVersionUID = AppConstants.SERIAL_VERSION_UID;
 
-    Set<String> groupIds;
-    String userId;
+    private Set<String> groupIds;
+    private String userId;
 
 }

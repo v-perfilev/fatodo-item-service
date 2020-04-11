@@ -1,7 +1,6 @@
 package com.persoff68.fatodo.repository;
 
 import com.persoff68.fatodo.model.Item;
-import com.persoff68.fatodo.model.constant.ItemStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
