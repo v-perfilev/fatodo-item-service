@@ -1,6 +1,7 @@
 package com.persoff68.fatodo.repository;
 
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.constant.ItemStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,5 +11,6 @@ import java.util.Set;
 @Repository
 public interface ItemRepository extends MongoRepository<Item, String> {
 
-    List<Item> findAllByGroupIdsContains(Set<String> groupIdSet);
+    List<Item> findAllByGroupIdIn(Set<String> groupIds);
+
 }

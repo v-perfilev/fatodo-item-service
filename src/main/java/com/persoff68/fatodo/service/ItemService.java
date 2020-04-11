@@ -1,10 +1,11 @@
 package com.persoff68.fatodo.service;
 
-import com.persoff68.fatodo.client.interceptor.GroupServiceClient;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
+import com.persoff68.fatodo.service.util.ItemUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,49 +18,47 @@ import java.util.Set;
 public class ItemService {
 
     private final ItemRepository itemRepository;
-    private final PermissionCheckService permissionCheckService;
-    private final GroupServiceClient groupServiceClient;
+    private final GroupPermissionService groupPermissionService;
 
-    public List<Item> getAllByUserId(String userId) {
-        Set<String> groupIdSet = groupServiceClient.getGroupIdsByUserId(userId);
-        return itemRepository.findAllByGroupIdsContains(groupIdSet);
-    }
-
-    public List<Item> getAllByGroupId(String groupId) {
-        permissionCheckService.checkReadPermission(groupId);
-        Set<String> groupIdSet = Collections.singleton(groupId);
-        return itemRepository.findAllByGroupIdsContains(groupIdSet);
+    public List<Item> getAllByGroupIds(Set<String> groupIds) {
+        groupPermissionService.checkReadPermission(groupIds);
+        return itemRepository.findAllByGroupIdIn(groupIds);
     }
 
     public Item getById(String id) {
-        Item item = itemRepository.findById(id)
-                .orElseThrow(ModelNotFoundException::new);
-        permissionCheckService.checkReadPermission(item);
+        Item item = itemRepository.findById(id).orElseThrow(ModelNotFoundException::new);
+        groupPermissionService.checkReadPermission(item.getGroupId());
         return item;
     }
 
     public Item create(Item item) {
-        String id = item.getId();
-        if (id != null) {
+        if (item.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
-        permissionCheckService.checkWritePermission(item);
+        groupPermissionService.checkAdminPermission(item.getGroupId());
         return itemRepository.save(item);
     }
 
     public Item update(Item item) {
-        String id = item.getId();
-        if (!itemRepository.existsById(id)) {
-            throw new ModelNotFoundException();
+        Item oldItem = itemRepository.findById(item.getId())
+                .orElseThrow(ModelNotFoundException::new);
+
+        if (ItemUtils.areGroupIdsEquals(item, oldItem)) {
+            Set<String> groupIds = Set.of(item.getGroupId(), oldItem.getGroupId());
+            groupPermissionService.checkAdminPermission(groupIds);
+        } else if (ItemUtils.areStatusesEquals(item, oldItem)) {
+            groupPermissionService.checkAdminPermission(item.getGroupId());
+        } else {
+            groupPermissionService.checkEditPermission(item.getGroupId());
         }
-        permissionCheckService.checkWritePermission(item);
+
         return itemRepository.save(item);
     }
 
     public void delete(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionCheckService.checkWritePermission(item);
+        groupPermissionService.checkAdminPermission(item.getGroupId());
         itemRepository.deleteById(id);
     }
 

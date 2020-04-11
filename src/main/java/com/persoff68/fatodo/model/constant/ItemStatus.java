@@ -1,8 +1,6 @@
 package com.persoff68.fatodo.model.constant;
 
-public enum  ItemStatus {
+public enum ItemStatus {
     ACTIVE,
-    CLOSED,
-    ARCHIVED,
-    DELETED
+    CLOSED
 }

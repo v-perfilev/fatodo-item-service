@@ -1,4 +1,4 @@
-package com.persoff68.fatodo.client.interceptor;
+package com.persoff68.fatodo.client;
 
 import com.persoff68.fatodo.model.dto.GroupPermissionDTO;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -20,7 +20,7 @@ public interface GroupServiceClient {
     @PostMapping(value = "/check/write",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    boolean canWrite(GroupPermissionDTO groupPermissionDTO);
+    boolean canEdit(GroupPermissionDTO groupPermissionDTO);
 
     @GetMapping(value = "/group/ids-by-user-id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     Set<String> getGroupIdsByUserId(@PathVariable String id);
