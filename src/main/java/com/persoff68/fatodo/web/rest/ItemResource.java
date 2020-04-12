@@ -1,16 +1,18 @@
 package com.persoff68.fatodo.web.rest;
 
-import com.persoff68.fatodo.mapper.ItemMapper;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.dto.ItemDTO;
+import com.persoff68.fatodo.model.mapper.ItemMapper;
 import com.persoff68.fatodo.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,7 +57,7 @@ public class ItemResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(itemDTO);
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> update(@Valid @RequestBody ItemDTO itemDTO) {
         Item item = itemMapper.itemDTOToItem(itemDTO);
@@ -64,7 +66,7 @@ public class ItemResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(itemDTO);
     }
 
-    @PostMapping(value = "/{id}",
+    @DeleteMapping(value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable String id) {
