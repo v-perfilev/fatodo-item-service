@@ -31,11 +31,12 @@ public class ItemResource {
     private final ItemService itemService;
     private final ItemMapper itemMapper;
 
-    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemDTO>> getAllByGroupIds(@RequestBody List<String> groupIds) {
-        List<Item> itemList = itemService.getAllByGroupIds(groupIds);
-        List<ItemDTO> itemDTOList = itemList.stream().map(itemMapper::itemToItemDTO).collect(Collectors.toList());
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemDTO>> getAllForUser() {
+        List<Item> itemList = itemService.getAllForUser();
+        List<ItemDTO> itemDTOList = itemList.stream()
+                .map(itemMapper::itemToItemDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(itemDTOList);
     }
 

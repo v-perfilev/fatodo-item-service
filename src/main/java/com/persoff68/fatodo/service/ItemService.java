@@ -1,5 +1,6 @@
 package com.persoff68.fatodo.service;
 
+import com.persoff68.fatodo.client.GroupServiceClient;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
@@ -16,10 +17,16 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final PermissionValidator permissionValidator;
+    private final GroupServiceClient groupServiceClient;
 
-    public List<Item> getAllByGroupIds(List<String> groupIds) {
-        permissionValidator.validateGetPermission(groupIds);
-        return itemRepository.findAllByGroupIdIn(groupIds);
+    public List<Item> getAllForUser() {
+        List<String> groupIdList = groupServiceClient.getAllGroupIdsForUser();
+        return itemRepository.findAllByGroupIdIn(groupIdList);
+    }
+
+    public List<Item> getAllByGroupIds(List<String> groupIdList) {
+        permissionValidator.validateGetPermission(groupIdList);
+        return itemRepository.findAllByGroupIdIn(groupIdList);
     }
 
     public Item getById(String id) {

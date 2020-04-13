@@ -15,8 +15,8 @@ public class PermissionValidator {
 
     private final GroupServiceClient groupServiceClient;
 
-    public void validateGetPermission(List<String> groupIds) {
-        boolean isValid = groupServiceClient.canRead(groupIds);
+    public void validateGetPermission(List<String> groupIdList) {
+        boolean isValid = groupServiceClient.canRead(groupIdList);
         throwExceptionIfNotValid(isValid);
     }
 
