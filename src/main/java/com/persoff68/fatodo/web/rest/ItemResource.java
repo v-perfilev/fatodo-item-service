@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemResource {
 
-    static final String ENDPOINT = "/items";
+    static final String ENDPOINT = "/api/items";
 
     private final ItemService itemService;
     private final ItemMapper itemMapper;
