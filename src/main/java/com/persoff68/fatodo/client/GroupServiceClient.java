@@ -10,22 +10,22 @@ import java.util.List;
 @FeignClient("group-service")
 public interface GroupServiceClient {
 
-    @PostMapping(value = "/permission/read",
+    @PostMapping(value = "/api/permission/read",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     boolean canRead(List<String> groupIds);
 
-    @PostMapping(value = "/permission/edit",
+    @PostMapping(value = "/api/permission/edit",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     boolean canEdit(List<String> groupIds);
 
-    @PostMapping(value = "/permission/admin",
+    @PostMapping(value = "/api/permission/admin",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     boolean canAdmin(List<String> groupIds);
 
-    @GetMapping(value = "/group/group-ids",
+    @GetMapping(value = "/api/group/group-ids",
             produces = MediaType.APPLICATION_JSON_VALUE)
     List<String> getAllGroupIdsForUser();
 
