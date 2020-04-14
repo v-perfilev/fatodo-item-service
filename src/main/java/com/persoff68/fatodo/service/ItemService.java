@@ -1,6 +1,8 @@
 package com.persoff68.fatodo.service;
 
 import com.persoff68.fatodo.client.GroupServiceClient;
+import com.persoff68.fatodo.config.aop.cache.annotation.RedisCacheEvict;
+import com.persoff68.fatodo.config.aop.cache.annotation.RedisCacheable;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
@@ -9,6 +11,7 @@ import com.persoff68.fatodo.service.validator.PermissionValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,12 +24,15 @@ public class ItemService {
 
     public List<Item> getAllForUser() {
         List<String> groupIdList = groupServiceClient.getAllGroupIdsForUser();
-        return itemRepository.findAllByGroupIdIn(groupIdList);
+        List<Item> itemList = new ArrayList<>();
+        groupIdList.forEach(groupId -> itemList.addAll(getAllByGroupId(groupId)));
+        return itemList;
     }
 
-    public List<Item> getAllByGroupIds(List<String> groupIdList) {
-        permissionValidator.validateGetPermission(groupIdList);
-        return itemRepository.findAllByGroupIdIn(groupIdList);
+    @RedisCacheable(cacheName = "items", key = "#groupId")
+    public List<Item> getAllByGroupId(String groupId) {
+        permissionValidator.validateGetPermission(List.of(groupId));
+        return itemRepository.findAllByGroupId(groupId);
     }
 
     public Item getById(String id) {
@@ -36,6 +42,7 @@ public class ItemService {
         return item;
     }
 
+    @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
     public Item create(Item item) {
         if (item.getId() != null) {
             throw new ModelAlreadyExistsException();
@@ -44,6 +51,7 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
+    @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
     public Item update(Item item) {
         Item oldItem = itemRepository.findById(item.getId())
                 .orElseThrow(ModelNotFoundException::new);
@@ -54,8 +62,13 @@ public class ItemService {
     public void deleteById(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
+        delete(item);
+    }
+
+    @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
+    public void delete(Item item) {
         permissionValidator.validateDeletePermission(item);
-        itemRepository.deleteById(id);
+        itemRepository.delete(item);
     }
 
 }

@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends MongoRepository<Item, String> {
 
-    List<Item> findAllByGroupIdIn(List<String> groupIds);
+    List<Item> findAllByGroupId(String groupId);
 
 }
