@@ -41,7 +41,6 @@ public class ItemResource {
     }
 
     @GetMapping(value = "/{id}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> getById(@PathVariable String id) {
         Item item = itemService.getById(id);
@@ -68,7 +67,6 @@ public class ItemResource {
     }
 
     @DeleteMapping(value = "/{id}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable String id) {
         itemService.deleteById(id);

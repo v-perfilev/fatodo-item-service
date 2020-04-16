@@ -31,14 +31,14 @@ public class ItemService {
 
     @RedisCacheable(cacheName = "items", key = "#groupId")
     public List<Item> getAllByGroupId(String groupId) {
-        permissionValidator.validateGetPermission(List.of(groupId));
+        permissionValidator.validateGet(List.of(groupId));
         return itemRepository.findAllByGroupId(groupId);
     }
 
     public Item getById(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionValidator.validateGetPermission(List.of(item.getGroupId()));
+        permissionValidator.validateGet(List.of(item.getGroupId()));
         return item;
     }
 
@@ -47,7 +47,7 @@ public class ItemService {
         if (item.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
-        permissionValidator.validateCreatePermission(item);
+        permissionValidator.validateCreate(item);
         return itemRepository.save(item);
     }
 
@@ -55,7 +55,7 @@ public class ItemService {
     public Item update(Item item) {
         Item oldItem = itemRepository.findById(item.getId())
                 .orElseThrow(ModelNotFoundException::new);
-        permissionValidator.validateUpdatePermission(item, oldItem);
+        permissionValidator.validateUpdate(item, oldItem);
         return itemRepository.save(item);
     }
 
@@ -67,8 +67,13 @@ public class ItemService {
 
     @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
     public void delete(Item item) {
-        permissionValidator.validateDeletePermission(item);
+        permissionValidator.validateDelete(item);
         itemRepository.delete(item);
+    }
+
+    public int getCountByGroupId(String groupId) {
+        permissionValidator.validateGet(List.of(groupId));
+        return itemRepository.findAllByGroupId(groupId).size();
     }
 
 }

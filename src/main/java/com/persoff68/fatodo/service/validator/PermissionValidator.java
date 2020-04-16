@@ -15,18 +15,22 @@ public class PermissionValidator {
 
     private final GroupServiceClient groupServiceClient;
 
-    public void validateGetPermission(List<String> groupIdList) {
+    public void validateGet(List<String> groupIdList) {
         boolean isValid = groupServiceClient.canRead(groupIdList);
-        throwExceptionIfNotValid(isValid);
+        if (!isValid) {
+            throw new PermissionException("No permission for get");
+        }
     }
 
-    public void validateCreatePermission(Item item) {
+    public void validateCreate(Item item) {
         List<String> groupIds = List.of(item.getGroupId());
         boolean isValid = groupServiceClient.canAdmin(groupIds);
-        throwExceptionIfNotValid(isValid);
+        if (!isValid) {
+            throw new PermissionException("No permission for create");
+        }
     }
 
-    public void validateUpdatePermission(Item newItem, Item oldItem) {
+    public void validateUpdate(Item newItem, Item oldItem) {
         boolean isValid;
         if (!ItemUtils.areGroupIdsEquals(newItem, oldItem)) {
             List<String> groupIds = List.of(newItem.getGroupId(), oldItem.getGroupId());
@@ -38,18 +42,16 @@ public class PermissionValidator {
             List<String> groupIds = List.of(newItem.getGroupId());
             isValid = groupServiceClient.canEdit(groupIds);
         }
-        throwExceptionIfNotValid(isValid);
+        if (!isValid) {
+            throw new PermissionException("No permission for update");
+        }
     }
 
-    public void validateDeletePermission(Item item) {
+    public void validateDelete(Item item) {
         List<String> groupIds = List.of(item.getGroupId());
         boolean isValid = groupServiceClient.canAdmin(groupIds);
-        throwExceptionIfNotValid(isValid);
-    }
-
-    private void throwExceptionIfNotValid(boolean valid) {
-        if (!valid) {
-            throw new PermissionException();
+        if (!isValid) {
+            throw new PermissionException("No permission for delete");
         }
     }
 
