@@ -63,7 +63,7 @@ public class ItemResource {
         Item item = itemMapper.itemDTOToItem(itemDTO);
         item = itemService.update(item);
         itemDTO = itemMapper.itemToItemDTO(item);
-        return ResponseEntity.status(HttpStatus.CREATED).body(itemDTO);
+        return ResponseEntity.ok(itemDTO);
     }
 
     @DeleteMapping(value = "/{id}",
