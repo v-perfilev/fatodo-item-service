@@ -6,6 +6,7 @@ import com.persoff68.fatodo.config.aop.cache.annotation.RedisCacheable;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
+import com.persoff68.fatodo.service.exception.ModelInvalidException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import com.persoff68.fatodo.service.validator.PermissionValidator;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,9 @@ public class ItemService {
 
     @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
     public Item update(Item item) {
+        if (item.getId() == null) {
+            throw new ModelInvalidException();
+        }
         Item oldItem = itemRepository.findById(item.getId())
                 .orElseThrow(ModelNotFoundException::new);
         permissionValidator.validateUpdate(item, oldItem);
