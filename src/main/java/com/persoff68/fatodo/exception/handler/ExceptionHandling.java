@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @ControllerAdvice
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 100)
 @RequiredArgsConstructor
 public class ExceptionHandling {
 
@@ -22,6 +22,20 @@ public class ExceptionHandling {
 
     @ExceptionHandler(AbstractException.class)
     public ResponseEntity<String> handleAbstractException(HttpServletRequest request, AbstractException e)
+            throws IOException {
+        return AttributeHandler.from(request, e).getResponseEntity(objectMapper);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(HttpServletRequest request, RuntimeException e)
+            throws IOException {
+        return e.getCause() instanceof Exception
+                ? AttributeHandler.from(request, (Exception) e.getCause()).getResponseEntity(objectMapper)
+                : AttributeHandler.from(request, e).getResponseEntity(objectMapper);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(HttpServletRequest request, Exception e)
             throws IOException {
         return AttributeHandler.from(request, e).getResponseEntity(objectMapper);
     }

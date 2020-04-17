@@ -9,17 +9,17 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.persoff68.fatodo</groupId>
-    <artifactId>extendedmongoskeleton</artifactId>
+    <artifactId>itemservice</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>extended-mongo-skeleton</name>
-    <description>Extended mongo skeleton for FaToDo</description>
+    <name>fatodo-item-service</name>
+    <description>Item service for FaToDo</description>
 
     <properties>
         <!-- Common variables -->
         <jar.name>fatodo</jar.name>
         <maven.repo.url/>
         <!-- Classes and packages -->
-        <main.class>com.persoff68.fatodo.ExtendedMongoSkeletonApplication</main.class>
+        <main.class>com.persoff68.fatodo.FaToDoItemServiceApplication</main.class>
         <root.package>com.persoff68.fatodo</root.package>
         <contract.package>com.persoff68.fatodo.contract</contract.package>
         <!-- Dependency versions -->
@@ -177,10 +177,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        <!-- Spring Boot Cache -->
+        <!-- Spring Boot Redis Cache -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <!-- Spring Boot AOP -->
         <dependency>

@@ -1,4 +1,4 @@
-package com.persoff68.fatodo.config.migrations;
+package com.persoff68.fatodo.config.database.migrations;
 
 import com.github.cloudyrock.mongock.ChangeLog;
 

@@ -44,7 +44,7 @@ public class DatabaseConfiguration {
 
     @Bean
     public SpringBootMongock mongock() {
-        String scanPath = this.getClass().getPackageName() + ".migrations";
+        String scanPath = this.getClass().getPackageName() + ".database.migrations";
         return new SpringBootMongockBuilder(mongoTemplate, scanPath)
                 .setApplicationContext(springContext)
                 .setLockQuickConfig()
@@ -57,11 +57,11 @@ public class DatabaseConfiguration {
         if (mappingContext instanceof MongoMappingContext) {
             MongoMappingContext mongoMappingContext = (MongoMappingContext) mappingContext;
             for (BasicMongoPersistentEntity<?> persistentEntity : mongoMappingContext.getPersistentEntities()) {
-                Class<?> type = persistentEntity.getType();
-                if (type.isAnnotationPresent(Document.class)) {
+                Class<?> clazz = persistentEntity.getType();
+                if (clazz.isAnnotationPresent(Document.class)) {
                     IndexResolver resolver = new MongoPersistentEntityIndexResolver(mongoMappingContext);
-                    IndexOperations indexOps = mongoTemplate.indexOps(type);
-                    resolver.resolveIndexFor(type).forEach(indexOps::ensureIndex);
+                    IndexOperations indexOps = mongoTemplate.indexOps(clazz);
+                    resolver.resolveIndexFor(clazz).forEach(indexOps::ensureIndex);
                 }
             }
         }

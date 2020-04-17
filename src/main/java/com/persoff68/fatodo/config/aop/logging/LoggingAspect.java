@@ -1,4 +1,4 @@
-package com.persoff68.fatodo.aop.logging;
+package com.persoff68.fatodo.config.aop.logging;
 
 import com.persoff68.fatodo.config.constant.AppConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -8,10 +8,12 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
 @Aspect
+@Component
 @Slf4j
 public class LoggingAspect {
     private static final String CONTROLLER_POINTCUT = "within(" + AppConstants.CONTROLLER_PATH + "..*)";

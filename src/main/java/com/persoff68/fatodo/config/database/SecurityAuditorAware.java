@@ -1,4 +1,4 @@
-package com.persoff68.fatodo.security.auditing;
+package com.persoff68.fatodo.config.database;
 
 import com.persoff68.fatodo.config.constant.AppConstants;
 import com.persoff68.fatodo.security.util.SecurityUtils;
@@ -16,4 +16,3 @@ public class SecurityAuditorAware implements AuditorAware<String> {
         return currentUsername.isPresent() ? currentUsername : Optional.of(AppConstants.SYSTEM_USERNAME);
     }
 }
-

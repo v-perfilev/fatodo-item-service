@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -13,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-class ExtendedMongoSkeletonApplicationTests {
+class FaToDoItemServiceApplicationTests {
 
     @Autowired
     private WebApplicationContext context;
@@ -26,7 +25,7 @@ class ExtendedMongoSkeletonApplicationTests {
 
     @Test
     void contextLoads() throws Exception {
-        ExtendedMongoSkeletonApplication.main(new String[]{});
+        FaToDoItemServiceApplication.main(new String[]{});
         mvc.perform(get("/"))
                 .andExpect(status().isNotFound());
     }
