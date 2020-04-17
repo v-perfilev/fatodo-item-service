@@ -22,7 +22,7 @@ public interface GroupServiceClient {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     boolean canAdmin(List<String> groupIds);
 
-    @GetMapping(value = "/api/group/group-ids",
+    @GetMapping(value = "/api/group/ids",
             produces = MediaType.APPLICATION_JSON_VALUE)
     List<String> getAllGroupIdsForUser();
 
