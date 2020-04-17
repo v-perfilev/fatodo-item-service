@@ -21,7 +21,7 @@ Contract.make {
     response {
         status 200
         body(
-                "1"
+                1
         )
     }
 }
