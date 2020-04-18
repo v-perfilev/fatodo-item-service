@@ -12,12 +12,16 @@ import com.persoff68.fatodo.service.validator.PermissionValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ItemService {
+
+    @Resource
+    private ItemService itemService;
 
     private final ItemRepository itemRepository;
     private final PermissionValidator permissionValidator;
@@ -26,7 +30,9 @@ public class ItemService {
     public List<Item> getAllForUser() {
         List<String> groupIdList = groupServiceClient.getAllGroupIdsForUser();
         List<Item> itemList = new ArrayList<>();
-        groupIdList.forEach(groupId -> itemList.addAll(getAllByGroupId(groupId)));
+        for (String groupId : groupIdList) {
+            itemList.addAll(itemService.getAllByGroupId(groupId));
+        }
         return itemList;
     }
 
@@ -66,7 +72,7 @@ public class ItemService {
     public void deleteById(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        delete(item);
+        itemService.delete(item);
     }
 
     @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
