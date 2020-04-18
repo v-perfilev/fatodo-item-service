@@ -23,7 +23,7 @@ public class CacheAspect {
 
     private final CacheManager cacheManager;
 
-    @Around("@annotation(redisCacheable)")
+    @Around(value = "@annotation(redisCacheable)")
     public Object doRedisCacheable(ProceedingJoinPoint pjp, RedisCacheable redisCacheable) throws Throwable {
         Cache cache = cacheManager.getCache(redisCacheable.cacheName());
         Object key = getKey(pjp, redisCacheable.key());

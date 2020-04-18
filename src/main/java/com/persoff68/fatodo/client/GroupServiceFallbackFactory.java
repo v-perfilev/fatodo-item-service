@@ -19,31 +19,31 @@ public class GroupServiceFallbackFactory implements FallbackFactory<GroupService
         return new GroupServiceClient() {
             @Override
             public boolean canRead(List<String> groupIds) {
-                if (status == 404) {
-                    throw new ModelNotFoundException();
-                }
+                check404(status);
                 throw new ClientException();
             }
 
             @Override
             public boolean canEdit(List<String> groupIds) {
-                if (status == 404) {
-                    throw new ModelNotFoundException();
-                }
+                check404(status);
                 throw new ClientException();
             }
 
             @Override
             public boolean canAdmin(List<String> groupIds) {
-                if (status == 404) {
-                    throw new ModelNotFoundException();
-                }
+                check404(status);
                 throw new ClientException();
             }
 
             @Override
             public List<String> getAllGroupIdsForUser() {
                 throw new ClientException();
+            }
+
+            private void check404(int status) {
+                if (status == 404) {
+                    throw new ModelNotFoundException();
+                }
             }
         };
     }
