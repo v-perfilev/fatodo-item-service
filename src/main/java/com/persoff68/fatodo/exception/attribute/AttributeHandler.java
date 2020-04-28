@@ -27,6 +27,7 @@ public class AttributeHandler {
         attributeStrategy.addTimestamp();
         attributeStrategy.addStatus();
         attributeStrategy.addErrorDetails();
+        attributeStrategy.addFeedbackCode();
         attributeStrategy.addPath();
         return attributeStrategy.getErrorAttributes();
     }
