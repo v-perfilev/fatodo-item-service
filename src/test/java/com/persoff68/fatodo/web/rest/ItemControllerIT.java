@@ -1,6 +1,6 @@
 package com.persoff68.fatodo.web.rest;
 
-import com.persoff68.fatodo.FaToDoItemServiceApplication;
+import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.FactoryUtils;
 import com.persoff68.fatodo.client.GroupServiceClient;
 import com.persoff68.fatodo.config.constant.AuthorityType;
@@ -26,7 +26,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = FaToDoItemServiceApplication.class)
+@SpringBootTest(classes = FatodoItemServiceApplication.class)
 public class ItemControllerIT {
     private static final String ENDPOINT = "/api/item";
 

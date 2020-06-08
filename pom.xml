@@ -5,26 +5,26 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.6.RELEASE</version>
+        <version>2.3.0.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.persoff68.fatodo</groupId>
     <artifactId>itemservice</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>fatodo-item-service</name>
-    <description>Item service for FaToDo</description>
+    <description>Item service for Fatodo</description>
 
     <properties>
         <!-- Common variables -->
         <jar.name>fatodo</jar.name>
         <maven.repo.url/>
         <!-- Classes and packages -->
-        <main.class>com.persoff68.fatodo.FaToDoItemServiceApplication</main.class>
+        <main.class>com.persoff68.fatodo.FatodoItemServiceApplication</main.class>
         <root.package>com.persoff68.fatodo</root.package>
         <contract.package>com.persoff68.fatodo.contract</contract.package>
         <!-- Dependency versions -->
         <java.version>13</java.version>
-        <spring-cloud.version>Hoxton.SR3</spring-cloud.version>
+        <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
         <mongock.version>3.2.4</mongock.version>
         <jackson.version>2.10.2</jackson.version>
         <jaxb.version>2.3.1</jaxb.version>
@@ -36,7 +36,6 @@
         <swagger.version>2.9.2</swagger.version>
         <embedded-mongo.version>2.2.0</embedded-mongo.version>
         <!-- Plugin versions -->
-        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M4</maven-failsafe-plugin.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
@@ -130,6 +129,11 @@
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger2</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
             <!-- Embedded mongo management -->
@@ -264,6 +268,10 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
         </dependency>
 
         <!-- Test -->

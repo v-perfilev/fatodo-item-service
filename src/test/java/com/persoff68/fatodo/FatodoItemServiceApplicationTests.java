@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-class FaToDoItemServiceApplicationTests {
+class FatodoItemServiceApplicationTests {
 
     @Autowired
     private WebApplicationContext context;
@@ -25,7 +25,7 @@ class FaToDoItemServiceApplicationTests {
 
     @Test
     void contextLoads() throws Exception {
-        FaToDoItemServiceApplication.main(new String[]{});
+        FatodoItemServiceApplication.main(new String[]{});
         mvc.perform(get("/"))
                 .andExpect(status().isNotFound());
     }
