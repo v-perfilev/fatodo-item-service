@@ -21,7 +21,7 @@ import java.util.List;
 public class ItemService {
 
     @Resource
-    private ItemService itemService;
+    private ItemService itemServiceResource;
 
     private final ItemRepository itemRepository;
     private final PermissionValidator permissionValidator;
@@ -31,7 +31,7 @@ public class ItemService {
         List<String> groupIdList = groupServiceClient.getAllGroupIdsForUser();
         List<Item> itemList = new ArrayList<>();
         for (String groupId : groupIdList) {
-            itemList.addAll(itemService.getAllByGroupId(groupId));
+            itemList.addAll(itemServiceResource.getAllByGroupId(groupId));
         }
         return itemList;
     }
@@ -72,7 +72,7 @@ public class ItemService {
     public void deleteById(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        itemService.delete(item);
+        itemServiceResource.delete(item);
     }
 
     @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
