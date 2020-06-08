@@ -25,7 +25,7 @@
         <!-- Dependency versions -->
         <java.version>13</java.version>
         <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
-        <mongock.version>3.2.4</mongock.version>
+        <mongock.version>3.3.2</mongock.version>
         <jackson.version>2.10.2</jackson.version>
         <jaxb.version>2.3.1</jaxb.version>
         <jwt.version>0.9.1</jwt.version>
