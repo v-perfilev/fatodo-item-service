@@ -2,7 +2,7 @@ package com.persoff68.fatodo.web.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import com.persoff68.fatodo.FaToDoItemServiceApplication;
+import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.FactoryUtils;
 import com.persoff68.fatodo.client.GroupServiceClient;
 import com.persoff68.fatodo.config.constant.AuthorityType;
@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = FaToDoItemServiceApplication.class)
+@SpringBootTest(classes = FatodoItemServiceApplication.class)
 public class ItemResourceIT {
     private static final String ENDPOINT = "/api/items";
 
