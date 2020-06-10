@@ -1,7 +1,8 @@
 package com.persoff68.fatodo.config;
 
-import com.github.cloudyrock.mongock.SpringBootMongock;
-import com.github.cloudyrock.mongock.SpringBootMongockBuilder;
+import com.github.cloudyrock.spring.v5.MongockConfiguration;
+import com.github.cloudyrock.spring.v5.MongockContext;
+import com.github.cloudyrock.spring.v5.MongockSpring5;
 import com.persoff68.fatodo.config.constant.AppConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -28,9 +29,9 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RequiredArgsConstructor
 public class DatabaseConfiguration {
 
+    private final ApplicationContext context;
     private final MongoTemplate mongoTemplate;
     private final MongoConverter mongoConverter;
-    private final ApplicationContext springContext;
 
     @Bean
     public ValidatingMongoEventListener validatingMongoEventListener() {
@@ -40,15 +41,6 @@ public class DatabaseConfiguration {
     @Bean
     public LocalValidatorFactoryBean validator() {
         return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    public SpringBootMongock mongock() {
-        String scanPath = this.getClass().getPackageName() + ".database.migrations";
-        return new SpringBootMongockBuilder(mongoTemplate, scanPath)
-                .setApplicationContext(springContext)
-                .setLockQuickConfig()
-                .build();
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -65,6 +57,14 @@ public class DatabaseConfiguration {
                 }
             }
         }
+    }
+
+    @Bean
+    public MongockSpring5.MongockApplicationRunner mongock() {
+        String migrationPackage = this.getClass().getPackageName() + ".database.migrations";
+        MongockConfiguration mongockConfiguration = new MongockConfiguration();
+        mongockConfiguration.setChangeLogsScanPackage(migrationPackage);
+        return new MongockContext().mongockApplicationRunner(context, mongoTemplate, mongockConfiguration);
     }
 
 }
