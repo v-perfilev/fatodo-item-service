@@ -61,9 +61,8 @@ public class DatabaseConfiguration {
 
     @Bean
     public MongockSpring5.MongockApplicationRunner mongock() {
-        String migrationPackage = this.getClass().getPackageName() + ".database.migrations";
         MongockConfiguration mongockConfiguration = new MongockConfiguration();
-        mongockConfiguration.setChangeLogsScanPackage(migrationPackage);
+        mongockConfiguration.setChangeLogsScanPackage(AppConstants.MIGRATION_PATH);
         return new MongockContext().mongockApplicationRunner(context, mongoTemplate, mongockConfiguration);
     }
 
