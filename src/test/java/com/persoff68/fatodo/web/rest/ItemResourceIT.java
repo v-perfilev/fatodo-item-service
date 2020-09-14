@@ -2,10 +2,10 @@ package com.persoff68.fatodo.web.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.FactoryUtils;
+import com.persoff68.fatodo.FatodoItemServiceApplication;
+import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.client.GroupServiceClient;
-import com.persoff68.fatodo.config.constant.AuthorityType;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.dto.ItemDTO;
@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -65,7 +64,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetAllForUser_ok() throws Exception {
         when(groupServiceClient.getAllGroupIdsForUser()).thenReturn(List.of("test_group_id_1"));
         when(groupServiceClient.canRead(any())).thenReturn(true);
@@ -86,7 +85,7 @@ public class ItemResourceIT {
 
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetById_ok() throws Exception {
         when(groupServiceClient.canRead(any())).thenReturn(true);
         String url = ENDPOINT + "/test_id_1";
@@ -106,7 +105,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetById_notFound() throws Exception {
         when(groupServiceClient.canRead(any())).thenReturn(false);
         String url = ENDPOINT + "/test_id_2";
@@ -115,7 +114,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetById_badRequest_wrongPermission() throws Exception {
         when(groupServiceClient.canRead(any())).thenReturn(false);
         String url = ENDPOINT + "/test_id_1";
@@ -125,7 +124,7 @@ public class ItemResourceIT {
 
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_created() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(true);
         ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemStatus.ACTIVE);
@@ -153,7 +152,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_badRequest_invalidModel() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(true);
         ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemStatus.ACTIVE);
@@ -165,7 +164,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_badRequest_invalid() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(true);
         ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemStatus.ACTIVE);
@@ -177,7 +176,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_badRequest_wrongPermission() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
         ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemStatus.ACTIVE);
@@ -189,7 +188,7 @@ public class ItemResourceIT {
 
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_ok() throws Exception {
         when(groupServiceClient.canEdit(any())).thenReturn(true);
         ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemStatus.ACTIVE);
@@ -219,7 +218,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_notFound() throws Exception {
         ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemStatus.ACTIVE);
         dto.setId("test_id_2");
@@ -230,7 +229,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_badRequest_canNotEdit() throws Exception {
         when(groupServiceClient.canEdit(any())).thenReturn(false);
         ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemStatus.ACTIVE);
@@ -242,7 +241,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_badRequest_canNotAdmin() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
         ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_2", ItemStatus.ACTIVE);
@@ -254,7 +253,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_badRequest_invalid() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
         ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_2", ItemStatus.ACTIVE);
@@ -268,7 +267,7 @@ public class ItemResourceIT {
 
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testDelete_ok() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(true);
         String url = ENDPOINT + "/test_id_1";
@@ -285,7 +284,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testDelete_notFound() throws Exception {
         String url = ENDPOINT + "/test_id_2";
         mvc.perform(delete(url))
@@ -293,7 +292,7 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testDelete_badRequest_wrongPermission() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
         String url = ENDPOINT + "/test_id_1";

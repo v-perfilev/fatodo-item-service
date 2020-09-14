@@ -1,7 +1,5 @@
 package com.persoff68.fatodo.config.constant;
 
-import lombok.Getter;
-
 import java.util.Arrays;
 
 public enum Provider {
@@ -9,15 +7,18 @@ public enum Provider {
     GOOGLE(Constants.GOOGLE_VALUE),
     FACEBOOK(Constants.FACEBOOK_VALUE);
 
-    @Getter
-    private String value;
+    private final String value;
 
     Provider(String value) {
         this.value = value;
     }
 
+    public String getValue() {
+        return value;
+    }
+
     public static boolean contains(String value) {
-        return Arrays.stream(Provider.values()).anyMatch(a -> a.getValue().equals(value));
+        return Arrays.stream(values()).anyMatch(provider -> provider.getValue().equals(value));
     }
 
     public static class Constants {

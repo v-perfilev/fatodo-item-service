@@ -1,18 +1,19 @@
 package com.persoff68.fatodo.config.constant;
 
-import lombok.Getter;
-
 public enum Profile {
     DEVELOPMENT(Constants.DEVELOPMENT_VALUE),
     DOCKER(Constants.DOCKER_VALUE),
     PRODUCTION(Constants.PRODUCTION_VALUE),
     TEST(Constants.TEST_VALUE);
 
-    @Getter
-    private String value;
+    private final String value;
 
     Profile(String value) {
         this.value = value;
+    }
+
+    public String getValue() {
+        return value;
     }
 
     public static class Constants {

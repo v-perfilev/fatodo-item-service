@@ -1,7 +1,7 @@
 package com.persoff68.fatodo.config;
 
-import com.github.cloudyrock.mongock.SpringBootMongock;
-import com.github.cloudyrock.mongock.SpringBootMongockBuilder;
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongo3Driver;
+import com.github.cloudyrock.spring.v5.MongockSpring5;
 import com.persoff68.fatodo.config.constant.AppConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -30,7 +30,6 @@ public class DatabaseConfiguration {
 
     private final MongoTemplate mongoTemplate;
     private final MongoConverter mongoConverter;
-    private final ApplicationContext springContext;
 
     @Bean
     public ValidatingMongoEventListener validatingMongoEventListener() {
@@ -43,12 +42,15 @@ public class DatabaseConfiguration {
     }
 
     @Bean
-    public SpringBootMongock mongock() {
+    public MongockSpring5.MongockInitializingBeanRunner mongockInitializingBeanRunner(
+            ApplicationContext springContext,
+            MongoTemplate mongoTemplate) {
         String scanPath = this.getClass().getPackageName() + ".database.migrations";
-        return new SpringBootMongockBuilder(mongoTemplate, scanPath)
-                .setApplicationContext(springContext)
-                .setLockQuickConfig()
-                .build();
+        return MongockSpring5.builder()
+                .setDriver(SpringDataMongo3Driver.withDefaultLock(mongoTemplate))
+                .addChangeLogsScanPackage(scanPath)
+                .setSpringContext(springContext)
+                .buildInitializingBeanRunner();
     }
 
     @EventListener(ApplicationReadyEvent.class)
