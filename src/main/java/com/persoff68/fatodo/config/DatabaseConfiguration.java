@@ -1,7 +1,6 @@
 package com.persoff68.fatodo.config;
 
-import com.github.cloudyrock.spring.v5.MongockConfiguration;
-import com.github.cloudyrock.spring.v5.MongockContext;
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongo3Driver;
 import com.github.cloudyrock.spring.v5.MongockSpring5;
 import com.persoff68.fatodo.config.constant.AppConstants;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RequiredArgsConstructor
 public class DatabaseConfiguration {
 
-    private final ApplicationContext context;
     private final MongoTemplate mongoTemplate;
     private final MongoConverter mongoConverter;
 
@@ -41,6 +39,18 @@ public class DatabaseConfiguration {
     @Bean
     public LocalValidatorFactoryBean validator() {
         return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    public MongockSpring5.MongockInitializingBeanRunner mongockInitializingBeanRunner(
+            ApplicationContext springContext,
+            MongoTemplate mongoTemplate) {
+        String scanPath = this.getClass().getPackageName() + ".database.migrations";
+        return MongockSpring5.builder()
+                .setDriver(SpringDataMongo3Driver.withDefaultLock(mongoTemplate))
+                .addChangeLogsScanPackage(scanPath)
+                .setSpringContext(springContext)
+                .buildInitializingBeanRunner();
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -57,13 +67,6 @@ public class DatabaseConfiguration {
                 }
             }
         }
-    }
-
-    @Bean
-    public MongockSpring5.MongockApplicationRunner mongock() {
-        MongockConfiguration mongockConfiguration = new MongockConfiguration();
-        mongockConfiguration.setChangeLogsScanPackage(AppConstants.MIGRATION_PATH);
-        return new MongockContext().mongockApplicationRunner(context, mongoTemplate, mongockConfiguration);
     }
 
 }

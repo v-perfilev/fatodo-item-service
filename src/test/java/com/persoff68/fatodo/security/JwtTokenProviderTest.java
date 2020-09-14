@@ -1,6 +1,8 @@
 package com.persoff68.fatodo.security;
 
 import com.persoff68.fatodo.config.AppProperties;
+import com.persoff68.fatodo.config.constant.AppConstants;
+import com.persoff68.fatodo.security.details.CustomUserDetails;
 import com.persoff68.fatodo.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,20 +39,13 @@ public class JwtTokenProviderTest {
 
     @Test
     void testGetAuthenticationFromJwt() {
-        String jwt = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJhdXRob3JpdGllcyI6IlJPTEVfVEVTVCIsImlhdCI6MTU4MzI2ODYxMSwiZXhwIjoyNTgzMjY4NjcxfQ._gQPODOrXvpmc3WfHAli3kgbcm7mwu7SmmJAVqin8CK41v475Teeh4gUgsH-lTJqLNQCacBHmpBxPvloHEWFCw";
+        String jwt = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0X2lkIiwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJhdXRob3JpdGllcyI6IlJPTEVfVEVTVCIsImlhdCI6MTU4MzI2ODYxMSwiZXhwIjoyNTgzMjY4NjcxfQ.HsXZbf5WA7Db6XucuyA4EC8MlvaLFWphW34jqjWlzOwDMwaeUDYsC68Ev_rQ7mc0l_ZXwd11ymkvI2NpAXFAvQ";
         List<? extends GrantedAuthority> authorityList =
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_TEST"));
-        User user = new User("test_user", "", authorityList);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, jwt, authorityList);
+        CustomUserDetails userDetails = new CustomUserDetails("test_id", "test_user", "", authorityList);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, jwt, authorityList);
         Authentication resultAuthentication = jwtTokenProvider.getAuthenticationFromJwt(jwt);
         assertThat(resultAuthentication).isEqualTo(authentication);
-    }
-
-    @Test
-    void testCreateSystemJwtAndGetUserIdFromJwt() {
-        String jwt = jwtTokenProvider.createSystemJwt();
-        String id = jwtTokenProvider.getUserIdFromJwt(jwt);
-        assertThat(id).isEqualTo("0");
     }
 
     @Test
@@ -61,6 +56,17 @@ public class JwtTokenProviderTest {
         String jwt = jwtTokenProvider.createUserJwt("test_id", user);
         boolean isValid = jwtTokenProvider.validateJwt(jwt);
         assertThat(isValid).isTrue();
+    }
+
+    @Test
+    void testCreateSystemJwtAndValidateJwt() {
+        String jwt = jwtTokenProvider.createSystemJwt();
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromJwt(jwt);
+        boolean isValid = jwtTokenProvider.validateJwt(jwt);
+        boolean hasSystemAuthority = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).anyMatch(s -> s.equals(AppConstants.SYSTEM_AUTHORITY));
+        assertThat(isValid).isTrue();
+        assertThat(hasSystemAuthority).isTrue();
     }
 
 }
