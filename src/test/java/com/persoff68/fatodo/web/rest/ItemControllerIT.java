@@ -1,9 +1,9 @@
 package com.persoff68.fatodo.web.rest;
 
-import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.FactoryUtils;
+import com.persoff68.fatodo.FatodoItemServiceApplication;
+import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.client.GroupServiceClient;
-import com.persoff68.fatodo.config.constant.AuthorityType;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.repository.ItemRepository;
@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -50,7 +49,7 @@ public class ItemControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetItemsCountByGroupId_ok() throws Exception {
         when(groupServiceClient.canRead(any())).thenReturn(true);
         String groupId = "test_group_id";
@@ -72,7 +71,7 @@ public class ItemControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetItemsCountByGroupId_badRequest_notFound() throws Exception {
         String groupId = "test_group_id_notExists";
         String url = ENDPOINT + "/count/group/" + groupId;
@@ -81,7 +80,7 @@ public class ItemControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = AuthorityType.Constants.USER_VALUE)
+    @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetItemsCountByGroupId_badRequest_wrongPermission() throws Exception {
         when(groupServiceClient.canRead(any())).thenReturn(false);
         String groupId = "test_group_id";
