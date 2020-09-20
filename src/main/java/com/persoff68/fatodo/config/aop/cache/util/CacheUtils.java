@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 public class CacheUtils {
 
     private CacheUtils() {
@@ -22,7 +23,6 @@ public class CacheUtils {
         return args[keyIndex];
     }
 
-    @SuppressWarnings("unchecked")
     public static Collection<Object> getCollectionValue(String[] names, Object[] args, String key) {
         if (names.length != args.length) {
             throw new CacheException("Args not valid");
@@ -38,7 +38,7 @@ public class CacheUtils {
         }
     }
 
-    private static Object getValueFromObjectByKeyParts(Object object, String[] keyParts) {
+    public static Object getValueFromObjectByKeyParts(Object object, String[] keyParts) {
         if (keyParts.length == 1) {
             return object;
         }
