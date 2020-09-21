@@ -2,6 +2,8 @@ package com.persoff68.fatodo.config.aop.cache;
 
 import com.persoff68.fatodo.config.aop.cache.annotation.CacheEvictMethod;
 import com.persoff68.fatodo.config.aop.cache.annotation.CacheableMethod;
+import com.persoff68.fatodo.config.aop.cache.annotation.ListCacheEvictMethod;
+import com.persoff68.fatodo.config.aop.cache.annotation.ListCacheableMethod;
 import com.persoff68.fatodo.config.aop.cache.util.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +15,10 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Aspect
 @Component
@@ -51,6 +56,69 @@ public class CacheAspect {
             for (Object key : keyCollection) {
                 log.debug("Delete from cache: {} - {}", cacheEvictMethod.cacheName(), key);
                 cache.evict(key);
+            }
+        }
+        return result;
+    }
+
+    @Around("@annotation(listCacheableMethod)")
+    @SuppressWarnings("unchecked")
+    public Object doCustomListCacheable(ProceedingJoinPoint pjp, ListCacheableMethod listCacheableMethod)
+            throws Throwable {
+        Cache cache = cacheManager.getCache(listCacheableMethod.cacheName());
+
+        List<?> sortedList = getKeyCollection(pjp, listCacheableMethod.key())
+                .stream().sorted().collect(Collectors.toList());
+        int hash = sortedList.hashCode();
+
+        if (cache != null) {
+            Object object = cache.get(hash, getReturnType(pjp));
+            if (object != null) {
+                log.debug("Read from cache: {} - {}", listCacheableMethod.cacheName(), hash);
+                return object;
+            }
+        }
+
+        Cache keyCache = cacheManager.getCache(listCacheableMethod.keyCacheName());
+        Object result = pjp.proceed();
+
+        if (cache != null && keyCache != null) {
+            log.debug("Write to cache: {} - {}", listCacheableMethod.cacheName(), hash);
+            cache.put(hash, result);
+
+            sortedList.forEach(key -> {
+                List<Integer> keyHashList = keyCache.get(key, ArrayList.class);
+                if (keyHashList == null) {
+                    keyHashList = new ArrayList<>();
+                }
+                keyHashList.add(hash);
+                log.debug("Write to key cache: {} - {}", listCacheableMethod.keyCacheName(), key);
+                keyCache.put(key, keyHashList);
+            });
+        }
+
+        return result;
+    }
+
+    @Around("@annotation(listCacheEvictMethod)")
+    @SuppressWarnings("unchecked")
+    public Object doCustomListCacheEvict(ProceedingJoinPoint pjp, ListCacheEvictMethod listCacheEvictMethod)
+            throws Throwable {
+        Cache cache = cacheManager.getCache(listCacheEvictMethod.cacheName());
+        Cache keyCache = cacheManager.getCache(listCacheEvictMethod.keyCacheName());
+        Object result = pjp.proceed();
+        if (cache != null && keyCache != null) {
+            Collection<?> keyCollection = getKeyCollection(pjp, listCacheEvictMethod.key());
+            for (Object key : keyCollection) {
+                List<Integer> keyHashList = keyCache.get(key, ArrayList.class);
+                if (keyHashList != null) {
+                    keyHashList.forEach(hash -> {
+                        log.debug("Delete from cache: {} - {}", listCacheEvictMethod.cacheName(), hash);
+                        cache.evict(hash);
+                    });
+                    log.debug("Delete from key cache: {} - {}", listCacheEvictMethod.keyCacheName(), key);
+                    keyCache.evict(key);
+                }
             }
         }
         return result;
