@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 public class CacheUtils {
 
     private CacheUtils() {
@@ -23,7 +22,7 @@ public class CacheUtils {
         return args[keyIndex];
     }
 
-    public static Collection<Object> getCollectionValue(String[] names, Object[] args, String key) {
+    public static Collection<?> getCollectionValue(String[] names, Object[] args, String key) {
         if (names.length != args.length) {
             throw new CacheException("Args not valid");
         }
@@ -32,7 +31,7 @@ public class CacheUtils {
         Object object = args[keyIndex];
         Object result = getValueFromObjectByKeyParts(object, keyParts);
         if (result instanceof Collection) {
-            return (Collection<Object>) result;
+            return (Collection<?>) result;
         } else {
             return List.of(result);
         }

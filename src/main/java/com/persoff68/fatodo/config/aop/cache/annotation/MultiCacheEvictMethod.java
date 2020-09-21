@@ -7,12 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CustomListCacheable {
+public @interface MultiCacheEvictMethod {
 
-    String cacheName();
-
-    String keyCacheName();
-
-    String key();
+    CacheEvictMethod[] value();
 
 }
