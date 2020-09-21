@@ -39,30 +39,12 @@ public class PermissionValidatorTest {
                 .isInstanceOf(PermissionException.class);
     }
 
-    @Test
-    void testValidateUpdate_moveToAnotherGroup() {
-        when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        Item item1 = FactoryUtils.createItem("1", "test_group_id_1", ItemStatus.ACTIVE);
-        Item item2 = FactoryUtils.createItem("1", "test_group_id_2", ItemStatus.ACTIVE);
-        assertThatThrownBy(() -> permissionValidator.validateUpdate(item2, item1))
-                .isInstanceOf(PermissionException.class);
-    }
-
-    @Test
-    void testValidateUpdate_changeStatus() {
-        when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        Item item1 = FactoryUtils.createItem("1", "test_group_id", ItemStatus.ACTIVE);
-        Item item2 = FactoryUtils.createItem("1", "test_group_id", ItemStatus.CLOSED);
-        assertThatThrownBy(() -> permissionValidator.validateUpdate(item2, item1))
-                .isInstanceOf(PermissionException.class);
-    }
 
     @Test
     void testValidateUpdate_changeOtherValues() {
         when(groupServiceClient.canEdit(any())).thenReturn(false);
-        Item item1 = FactoryUtils.createItem("1", "test_group_id", ItemStatus.ACTIVE);
-        Item item2 = FactoryUtils.createItem("2", "test_group_id", ItemStatus.ACTIVE);
-        assertThatThrownBy(() -> permissionValidator.validateUpdate(item2, item1))
+        Item item = FactoryUtils.createItem("1", "test_group_id", ItemStatus.ACTIVE);
+        assertThatThrownBy(() -> permissionValidator.validateUpdate(item))
                 .isInstanceOf(PermissionException.class);
     }
 

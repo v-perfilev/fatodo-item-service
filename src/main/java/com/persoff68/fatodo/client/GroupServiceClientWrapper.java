@@ -51,12 +51,4 @@ public class GroupServiceClientWrapper implements GroupServiceClient {
         }
     }
 
-    @Override
-    public List<String> getAllGroupIdsForUser() {
-        try {
-            return groupServiceClient.getAllGroupIdsForUser();
-        } catch (Exception e) {
-            throw new ClientException();
-        }
-    }
 }

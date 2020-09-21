@@ -13,8 +13,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.verifier.messaging.boot.AutoConfigureMessageVerifier;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -38,7 +36,6 @@ public abstract class ContractBase {
         item.setId("test_id_1");
         itemRepository.save(item);
 
-        when(groupServiceClient.getAllGroupIdsForUser()).thenReturn(List.of("test_group_id"));
         when(groupServiceClient.canRead(any())).thenReturn(true);
         when(groupServiceClient.canEdit(any())).thenReturn(true);
         when(groupServiceClient.canAdmin(any())).thenReturn(true);

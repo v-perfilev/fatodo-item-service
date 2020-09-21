@@ -1,16 +1,16 @@
-package com.persoff68.fatodo.model.dto;
+package com.persoff68.fatodo.web.rest.vm;
 
 import com.persoff68.fatodo.model.Item;
-import com.persoff68.fatodo.model.constant.ItemStatus;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class ItemDTO extends AbstractAuditingDTO {
+@NoArgsConstructor
+public class ItemVM {
+
+    private String id;
 
     private String title;
 
@@ -22,11 +22,9 @@ public class ItemDTO extends AbstractAuditingDTO {
 
     private String description;
 
-    private List<Reminder> reminders;
+    private Reminder[] reminders;
 
-    private List<String> tags;
-
-    private ItemStatus status;
+    private String[] tags;
 
     private String groupId;
 

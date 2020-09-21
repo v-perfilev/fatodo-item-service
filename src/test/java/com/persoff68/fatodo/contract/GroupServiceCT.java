@@ -37,10 +37,4 @@ public class GroupServiceCT {
         assertThat(result).isTrue();
     }
 
-    @Test
-    void testGetGroupIdsForUser() {
-        List<String> result = groupServiceClient.getAllGroupIdsForUser();
-        assertThat(result).isNotEmpty();
-    }
-
 }

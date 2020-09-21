@@ -9,7 +9,7 @@ public class FactoryUtils {
     public static Item createItem(String prefix, String groupId, ItemStatus status) {
         Item item = new Item();
         item.setTitle("test_title_" + prefix);
-        item.setBody("test_body_" + prefix);
+        item.setDescription("test_body_" + prefix);
         item.setGroupId(groupId);
         item.setStatus(status);
         return item;
@@ -18,7 +18,7 @@ public class FactoryUtils {
     public static ItemDTO createItemDTO(String prefix, String groupId, ItemStatus status) {
         ItemDTO dto = new ItemDTO();
         dto.setTitle("test_title_" + prefix);
-        dto.setBody("test_body_" + prefix);
+        dto.setDescription("test_body_" + prefix);
         dto.setGroupId(groupId);
         dto.setStatus(status);
         return dto;

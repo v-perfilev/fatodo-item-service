@@ -1,9 +1,7 @@
 package com.persoff68.fatodo.service;
 
-import com.persoff68.fatodo.client.GroupServiceClient;
-import com.persoff68.fatodo.config.aop.cache.annotation.RedisCacheEvict;
-import com.persoff68.fatodo.config.aop.cache.annotation.RedisCacheable;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelInvalidException;
@@ -12,31 +10,15 @@ import com.persoff68.fatodo.service.validator.PermissionValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ItemService {
 
-    @Resource
-    private ItemService itemServiceResource;
-
     private final ItemRepository itemRepository;
     private final PermissionValidator permissionValidator;
-    private final GroupServiceClient groupServiceClient;
 
-    public List<Item> getAllForUser() {
-        List<String> groupIdList = groupServiceClient.getAllGroupIdsForUser();
-        List<Item> itemList = new ArrayList<>();
-        for (String groupId : groupIdList) {
-            itemList.addAll(itemServiceResource.getAllByGroupId(groupId));
-        }
-        return itemList;
-    }
-
-    @RedisCacheable(cacheName = "items", key = "#groupId")
     public List<Item> getAllByGroupId(String groupId) {
         permissionValidator.validateGet(List.of(groupId));
         return itemRepository.findAllByGroupId(groupId);
@@ -49,41 +31,41 @@ public class ItemService {
         return item;
     }
 
-    @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
     public Item create(Item item) {
         if (item.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
         permissionValidator.validateCreate(item);
+
+        item.setStatus(ItemStatus.ACTIVE);
+
         return itemRepository.save(item);
     }
 
-    @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
-    public Item update(Item item) {
-        if (item.getId() == null) {
+    public Item update(Item newItem) {
+        if (newItem.getId() == null) {
             throw new ModelInvalidException();
         }
-        Item oldItem = itemRepository.findById(item.getId())
+        Item item = itemRepository.findById(newItem.getId())
                 .orElseThrow(ModelNotFoundException::new);
-        permissionValidator.validateUpdate(item, oldItem);
+        permissionValidator.validateUpdate(item);
+
+        item.setTitle(newItem.getTitle());
+        item.setType(newItem.getType());
+        item.setPriority(newItem.getPriority());
+        item.setDate(newItem.getDate());
+        item.setDescription(newItem.getDescription());
+        item.setReminders(item.getReminders());
+        item.setTags(item.getTags());
+
         return itemRepository.save(item);
     }
 
     public void deleteById(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        itemServiceResource.delete(item);
-    }
-
-    @RedisCacheEvict(cacheName = "items", key = "#item.groupId")
-    public void delete(Item item) {
         permissionValidator.validateDelete(item);
         itemRepository.delete(item);
-    }
-
-    public int getCountByGroupId(String groupId) {
-        permissionValidator.validateGet(List.of(groupId));
-        return itemRepository.findAllByGroupId(groupId).size();
     }
 
 }
