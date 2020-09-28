@@ -61,7 +61,7 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    public void deleteById(String id) {
+    public void delete(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
         permissionValidator.validateDelete(item);

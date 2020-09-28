@@ -4,6 +4,7 @@ import com.persoff68.fatodo.FactoryUtils;
 import com.persoff68.fatodo.client.GroupServiceClient;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.constant.ItemStatus;
+import com.persoff68.fatodo.model.constant.ItemType;
 import com.persoff68.fatodo.repository.ItemRepository;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,7 @@ public abstract class ContractBase {
     public void setup() {
         RestAssuredMockMvc.webAppContextSetup(context);
         itemRepository.deleteAll();
-        Item item = FactoryUtils.createItem("1", "test_group_id", ItemStatus.ACTIVE);
+        Item item = FactoryUtils.createItem("1", "test_group_id", ItemType.TASK, ItemStatus.ACTIVE);
         item.setId("test_id_1");
         itemRepository.save(item);
 

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
-@FeignClient(name = "group-service", primary = false)
+@FeignClient(name = "group-service", fallbackFactory = GroupServiceFallbackFactory.class)
 public interface GroupServiceClient {
 
     @PostMapping(value = "/api/permission/read",

@@ -3,11 +3,14 @@ package contracts.itemresource
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get all items for user'
-    description 'should return status 200 and list of UserDTOs'
+    name 'get items count by groupId'
+    description 'should return status 200 and int'
     request {
         method GET()
-        url("/api/items")
+        url($(
+                consumer(regex('\\/api\\/items\\/all-by-group-id\\/[\\w-]+')),
+                producer("/api/items/all-by-group-id/test_group_id")
+        ))
         headers {
             header 'Authorization': $(
                     consumer(containing("Bearer")),
@@ -21,13 +24,11 @@ Contract.make {
             contentType applicationJson()
         }
         body([
-                [
-                        "id"         : "test_id_1",
-                        "title"      : "test_title_1",
-                        "body"       : "test_body_1",
-                        "status"     : "ACTIVE",
-                        "groupId"    : "test_group_id"
-                ]
+                "id"     : "test_id_1",
+                "title"  : "test_title_1",
+                "body"   : "test_body_1",
+                "status" : "ACTIVE",
+                "groupId": "test_group_id"
         ])
     }
 }

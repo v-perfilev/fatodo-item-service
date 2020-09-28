@@ -1,7 +1,9 @@
 package com.persoff68.fatodo.model.dto;
 
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.constant.ItemPriority;
 import com.persoff68.fatodo.model.constant.ItemStatus;
+import com.persoff68.fatodo.model.constant.ItemType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -14,9 +16,9 @@ public class ItemDTO extends AbstractAuditingDTO {
 
     private String title;
 
-    private String type;
+    private ItemType type;
 
-    private String priority;
+    private ItemPriority priority;
 
     private Date date;
 

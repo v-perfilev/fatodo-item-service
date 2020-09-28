@@ -1,6 +1,8 @@
 package com.persoff68.fatodo.model;
 
+import com.persoff68.fatodo.model.constant.ItemPriority;
 import com.persoff68.fatodo.model.constant.ItemStatus;
+import com.persoff68.fatodo.model.constant.ItemType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -20,10 +22,10 @@ public class Item extends AbstractAuditingModel {
     private String title;
 
     @NotNull
-    private String type;
+    private ItemType type;
 
     @NotNull
-    private String priority;
+    private ItemPriority priority;
 
     private Date date;
 

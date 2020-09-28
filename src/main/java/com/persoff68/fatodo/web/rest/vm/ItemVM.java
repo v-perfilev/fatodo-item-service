@@ -4,6 +4,7 @@ import com.persoff68.fatodo.model.Item;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -12,10 +13,13 @@ public class ItemVM {
 
     private String id;
 
+    @NotNull
     private String title;
 
+    @NotNull
     private String type;
 
+    @NotNull
     private String priority;
 
     private Date date;
