@@ -26,9 +26,11 @@ Contract.make {
         body(
                 "id": "test_id_1",
                 "title": "test_title_1",
-                "body": "test_body_1",
+                "type": "TASK",
+                "priority": "NORMAL",
+                "description": "test_body_1",
                 "status": "ACTIVE",
-                "groupId": "test_group_id"
+                "groupId": "test_group_id",
         )
     }
 }
