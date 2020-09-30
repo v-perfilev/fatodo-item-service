@@ -7,6 +7,7 @@ import com.persoff68.fatodo.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,10 +28,16 @@ public class ItemController {
 
 
     @GetMapping(value = "/all-by-group-id/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemDTO>> getByGroupId(@PathVariable String groupId) {
+    public ResponseEntity<List<ItemDTO>> getAllByGroupId(@PathVariable String groupId) {
         List<Item> itemList = itemService.getAllByGroupId(groupId);
         List<ItemDTO> itemDTOList = itemList.stream().map(itemMapper::itemToItemDTO).collect(Collectors.toList());
         return ResponseEntity.ok(itemDTOList);
+    }
+
+    @DeleteMapping(value = "/all-by-group-id/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deleteAllByGroupId(@PathVariable String groupId) {
+        itemService.deleteAllByGroupId(groupId);
+        return ResponseEntity.ok().build();
     }
 
 }

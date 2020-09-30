@@ -32,4 +32,8 @@ public interface ItemRepository extends MongoRepository<Item, String> {
     @CacheEvictMethod(cacheName = "items-by-id", key = "#item.id")
     @CacheEvictMethod(cacheName = "items-by-groupId", key = "#item.groupId")
     void delete(@NonNull Item item);
+
+    @CacheEvictMethod(cacheName = "items-by-id", key = "#id")
+    @CacheEvictMethod(cacheName = "items-by-groupId", key = "#groupId")
+    void deleteAllByIdInAndGroupId(List<String> id, String groupId);
 }

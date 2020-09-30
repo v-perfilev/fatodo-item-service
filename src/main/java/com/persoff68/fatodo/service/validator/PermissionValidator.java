@@ -21,25 +21,22 @@ public class PermissionValidator {
         }
     }
 
-    public void validateCreate(Item item) {
-        List<String> groupIds = List.of(item.getGroupId());
-        boolean isPermitted = groupServiceClient.canAdmin(groupIds);
+    public void validateCreate(List<String> groupIdList) {
+        boolean isPermitted = groupServiceClient.canAdmin(groupIdList);
         if (!isPermitted) {
             throw new PermissionException("No permission for create");
         }
     }
 
-    public void validateUpdate(Item item) {
-        List<String> groupIds = List.of(item.getGroupId());
-        boolean isPermitted = groupServiceClient.canEdit(groupIds);
+    public void validateUpdate(List<String> groupIdList) {
+        boolean isPermitted = groupServiceClient.canEdit(groupIdList);
         if (!isPermitted) {
             throw new PermissionException("No permission for update");
         }
     }
 
-    public void validateDelete(Item item) {
-        List<String> groupIds = List.of(item.getGroupId());
-        boolean isPermitted = groupServiceClient.canAdmin(groupIds);
+    public void validateDelete(List<String> groupIdList) {
+        boolean isPermitted = groupServiceClient.canAdmin(groupIdList);
         if (!isPermitted) {
             throw new PermissionException("No permission for delete");
         }

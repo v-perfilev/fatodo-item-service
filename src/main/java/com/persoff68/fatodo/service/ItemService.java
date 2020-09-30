@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class ItemService {
         if (item.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
-        permissionValidator.validateCreate(item);
+        permissionValidator.validateCreate(List.of(item.getGroupId()));
 
         item.setStatus(ItemStatus.ACTIVE);
 
@@ -48,7 +49,7 @@ public class ItemService {
         }
         Item item = itemRepository.findById(newItem.getId())
                 .orElseThrow(ModelNotFoundException::new);
-        permissionValidator.validateUpdate(item);
+        permissionValidator.validateUpdate(List.of(item.getGroupId()));
 
         item.setTitle(newItem.getTitle());
         item.setType(newItem.getType());
@@ -64,8 +65,15 @@ public class ItemService {
     public void delete(String id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionValidator.validateDelete(item);
+        permissionValidator.validateDelete(List.of(item.getGroupId()));
         itemRepository.delete(item);
+    }
+
+    public void deleteAllByGroupId(String groupId) {
+        permissionValidator.validateDelete(List.of(groupId));
+        List<String> idList = itemRepository.findAllByGroupId(groupId)
+                .stream().map(Item::getId).collect(Collectors.toList());
+        itemRepository.deleteAllByIdInAndGroupId(idList, groupId);
     }
 
 }

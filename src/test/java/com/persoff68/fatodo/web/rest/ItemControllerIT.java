@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -86,6 +87,32 @@ public class ItemControllerIT {
         when(groupServiceClient.canRead(any())).thenReturn(false);
         String url = ENDPOINT + "/all-by-group-id/test_group_id";
         mvc.perform(get(url))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithCustomSecurityContext(authority = "ROLE_USER")
+    void testDeleteAllByGroupId_ok() throws Exception {
+        when(groupServiceClient.canAdmin(any())).thenReturn(true);
+        String url = ENDPOINT + "/all-by-group-id/test_group_id";
+        mvc.perform(delete(url))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testDeleteAllByGroupId_unauthorized() throws Exception {
+        String url = ENDPOINT + "/all-by-group-id/test_group_id";
+        mvc.perform(delete(url))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomSecurityContext(authority = "ROLE_USER")
+    void testDeleteAllByGroupId_badRequest_wrongPermission() throws Exception {
+        when(groupServiceClient.canAdmin(any())).thenReturn(false);
+        String url = ENDPOINT + "/all-by-group-id/test_group_id";
+        mvc.perform(delete(url))
                 .andExpect(status().isBadRequest());
     }
 
