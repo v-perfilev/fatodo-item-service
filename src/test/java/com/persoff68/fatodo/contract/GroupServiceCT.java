@@ -12,7 +12,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@AutoConfigureStubRunner(ids = {"com.persoff68.fatodo:groupservice:+:stubs:6565"},
+@AutoConfigureStubRunner(ids = {"com.persoff68.fatodo:groupservice:+:stubs"},
         stubsMode = StubRunnerProperties.StubsMode.REMOTE)
 public class GroupServiceCT {
 
