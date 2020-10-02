@@ -4,6 +4,7 @@ import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.mapper.ItemMapper;
 import com.persoff68.fatodo.service.ItemService;
+import com.persoff68.fatodo.web.rest.vm.ItemVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(ItemResource.ENDPOINT)
@@ -31,17 +30,7 @@ public class ItemResource {
     private final ItemService itemService;
     private final ItemMapper itemMapper;
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemDTO>> getAllForUser() {
-        List<Item> itemList = itemService.getAllForUser();
-        List<ItemDTO> itemDTOList = itemList.stream()
-                .map(itemMapper::itemToItemDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(itemDTOList);
-    }
-
-    @GetMapping(value = "/{id}",
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> getById(@PathVariable String id) {
         Item item = itemService.getById(id);
         ItemDTO itemDTO = itemMapper.itemToItemDTO(item);
@@ -50,26 +39,25 @@ public class ItemResource {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemDTO> create(@Valid @RequestBody ItemDTO itemDTO) {
-        Item item = itemMapper.itemDTOToItem(itemDTO);
+    public ResponseEntity<ItemDTO> create(@Valid @RequestBody ItemVM itemVM) {
+        Item item = itemMapper.itemVMToItem(itemVM);
         item = itemService.create(item);
-        itemDTO = itemMapper.itemToItemDTO(item);
+        ItemDTO itemDTO = itemMapper.itemToItemDTO(item);
         return ResponseEntity.status(HttpStatus.CREATED).body(itemDTO);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemDTO> update(@Valid @RequestBody ItemDTO itemDTO) {
-        Item item = itemMapper.itemDTOToItem(itemDTO);
+    public ResponseEntity<ItemDTO> update(@Valid @RequestBody ItemVM itemVM) {
+        Item item = itemMapper.itemVMToItem(itemVM);
         item = itemService.update(item);
-        itemDTO = itemMapper.itemToItemDTO(item);
+        ItemDTO itemDTO = itemMapper.itemToItemDTO(item);
         return ResponseEntity.ok(itemDTO);
     }
 
-    @DeleteMapping(value = "/{id}",
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable String id) {
-        itemService.deleteById(id);
+        itemService.delete(id);
         return ResponseEntity.ok().build();
     }
 

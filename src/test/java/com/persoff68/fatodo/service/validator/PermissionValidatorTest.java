@@ -1,12 +1,11 @@
 package com.persoff68.fatodo.service.validator;
 
-import com.persoff68.fatodo.FactoryUtils;
 import com.persoff68.fatodo.client.GroupServiceClient;
-import com.persoff68.fatodo.model.Item;
-import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.service.exception.PermissionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,43 +33,25 @@ public class PermissionValidatorTest {
     @Test
     void testValidateCreate() {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        Item item = FactoryUtils.createItem("1", "test_group_id", ItemStatus.ACTIVE);
-        assertThatThrownBy(() -> permissionValidator.validateCreate(item))
+        List<String> groupIdList = List.of("test_group_id");
+        assertThatThrownBy(() -> permissionValidator.validateCreate(groupIdList))
                 .isInstanceOf(PermissionException.class);
     }
 
-    @Test
-    void testValidateUpdate_moveToAnotherGroup() {
-        when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        Item item1 = FactoryUtils.createItem("1", "test_group_id_1", ItemStatus.ACTIVE);
-        Item item2 = FactoryUtils.createItem("1", "test_group_id_2", ItemStatus.ACTIVE);
-        assertThatThrownBy(() -> permissionValidator.validateUpdate(item2, item1))
-                .isInstanceOf(PermissionException.class);
-    }
-
-    @Test
-    void testValidateUpdate_changeStatus() {
-        when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        Item item1 = FactoryUtils.createItem("1", "test_group_id", ItemStatus.ACTIVE);
-        Item item2 = FactoryUtils.createItem("1", "test_group_id", ItemStatus.CLOSED);
-        assertThatThrownBy(() -> permissionValidator.validateUpdate(item2, item1))
-                .isInstanceOf(PermissionException.class);
-    }
 
     @Test
     void testValidateUpdate_changeOtherValues() {
         when(groupServiceClient.canEdit(any())).thenReturn(false);
-        Item item1 = FactoryUtils.createItem("1", "test_group_id", ItemStatus.ACTIVE);
-        Item item2 = FactoryUtils.createItem("2", "test_group_id", ItemStatus.ACTIVE);
-        assertThatThrownBy(() -> permissionValidator.validateUpdate(item2, item1))
+        List<String> groupIdList = List.of("test_group_id");
+        assertThatThrownBy(() -> permissionValidator.validateUpdate(groupIdList))
                 .isInstanceOf(PermissionException.class);
     }
 
     @Test
     void testValidateDelete() {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        Item item = FactoryUtils.createItem("1", "test_group_id", ItemStatus.ACTIVE);
-        assertThatThrownBy(() -> permissionValidator.validateDelete(item))
+        List<String> groupIdList = List.of("test_group_id");
+        assertThatThrownBy(() -> permissionValidator.validateDelete(groupIdList))
                 .isInstanceOf(PermissionException.class);
     }
 

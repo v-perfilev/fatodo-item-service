@@ -1,6 +1,12 @@
 package com.persoff68.fatodo.model;
 
-import java.io.Serializable;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
 
-public abstract class AbstractModel implements Serializable {
+@Data
+public abstract class AbstractModel {
+
+    @Id
+    protected String id;
+
 }

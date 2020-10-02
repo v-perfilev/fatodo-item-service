@@ -3,13 +3,13 @@ package contracts.itemresource
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get items count by groupId'
-    description 'should return status 200 and int'
+    name 'delete items by groupId'
+    description 'should return status 200'
     request {
-        method GET()
+        method DELETE()
         url($(
-                consumer(regex('\\/api\\/item\\/count\\/group\\/[\\w-]+')),
-                producer("/api/item/count/group/test_group_id")
+                consumer(regex("/api/item/all-by-group-id/.+")),
+                producer("/api/item/all-by-group-id/test_group_id")
         ))
         headers {
             header 'Authorization': $(
@@ -20,11 +20,5 @@ Contract.make {
     }
     response {
         status 200
-        headers {
-            contentType applicationJson()
-        }
-        body(
-                "1"
-        )
     }
 }

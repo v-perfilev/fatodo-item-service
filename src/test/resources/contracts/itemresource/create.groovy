@@ -20,18 +20,27 @@ Contract.make {
                         consumer(any()),
                         producer("test_title")
                 ),
-                "body": $(
+                "type": $(
+                        consumer(any()),
+                        producer("TASK")
+                ),
+                "priority": $(
+                        consumer(any()),
+                        producer("NORMAL")
+                ),
+                "description": $(
                         consumer(any()),
                         producer("test_body")
+                ),
+                "status": $(
+                        consumer(any()),
+                        producer("ACTIVE")
                 ),
                 "groupId": $(
                         consumer(any()),
                         producer("test_group_id")
                 ),
-                "status": $(
-                        consumer(any()),
-                        producer("ACTIVE")
-                )
+
         )
     }
     response {
@@ -41,9 +50,11 @@ Contract.make {
         }
         body(
                 "title": "test_title",
-                "body": "test_body",
+                "type": "TASK",
+                "priority": "NORMAL",
+                "description": "test_body",
+                "status": "ACTIVE",
                 "groupId": "test_group_id",
-                "status": "ACTIVE"
         )
     }
 }

@@ -1,13 +1,13 @@
 package com.persoff68.fatodo.web.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
 import com.persoff68.fatodo.FactoryUtils;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.client.GroupServiceClient;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.constant.ItemStatus;
+import com.persoff68.fatodo.model.constant.ItemType;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.repository.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,8 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,35 +52,14 @@ public class ItemResourceIT {
     void setup() {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         itemRepository.deleteAll();
-        Item item = FactoryUtils.createItem("1", "test_group_id_1", ItemStatus.ACTIVE);
+        Item item = FactoryUtils.createItem("1", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         item.setId("test_id_1");
         itemRepository.save(item);
-        item = FactoryUtils.createItem("2", "test_group_id_1", ItemStatus.ACTIVE);
+        item = FactoryUtils.createItem("2", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         itemRepository.save(item);
-        item = FactoryUtils.createItem("3", "test_group_id_2", ItemStatus.ACTIVE);
+        item = FactoryUtils.createItem("3", "test_group_id_2", ItemType.TASK, ItemStatus.ACTIVE);
         itemRepository.save(item);
     }
-
-    @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
-    void testGetAllForUser_ok() throws Exception {
-        when(groupServiceClient.getAllGroupIdsForUser()).thenReturn(List.of("test_group_id_1"));
-        when(groupServiceClient.canRead(any())).thenReturn(true);
-        ResultActions resultActions = mvc.perform(get(ENDPOINT))
-                .andExpect(status().isOk());
-        String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, ItemDTO.class);
-        List<ItemDTO> resultDTOList = objectMapper.readValue(resultString, listType);
-        assertThat(resultDTOList).hasSize(2);
-    }
-
-    @Test
-    @WithAnonymousUser
-    void testGetAllForUser_unauthorized() throws Exception {
-        mvc.perform(get(ENDPOINT))
-                .andExpect(status().isUnauthorized());
-    }
-
 
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
@@ -127,7 +104,7 @@ public class ItemResourceIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_created() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(true);
-        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         String requestBody = objectMapper.writeValueAsString(dto);
         ResultActions resultActions = mvc.perform(post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -136,7 +113,7 @@ public class ItemResourceIT {
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
         assertThat(resultDTO.getId()).isNotNull();
         assertThat(resultDTO.getTitle()).isEqualTo(dto.getTitle());
-        assertThat(resultDTO.getBody()).isEqualTo(dto.getBody());
+        assertThat(resultDTO.getDescription()).isEqualTo(dto.getDescription());
         assertThat(resultDTO.getGroupId()).isEqualTo(dto.getGroupId());
         assertThat(resultDTO.getStatus()).isEqualTo(dto.getStatus());
     }
@@ -144,7 +121,7 @@ public class ItemResourceIT {
     @Test
     @WithAnonymousUser
     public void testCreate_unauthorized() throws Exception {
-        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         String requestBody = objectMapper.writeValueAsString(dto);
         mvc.perform(post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -155,7 +132,7 @@ public class ItemResourceIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_badRequest_invalidModel() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(true);
-        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         dto.setId("test_id");
         String requestBody = objectMapper.writeValueAsString(dto);
         mvc.perform(post(ENDPOINT)
@@ -167,8 +144,8 @@ public class ItemResourceIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_badRequest_invalid() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(true);
-        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemStatus.ACTIVE);
-        dto.setBody(null);
+        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
+        dto.setTitle(null);
         String requestBody = objectMapper.writeValueAsString(dto);
         mvc.perform(post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -179,7 +156,7 @@ public class ItemResourceIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_badRequest_wrongPermission() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("4", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         String requestBody = objectMapper.writeValueAsString(dto);
         mvc.perform(post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -191,7 +168,7 @@ public class ItemResourceIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_ok() throws Exception {
         when(groupServiceClient.canEdit(any())).thenReturn(true);
-        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         dto.setId("test_id_1");
         String requestBody = objectMapper.writeValueAsString(dto);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
@@ -201,7 +178,7 @@ public class ItemResourceIT {
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
         assertThat(resultDTO.getId()).isNotNull();
         assertThat(resultDTO.getTitle()).isEqualTo(dto.getTitle());
-        assertThat(resultDTO.getBody()).isEqualTo(dto.getBody());
+        assertThat(resultDTO.getDescription()).isEqualTo(dto.getDescription());
         assertThat(resultDTO.getGroupId()).isEqualTo(dto.getGroupId());
         assertThat(resultDTO.getStatus()).isEqualTo(dto.getStatus());
     }
@@ -209,7 +186,7 @@ public class ItemResourceIT {
     @Test
     @WithAnonymousUser
     public void testUpdate_unauthorized() throws Exception {
-        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         dto.setId("test_id_1");
         String requestBody = objectMapper.writeValueAsString(dto);
         mvc.perform(put(ENDPOINT)
@@ -220,7 +197,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_notFound() throws Exception {
-        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         dto.setId("test_id_2");
         String requestBody = objectMapper.writeValueAsString(dto);
         mvc.perform(put(ENDPOINT)
@@ -232,7 +209,7 @@ public class ItemResourceIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_badRequest_canNotEdit() throws Exception {
         when(groupServiceClient.canEdit(any())).thenReturn(false);
-        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_1", ItemType.TASK, ItemStatus.ACTIVE);
         dto.setId("test_id_1");
         String requestBody = objectMapper.writeValueAsString(dto);
         mvc.perform(put(ENDPOINT)
@@ -244,7 +221,7 @@ public class ItemResourceIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_badRequest_canNotAdmin() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_2", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_2", ItemType.TASK, ItemStatus.ACTIVE);
         dto.setId("test_id_1");
         String requestBody = objectMapper.writeValueAsString(dto);
         mvc.perform(put(ENDPOINT)
@@ -256,9 +233,9 @@ public class ItemResourceIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_badRequest_invalid() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_2", ItemStatus.ACTIVE);
+        ItemDTO dto = FactoryUtils.createItemDTO("1", "test_group_id_2", ItemType.TASK, ItemStatus.ACTIVE);
         dto.setId("test_id_1");
-        dto.setBody(null);
+        dto.setTitle(null);
         String requestBody = objectMapper.writeValueAsString(dto);
         mvc.perform(put(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))

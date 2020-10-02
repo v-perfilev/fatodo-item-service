@@ -6,13 +6,12 @@ import lombok.EqualsAndHashCode;
 import java.time.Instant;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractAuditingDTO extends AbstractDTO {
 
-    private String id;
-    private String createdBy;
-    private Instant createdDate;
-    private String lastModifiedBy;
-    private Instant lastModifiedDate;
+    protected String createdBy;
+    protected Instant createdDate;
+    protected String lastModifiedBy;
+    protected Instant lastModifiedDate;
 
 }
