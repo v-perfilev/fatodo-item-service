@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Aspect
@@ -33,10 +34,13 @@ public class CacheAspect {
         Cache cache = cacheManager.getCache(cacheableMethod.cacheName());
         Object key = getKey(pjp, cacheableMethod.key());
         if (cache != null) {
-            Object object = cache.get(key, getReturnType(pjp));
-            if (object != null) {
+            Cache.ValueWrapper valueWrapper = cache.get(key);
+            if (valueWrapper != null) {
+                Object object = valueWrapper.get();
                 log.debug("Read from cache: {} - {}", cacheableMethod.cacheName(), cacheableMethod.key());
-                return object;
+                return getReturnType(pjp).isAssignableFrom(Optional.class)
+                        ? Optional.ofNullable(object)
+                        : object;
             }
         }
         Object result = pjp.proceed();
