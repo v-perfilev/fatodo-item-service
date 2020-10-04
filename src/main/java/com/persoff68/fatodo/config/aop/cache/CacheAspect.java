@@ -4,12 +4,16 @@ import com.persoff68.fatodo.config.aop.cache.annotation.CacheEvictMethod;
 import com.persoff68.fatodo.config.aop.cache.annotation.CacheableMethod;
 import com.persoff68.fatodo.config.aop.cache.annotation.ListCacheEvictMethod;
 import com.persoff68.fatodo.config.aop.cache.annotation.ListCacheableMethod;
+import com.persoff68.fatodo.config.aop.cache.annotation.MultiCacheEvictMethod;
+import com.persoff68.fatodo.config.aop.cache.annotation.MultiListCacheEvictMethod;
 import com.persoff68.fatodo.config.aop.cache.util.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -51,18 +55,18 @@ public class CacheAspect {
         return result;
     }
 
-    @Around("@annotation(cacheEvictMethod)")
-    public Object doCustomCacheEvict(ProceedingJoinPoint pjp, CacheEvictMethod cacheEvictMethod) throws Throwable {
-        Cache cache = cacheManager.getCache(cacheEvictMethod.cacheName());
-        Object result = pjp.proceed();
-        if (cache != null) {
-            Collection<?> keyCollection = getKeyCollection(pjp, cacheEvictMethod.key());
-            for (Object key : keyCollection) {
-                log.debug("Delete from cache: {} - {}", cacheEvictMethod.cacheName(), key);
-                cache.evict(key);
+    @Before("@annotation(multiCacheEvictMethod)")
+    public void doCustomCacheEvict(JoinPoint jp, MultiCacheEvictMethod multiCacheEvictMethod) {
+        for (CacheEvictMethod cacheEvictMethod : multiCacheEvictMethod.value()) {
+            Cache cache = cacheManager.getCache(cacheEvictMethod.cacheName());
+            if (cache != null) {
+                Collection<?> keyCollection = getKeyCollection(jp, cacheEvictMethod.key());
+                for (Object key : keyCollection) {
+                    log.debug("Delete from cache: {} - {}", cacheEvictMethod.cacheName(), key);
+                    cache.evict(key);
+                }
             }
         }
-        return result;
     }
 
     @Around("@annotation(listCacheableMethod)")
@@ -104,43 +108,42 @@ public class CacheAspect {
         return result;
     }
 
-    @Around("@annotation(listCacheEvictMethod)")
+    @Before("@annotation(multiListCacheEvictMethod)")
     @SuppressWarnings("unchecked")
-    public Object doCustomListCacheEvict(ProceedingJoinPoint pjp, ListCacheEvictMethod listCacheEvictMethod)
-            throws Throwable {
-        Cache cache = cacheManager.getCache(listCacheEvictMethod.cacheName());
-        Cache keyCache = cacheManager.getCache(listCacheEvictMethod.keyCacheName());
-        Object result = pjp.proceed();
-        if (cache != null && keyCache != null) {
-            Collection<?> keyCollection = getKeyCollection(pjp, listCacheEvictMethod.key());
-            for (Object key : keyCollection) {
-                List<Integer> keyHashList = keyCache.get(key, ArrayList.class);
-                if (keyHashList != null) {
-                    keyHashList.forEach(hash -> {
-                        log.debug("Delete from cache: {} - {}", listCacheEvictMethod.cacheName(), hash);
-                        cache.evict(hash);
-                    });
-                    log.debug("Delete from key cache: {} - {}", listCacheEvictMethod.keyCacheName(), key);
-                    keyCache.evict(key);
+    public void doCustomListCacheEvict(JoinPoint jp, MultiListCacheEvictMethod multiListCacheEvictMethod) {
+        for (ListCacheEvictMethod listCacheEvictMethod : multiListCacheEvictMethod.value()) {
+            Cache cache = cacheManager.getCache(listCacheEvictMethod.cacheName());
+            Cache keyCache = cacheManager.getCache(listCacheEvictMethod.keyCacheName());
+            if (cache != null && keyCache != null) {
+                Collection<?> keyCollection = getKeyCollection(jp, listCacheEvictMethod.key());
+                for (Object key : keyCollection) {
+                    List<Integer> keyHashList = keyCache.get(key, ArrayList.class);
+                    if (keyHashList != null) {
+                        keyHashList.forEach(hash -> {
+                            log.debug("Delete from cache: {} - {}", listCacheEvictMethod.cacheName(), hash);
+                            cache.evict(hash);
+                        });
+                        log.debug("Delete from key cache: {} - {}", listCacheEvictMethod.keyCacheName(), key);
+                        keyCache.evict(key);
+                    }
                 }
             }
         }
-        return result;
     }
 
-    private static Class<?> getReturnType(ProceedingJoinPoint pjp) {
+    private static Class<?> getReturnType(JoinPoint pjp) {
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
         return methodSignature.getReturnType();
     }
 
-    private static Object getKey(ProceedingJoinPoint pjp, String key) {
+    private static Object getKey(JoinPoint pjp, String key) {
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
         String[] names = methodSignature.getParameterNames();
         Object[] args = pjp.getArgs();
         return CacheUtils.getValue(names, args, key);
     }
 
-    private static Collection<?> getKeyCollection(ProceedingJoinPoint pjp, String key) {
+    private static Collection<?> getKeyCollection(JoinPoint pjp, String key) {
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
         String[] names = methodSignature.getParameterNames();
         Object[] args = pjp.getArgs();
