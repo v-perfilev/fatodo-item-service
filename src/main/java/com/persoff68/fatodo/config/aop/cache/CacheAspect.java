@@ -131,22 +131,22 @@ public class CacheAspect {
         }
     }
 
-    private static Class<?> getReturnType(JoinPoint pjp) {
-        MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
+    private static Class<?> getReturnType(JoinPoint jp) {
+        MethodSignature methodSignature = (MethodSignature) jp.getSignature();
         return methodSignature.getReturnType();
     }
 
-    private static Object getKey(JoinPoint pjp, String key) {
-        MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
+    private static Object getKey(JoinPoint jp, String key) {
+        MethodSignature methodSignature = (MethodSignature) jp.getSignature();
         String[] names = methodSignature.getParameterNames();
-        Object[] args = pjp.getArgs();
+        Object[] args = jp.getArgs();
         return CacheUtils.getValue(names, args, key);
     }
 
-    private static Collection<?> getKeyCollection(JoinPoint pjp, String key) {
-        MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
+    private static Collection<?> getKeyCollection(JoinPoint jp, String key) {
+        MethodSignature methodSignature = (MethodSignature) jp.getSignature();
         String[] names = methodSignature.getParameterNames();
-        Object[] args = pjp.getArgs();
+        Object[] args = jp.getArgs();
         return CacheUtils.getCollectionValue(names, args, key);
     }
 

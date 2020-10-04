@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class CacheUtils {
@@ -33,7 +34,7 @@ public class CacheUtils {
         if (result instanceof Collection) {
             return (Collection<?>) result;
         } else {
-            return List.of(result);
+            return result != null ? List.of(result) : Collections.emptyList();
         }
     }
 
