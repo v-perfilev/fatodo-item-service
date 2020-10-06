@@ -17,13 +17,13 @@ public abstract class AbstractAuditingModel extends AbstractModel {
     protected String createdBy;
 
     @CreatedDate
-    protected Instant createdDate;
+    protected Instant createdAt;
 
     @LastModifiedBy
     protected String lastModifiedBy;
 
     @LastModifiedDate
-    protected Instant lastModifiedDate;
+    protected Instant lastModifiedAt;
 
 }
 
