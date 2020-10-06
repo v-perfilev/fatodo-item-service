@@ -28,9 +28,9 @@ public class MongoEventListener<E> extends AbstractMongoEventListener<E> {
             AbstractAuditingModel dbModel = (AbstractAuditingModel) mongoTemplate.findById(id, source.getClass());
             if (dbModel != null) {
                 sourceModel.setCreatedBy(dbModel.getCreatedBy());
-                sourceModel.setCreatedDate(dbModel.getCreatedDate());
+                sourceModel.setCreatedAt(dbModel.getCreatedAt());
                 sourceModel.setLastModifiedBy(dbModel.getLastModifiedBy());
-                sourceModel.setLastModifiedDate(dbModel.getLastModifiedDate());
+                sourceModel.setLastModifiedAt(dbModel.getLastModifiedAt());
             }
         }
     }

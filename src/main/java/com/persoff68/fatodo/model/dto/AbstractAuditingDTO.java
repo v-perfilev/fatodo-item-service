@@ -10,8 +10,8 @@ import java.time.Instant;
 public abstract class AbstractAuditingDTO extends AbstractDTO {
 
     protected String createdBy;
-    protected Instant createdDate;
+    protected Instant createdAt;
     protected String lastModifiedBy;
-    protected Instant lastModifiedDate;
+    protected Instant lastModifiedAt;
 
 }
