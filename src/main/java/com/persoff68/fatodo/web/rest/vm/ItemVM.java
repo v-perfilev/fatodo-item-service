@@ -26,9 +26,9 @@ public class ItemVM {
 
     private String description;
 
-    private Reminder[] reminders;
+    private List<Reminder> reminders;
 
-    private String[] tags;
+    private List<String> tags;
 
     private String groupId;
 

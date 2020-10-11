@@ -39,7 +39,7 @@ public class ItemResource {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemDTO> create(@Valid @RequestBody ItemVM itemVM) {
+    public ResponseEntity<ItemDTO> create(@RequestBody @Valid ItemVM itemVM) {
         Item item = itemMapper.itemVMToItem(itemVM);
         item = itemService.create(item);
         ItemDTO itemDTO = itemMapper.itemToItemDTO(item);
@@ -48,7 +48,7 @@ public class ItemResource {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemDTO> update(@Valid @RequestBody ItemVM itemVM) {
+    public ResponseEntity<ItemDTO> update(@RequestBody @Valid ItemVM itemVM) {
         Item item = itemMapper.itemVMToItem(itemVM);
         item = itemService.update(item);
         ItemDTO itemDTO = itemMapper.itemToItemDTO(item);

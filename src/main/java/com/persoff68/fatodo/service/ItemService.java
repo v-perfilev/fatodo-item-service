@@ -56,8 +56,8 @@ public class ItemService {
         item.setPriority(newItem.getPriority());
         item.setDate(newItem.getDate());
         item.setDescription(newItem.getDescription());
-        item.setReminders(item.getReminders());
-        item.setTags(item.getTags());
+        item.setReminders(newItem.getReminders());
+        item.setTags(newItem.getTags());
 
         return itemRepository.save(item);
     }
