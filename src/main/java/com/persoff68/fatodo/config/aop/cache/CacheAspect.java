@@ -55,17 +55,15 @@ public class CacheAspect {
         return result;
     }
 
+    @Before("@annotation(cacheEvictMethod)")
+    public void doCustomCacheEvict(JoinPoint jp, CacheEvictMethod cacheEvictMethod) {
+        cacheEvict(jp, cacheEvictMethod);
+    }
+
     @Before("@annotation(multiCacheEvictMethod)")
-    public void doCustomCacheEvict(JoinPoint jp, MultiCacheEvictMethod multiCacheEvictMethod) {
+    public void doCustomMultiCacheEvict(JoinPoint jp, MultiCacheEvictMethod multiCacheEvictMethod) {
         for (CacheEvictMethod cacheEvictMethod : multiCacheEvictMethod.value()) {
-            Cache cache = cacheManager.getCache(cacheEvictMethod.cacheName());
-            if (cache != null) {
-                Collection<?> keyCollection = getKeyCollection(jp, cacheEvictMethod.key());
-                for (Object key : keyCollection) {
-                    log.debug("Delete from cache: {} - {}", cacheEvictMethod.cacheName(), key);
-                    cache.evict(key);
-                }
-            }
+            cacheEvict(jp, cacheEvictMethod);
         }
     }
 
@@ -108,24 +106,44 @@ public class CacheAspect {
         return result;
     }
 
+    @Before("@annotation(listCacheEvictMethod)")
+    public void doCustomListCacheEvict(JoinPoint jp, ListCacheEvictMethod listCacheEvictMethod) {
+        listCacheEvict(jp, listCacheEvictMethod);
+    }
+
     @Before("@annotation(multiListCacheEvictMethod)")
-    @SuppressWarnings("unchecked")
-    public void doCustomListCacheEvict(JoinPoint jp, MultiListCacheEvictMethod multiListCacheEvictMethod) {
+    public void doCustomMultiListCacheEvict(JoinPoint jp, MultiListCacheEvictMethod multiListCacheEvictMethod) {
         for (ListCacheEvictMethod listCacheEvictMethod : multiListCacheEvictMethod.value()) {
-            Cache cache = cacheManager.getCache(listCacheEvictMethod.cacheName());
-            Cache keyCache = cacheManager.getCache(listCacheEvictMethod.keyCacheName());
-            if (cache != null && keyCache != null) {
-                Collection<?> keyCollection = getKeyCollection(jp, listCacheEvictMethod.key());
-                for (Object key : keyCollection) {
-                    List<Integer> keyHashList = keyCache.get(key, ArrayList.class);
-                    if (keyHashList != null) {
-                        keyHashList.forEach(hash -> {
-                            log.debug("Delete from cache: {} - {}", listCacheEvictMethod.cacheName(), hash);
-                            cache.evict(hash);
-                        });
-                        log.debug("Delete from key cache: {} - {}", listCacheEvictMethod.keyCacheName(), key);
-                        keyCache.evict(key);
-                    }
+            listCacheEvict(jp, listCacheEvictMethod);
+        }
+    }
+
+    private void cacheEvict(JoinPoint jp, CacheEvictMethod cacheEvictMethod) {
+        Cache cache = cacheManager.getCache(cacheEvictMethod.cacheName());
+        if (cache != null) {
+            Collection<?> keyCollection = getKeyCollection(jp, cacheEvictMethod.key());
+            for (Object key : keyCollection) {
+                log.debug("Delete from cache: {} - {}", cacheEvictMethod.cacheName(), key);
+                cache.evict(key);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void listCacheEvict(JoinPoint jp, ListCacheEvictMethod listCacheEvictMethod) {
+        Cache cache = cacheManager.getCache(listCacheEvictMethod.cacheName());
+        Cache keyCache = cacheManager.getCache(listCacheEvictMethod.keyCacheName());
+        if (cache != null && keyCache != null) {
+            Collection<?> keyCollection = getKeyCollection(jp, listCacheEvictMethod.key());
+            for (Object key : keyCollection) {
+                List<Integer> keyHashList = keyCache.get(key, ArrayList.class);
+                if (keyHashList != null) {
+                    keyHashList.forEach(hash -> {
+                        log.debug("Delete from cache: {} - {}", listCacheEvictMethod.cacheName(), hash);
+                        cache.evict(hash);
+                    });
+                    log.debug("Delete from key cache: {} - {}", listCacheEvictMethod.keyCacheName(), key);
+                    keyCache.evict(key);
                 }
             }
         }
