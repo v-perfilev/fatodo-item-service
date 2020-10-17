@@ -22,33 +22,14 @@ public class ItemVM {
     @NotNull
     private String priority;
 
-    private Date date;
+    private Item.DateParams date;
 
     private String description;
 
-    private List<Reminder> reminders;
+    private List<Item.Reminder> reminders;
 
     private List<String> tags;
 
     private String groupId;
-
-    @Data
-    @NoArgsConstructor
-    public static class Date {
-        private int time;
-        private int date;
-        private int month;
-        private int year;
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class Reminder {
-        private String id;
-        private String periodicity;
-        private Item.Date date;
-        private List<Integer> weekDays;
-        private List<Integer> monthDays;
-    }
 
 }

@@ -6,12 +6,11 @@ import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.constant.ItemType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class ItemDTO extends AbstractAuditingDTO {
 
     private String title;
@@ -20,35 +19,16 @@ public class ItemDTO extends AbstractAuditingDTO {
 
     private ItemPriority priority;
 
-    private Date date;
+    private Item.DateParams date;
 
     private String description;
 
-    private List<Reminder> reminders;
+    private List<Item.Reminder> reminders;
 
     private List<String> tags;
 
     private ItemStatus status;
 
     private String groupId;
-
-    @Data
-    @NoArgsConstructor
-    public static class Date {
-        private int time;
-        private int date;
-        private int month;
-        private int year;
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class Reminder {
-        private String id;
-        private String periodicity;
-        private Item.Date date;
-        private List<Integer> weekDays;
-        private List<Integer> monthDays;
-    }
 
 }
