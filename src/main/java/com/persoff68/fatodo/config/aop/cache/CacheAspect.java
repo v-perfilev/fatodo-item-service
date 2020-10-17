@@ -2,10 +2,7 @@ package com.persoff68.fatodo.config.aop.cache;
 
 import com.persoff68.fatodo.config.aop.cache.annotation.CacheEvictMethod;
 import com.persoff68.fatodo.config.aop.cache.annotation.CacheableMethod;
-import com.persoff68.fatodo.config.aop.cache.annotation.ListCacheEvictMethod;
-import com.persoff68.fatodo.config.aop.cache.annotation.ListCacheableMethod;
 import com.persoff68.fatodo.config.aop.cache.annotation.MultiCacheEvictMethod;
-import com.persoff68.fatodo.config.aop.cache.annotation.MultiListCacheEvictMethod;
 import com.persoff68.fatodo.config.aop.cache.util.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +31,37 @@ public class CacheAspect {
     private final CacheManager cacheManager;
 
     @Around("@annotation(cacheableMethod)")
-    public Object doCustomCacheable(ProceedingJoinPoint pjp, CacheableMethod cacheableMethod) throws Throwable {
+    public Object doCacheable(ProceedingJoinPoint pjp, CacheableMethod cacheableMethod) throws Throwable {
+        return cacheable(pjp, cacheableMethod);
+    }
+
+    @Before("@annotation(cacheEvictMethod)")
+    public void doCacheEvict(JoinPoint jp, CacheEvictMethod cacheEvictMethod) {
+        cacheEvict(jp, cacheEvictMethod);
+    }
+
+    @Before("@annotation(multiCacheEvictMethod)")
+    public void doCacheEvict(JoinPoint jp, MultiCacheEvictMethod multiCacheEvictMethod) {
+        for (CacheEvictMethod cacheEvictMethod : multiCacheEvictMethod.value()) {
+            cacheEvict(jp, cacheEvictMethod);
+        }
+    }
+
+    private Object cacheable(ProceedingJoinPoint pjp, CacheableMethod cacheableMethod) throws Throwable {
+        return cacheableMethod.keyCacheName().isEmpty()
+                ? defaultCacheable(pjp, cacheableMethod)
+                : listCacheable(pjp, cacheableMethod);
+    }
+
+    private void cacheEvict(JoinPoint jp, CacheEvictMethod cacheEvictMethod) {
+        if (cacheEvictMethod.keyCacheName().isEmpty()) {
+            defaultCacheEvict(jp, cacheEvictMethod);
+        } else {
+            listCacheEvict(jp, cacheEvictMethod);
+        }
+    }
+
+    private Object defaultCacheable(ProceedingJoinPoint pjp, CacheableMethod cacheableMethod) throws Throwable {
         Cache cache = cacheManager.getCache(cacheableMethod.cacheName());
         Object key = getKey(pjp, cacheableMethod.key());
         if (cache != null) {
@@ -55,41 +82,27 @@ public class CacheAspect {
         return result;
     }
 
-    @Before("@annotation(cacheEvictMethod)")
-    public void doCustomCacheEvict(JoinPoint jp, CacheEvictMethod cacheEvictMethod) {
-        cacheEvict(jp, cacheEvictMethod);
-    }
-
-    @Before("@annotation(multiCacheEvictMethod)")
-    public void doCustomMultiCacheEvict(JoinPoint jp, MultiCacheEvictMethod multiCacheEvictMethod) {
-        for (CacheEvictMethod cacheEvictMethod : multiCacheEvictMethod.value()) {
-            cacheEvict(jp, cacheEvictMethod);
-        }
-    }
-
-    @Around("@annotation(listCacheableMethod)")
     @SuppressWarnings("unchecked")
-    public Object doCustomListCacheable(ProceedingJoinPoint pjp, ListCacheableMethod listCacheableMethod)
-            throws Throwable {
-        Cache cache = cacheManager.getCache(listCacheableMethod.cacheName());
+    private Object listCacheable(ProceedingJoinPoint pjp, CacheableMethod cacheableMethod) throws Throwable {
+        Cache cache = cacheManager.getCache(cacheableMethod.cacheName());
 
-        List<?> sortedList = getKeyCollection(pjp, listCacheableMethod.key())
+        List<?> sortedList = getKeyCollection(pjp, cacheableMethod.key())
                 .stream().sorted().collect(Collectors.toList());
         int hash = sortedList.hashCode();
 
         if (cache != null) {
             Object object = cache.get(hash, getReturnType(pjp));
             if (object != null) {
-                log.debug("Read from cache: {} - {}", listCacheableMethod.cacheName(), hash);
+                log.debug("Read from cache: {} - {}", cacheableMethod.cacheName(), hash);
                 return object;
             }
         }
 
-        Cache keyCache = cacheManager.getCache(listCacheableMethod.keyCacheName());
+        Cache keyCache = cacheManager.getCache(cacheableMethod.keyCacheName());
         Object result = pjp.proceed();
 
         if (cache != null && keyCache != null) {
-            log.debug("Write to cache: {} - {}", listCacheableMethod.cacheName(), hash);
+            log.debug("Write to cache: {} - {}", cacheableMethod.cacheName(), hash);
             cache.put(hash, result);
 
             sortedList.forEach(key -> {
@@ -98,7 +111,7 @@ public class CacheAspect {
                     keyHashList = new ArrayList<>();
                 }
                 keyHashList.add(hash);
-                log.debug("Write to key cache: {} - {}", listCacheableMethod.keyCacheName(), key);
+                log.debug("Write to key cache: {} - {}", cacheableMethod.keyCacheName(), key);
                 keyCache.put(key, keyHashList);
             });
         }
@@ -106,19 +119,7 @@ public class CacheAspect {
         return result;
     }
 
-    @Before("@annotation(listCacheEvictMethod)")
-    public void doCustomListCacheEvict(JoinPoint jp, ListCacheEvictMethod listCacheEvictMethod) {
-        listCacheEvict(jp, listCacheEvictMethod);
-    }
-
-    @Before("@annotation(multiListCacheEvictMethod)")
-    public void doCustomMultiListCacheEvict(JoinPoint jp, MultiListCacheEvictMethod multiListCacheEvictMethod) {
-        for (ListCacheEvictMethod listCacheEvictMethod : multiListCacheEvictMethod.value()) {
-            listCacheEvict(jp, listCacheEvictMethod);
-        }
-    }
-
-    private void cacheEvict(JoinPoint jp, CacheEvictMethod cacheEvictMethod) {
+    private void defaultCacheEvict(JoinPoint jp, CacheEvictMethod cacheEvictMethod) {
         Cache cache = cacheManager.getCache(cacheEvictMethod.cacheName());
         if (cache != null) {
             Collection<?> keyCollection = getKeyCollection(jp, cacheEvictMethod.key());
@@ -130,19 +131,19 @@ public class CacheAspect {
     }
 
     @SuppressWarnings("unchecked")
-    private void listCacheEvict(JoinPoint jp, ListCacheEvictMethod listCacheEvictMethod) {
-        Cache cache = cacheManager.getCache(listCacheEvictMethod.cacheName());
-        Cache keyCache = cacheManager.getCache(listCacheEvictMethod.keyCacheName());
+    private void listCacheEvict(JoinPoint jp, CacheEvictMethod cacheEvictMethod) {
+        Cache cache = cacheManager.getCache(cacheEvictMethod.cacheName());
+        Cache keyCache = cacheManager.getCache(cacheEvictMethod.keyCacheName());
         if (cache != null && keyCache != null) {
-            Collection<?> keyCollection = getKeyCollection(jp, listCacheEvictMethod.key());
+            Collection<?> keyCollection = getKeyCollection(jp, cacheEvictMethod.key());
             for (Object key : keyCollection) {
                 List<Integer> keyHashList = keyCache.get(key, ArrayList.class);
                 if (keyHashList != null) {
                     keyHashList.forEach(hash -> {
-                        log.debug("Delete from cache: {} - {}", listCacheEvictMethod.cacheName(), hash);
+                        log.debug("Delete from cache: {} - {}", cacheEvictMethod.cacheName(), hash);
                         cache.evict(hash);
                     });
-                    log.debug("Delete from key cache: {} - {}", listCacheEvictMethod.keyCacheName(), key);
+                    log.debug("Delete from key cache: {} - {}", cacheEvictMethod.keyCacheName(), key);
                     keyCache.evict(key);
                 }
             }
