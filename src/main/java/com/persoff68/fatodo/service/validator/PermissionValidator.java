@@ -1,7 +1,6 @@
 package com.persoff68.fatodo.service.validator;
 
 import com.persoff68.fatodo.client.GroupServiceClient;
-import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.service.exception.PermissionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

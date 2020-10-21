@@ -27,7 +27,7 @@ public class Item extends AbstractAuditingModel {
     @NotNull
     private ItemPriority priority;
 
-    private Date date;
+    private DateParams date;
 
     private String description;
 
@@ -42,7 +42,7 @@ public class Item extends AbstractAuditingModel {
 
     @Data
     @NoArgsConstructor
-    public static class Date {
+    public static class DateParams {
         private int time;
         private int date;
         private int month;
@@ -54,7 +54,7 @@ public class Item extends AbstractAuditingModel {
     public static class Reminder {
         private String id = UUID.randomUUID().toString();
         private String periodicity;
-        private Date date;
+        private DateParams date;
         private List<Integer> weekDays;
         private List<Integer> monthDays;
     }

@@ -13,6 +13,8 @@ public @interface CacheEvictMethod {
 
     String cacheName();
 
+    String keyCacheName() default "";
+
     String key();
 
 }

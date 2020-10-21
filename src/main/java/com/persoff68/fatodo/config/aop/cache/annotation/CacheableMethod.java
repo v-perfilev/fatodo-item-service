@@ -11,6 +11,8 @@ public @interface CacheableMethod {
 
     String cacheName();
 
+    String keyCacheName() default "";
+
     String key();
 
 }
