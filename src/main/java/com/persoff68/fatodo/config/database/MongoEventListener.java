@@ -20,14 +20,14 @@ public class MongoEventListener<E> extends AbstractMongoEventListener<E> {
     public void onBeforeConvert(BeforeConvertEvent<E> event) {
         E source = event.getSource();
         if (source instanceof AbstractModel) {
-            onBeforeIdentifiableConvert(source);
+            onBeforeAbstractConvert(source);
         }
         if (source instanceof AbstractAuditingModel) {
-            onBeforeAuditingConvert(source);
+            onBeforeAbstractAuditingConvert(source);
         }
     }
 
-    private void onBeforeIdentifiableConvert(E source) {
+    private void onBeforeAbstractConvert(E source) {
         AbstractModel sourceModel = (AbstractModel) source;
         UUID id = sourceModel.getId();
         if (id == null) {
@@ -35,18 +35,26 @@ public class MongoEventListener<E> extends AbstractMongoEventListener<E> {
         }
     }
 
-    private void onBeforeAuditingConvert(E source) {
+    private void onBeforeAbstractAuditingConvert(E source) {
+        AbstractAuditingModel sourceModel = (AbstractAuditingModel) source;
+        AbstractAuditingModel dbModel = getDbModel(source);
+        if (dbModel != null) {
+            sourceModel.setCreatedBy(dbModel.getCreatedBy());
+            sourceModel.setCreatedAt(dbModel.getCreatedAt());
+            sourceModel.setLastModifiedBy(dbModel.getLastModifiedBy());
+            sourceModel.setLastModifiedAt(dbModel.getLastModifiedAt());
+        } else {
+            sourceModel.setCreatedBy(null);
+            sourceModel.setCreatedAt(null);
+            sourceModel.setLastModifiedBy(null);
+            sourceModel.setLastModifiedAt(null);
+        }
+    }
+
+    private AbstractAuditingModel getDbModel(E source) {
         AbstractAuditingModel sourceModel = (AbstractAuditingModel) source;
         UUID id = sourceModel.getId();
-        if (id != null) {
-            AbstractAuditingModel dbModel = (AbstractAuditingModel) mongoTemplate.findById(id, source.getClass());
-            if (dbModel != null) {
-                sourceModel.setCreatedBy(dbModel.getCreatedBy());
-                sourceModel.setCreatedAt(dbModel.getCreatedAt());
-                sourceModel.setLastModifiedBy(dbModel.getLastModifiedBy());
-                sourceModel.setLastModifiedAt(dbModel.getLastModifiedAt());
-            }
-        }
+        return (AbstractAuditingModel) mongoTemplate.findById(id, source.getClass());
     }
 
 }
