@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -28,14 +29,14 @@ public class ItemController {
 
 
     @GetMapping(value = "/all-by-group-id/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemDTO>> getAllByGroupId(@PathVariable String groupId) {
+    public ResponseEntity<List<ItemDTO>> getAllByGroupId(@PathVariable UUID groupId) {
         List<Item> itemList = itemService.getAllByGroupId(groupId);
         List<ItemDTO> itemDTOList = itemList.stream().map(itemMapper::itemToItemDTO).collect(Collectors.toList());
         return ResponseEntity.ok(itemDTOList);
     }
 
     @DeleteMapping(value = "/all-by-group-id/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> deleteAllByGroupId(@PathVariable String groupId) {
+    public ResponseEntity<Void> deleteAllByGroupId(@PathVariable UUID groupId) {
         itemService.deleteAllByGroupId(groupId);
         return ResponseEntity.ok().build();
     }

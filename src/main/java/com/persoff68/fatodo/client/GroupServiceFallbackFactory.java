@@ -7,6 +7,7 @@ import feign.hystrix.FallbackFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class GroupServiceFallbackFactory implements FallbackFactory<GroupServiceClient> {
@@ -19,7 +20,7 @@ public class GroupServiceFallbackFactory implements FallbackFactory<GroupService
 
         return new GroupServiceClient() {
             @Override
-            public boolean canRead(List<String> groupIds) {
+            public boolean canRead(List<UUID> groupIds) {
                 if (status == 404) {
                     throw new ModelNotFoundException();
                 } else {
@@ -28,7 +29,7 @@ public class GroupServiceFallbackFactory implements FallbackFactory<GroupService
             }
 
             @Override
-            public boolean canEdit(List<String> groupIds) {
+            public boolean canEdit(List<UUID> groupIds) {
                 if (status == 404) {
                     throw new ModelNotFoundException();
                 } else {
@@ -37,7 +38,7 @@ public class GroupServiceFallbackFactory implements FallbackFactory<GroupService
             }
 
             @Override
-            public boolean canAdmin(List<String> groupIds) {
+            public boolean canAdmin(List<UUID> groupIds) {
                 if (status == 404) {
                     throw new ModelNotFoundException();
                 } else {

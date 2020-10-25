@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(ItemResource.ENDPOINT)
@@ -31,7 +32,7 @@ public class ItemResource {
     private final ItemMapper itemMapper;
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemDTO> getById(@PathVariable String id) {
+    public ResponseEntity<ItemDTO> getById(@PathVariable UUID id) {
         Item item = itemService.getById(id);
         ItemDTO itemDTO = itemMapper.itemToItemDTO(item);
         return ResponseEntity.ok(itemDTO);
@@ -56,7 +57,7 @@ public class ItemResource {
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> deleteById(@PathVariable String id) {
+    public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
         itemService.delete(id);
         return ResponseEntity.ok().build();
     }

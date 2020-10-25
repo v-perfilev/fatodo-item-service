@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,7 +34,7 @@ public class PermissionValidatorTest {
     @Test
     void testValidateCreate() {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        List<String> groupIdList = List.of("test_group_id");
+        List<UUID> groupIdList = List.of(UUID.randomUUID());
         assertThatThrownBy(() -> permissionValidator.validateCreate(groupIdList))
                 .isInstanceOf(PermissionException.class);
     }
@@ -42,7 +43,7 @@ public class PermissionValidatorTest {
     @Test
     void testValidateUpdate_changeOtherValues() {
         when(groupServiceClient.canEdit(any())).thenReturn(false);
-        List<String> groupIdList = List.of("test_group_id");
+        List<UUID> groupIdList = List.of(UUID.randomUUID());
         assertThatThrownBy(() -> permissionValidator.validateUpdate(groupIdList))
                 .isInstanceOf(PermissionException.class);
     }
@@ -50,7 +51,7 @@ public class PermissionValidatorTest {
     @Test
     void testValidateDelete() {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        List<String> groupIdList = List.of("test_group_id");
+        List<UUID> groupIdList = List.of(UUID.randomUUID());
         assertThatThrownBy(() -> permissionValidator.validateDelete(groupIdList))
                 .isInstanceOf(PermissionException.class);
     }

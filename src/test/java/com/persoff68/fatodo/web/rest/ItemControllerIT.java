@@ -2,13 +2,11 @@ package com.persoff68.fatodo.web.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import com.persoff68.fatodo.FactoryUtils;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
+import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.client.GroupServiceClient;
 import com.persoff68.fatodo.model.Item;
-import com.persoff68.fatodo.model.constant.ItemStatus;
-import com.persoff68.fatodo.model.constant.ItemType;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.repository.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 public class ItemControllerIT {
     private static final String ENDPOINT = "/api/item";
+
+    private static final UUID GROUP_1_ID = UUID.randomUUID();
 
     @Autowired
     WebApplicationContext context;
@@ -51,20 +52,20 @@ public class ItemControllerIT {
     @BeforeEach
     void setup() {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+
+        Item item1 = TestItem.defaultBuilder().groupId(GROUP_1_ID).build();
+        Item item2 = TestItem.defaultBuilder().groupId(GROUP_1_ID).build();
+
         itemRepository.deleteAll();
-        Item item = FactoryUtils.createItem("1", "test_group_id", ItemType.TASK, ItemStatus.ACTIVE);
-        itemRepository.save(item);
-        item = FactoryUtils.createItem("2", "test_group_id", ItemType.TASK, ItemStatus.ACTIVE);
-        itemRepository.save(item);
-        item = FactoryUtils.createItem("2", "test_group_id-2", ItemType.TASK, ItemStatus.ACTIVE);
-        itemRepository.save(item);
+        itemRepository.save(item1);
+        itemRepository.save(item2);
     }
 
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetAllByGroupId_ok() throws Exception {
         when(groupServiceClient.canRead(any())).thenReturn(true);
-        String url = ENDPOINT + "/all-by-group-id/test_group_id";
+        String url = ENDPOINT + "/all-by-group-id/" + GROUP_1_ID;
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -76,7 +77,7 @@ public class ItemControllerIT {
     @Test
     @WithAnonymousUser
     void testGetAllByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/all-by-group-id/test_group_id";
+        String url = ENDPOINT + "/all-by-group-id/" + GROUP_1_ID;
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -85,7 +86,7 @@ public class ItemControllerIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetAllByGroupId_badRequest_wrongPermission() throws Exception {
         when(groupServiceClient.canRead(any())).thenReturn(false);
-        String url = ENDPOINT + "/all-by-group-id/test_group_id";
+        String url = ENDPOINT + "/all-by-group-id/" + GROUP_1_ID;
         mvc.perform(get(url))
                 .andExpect(status().isBadRequest());
     }
@@ -94,7 +95,7 @@ public class ItemControllerIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testDeleteAllByGroupId_ok() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(true);
-        String url = ENDPOINT + "/all-by-group-id/test_group_id";
+        String url = ENDPOINT + "/all-by-group-id/" + GROUP_1_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
     }
@@ -102,7 +103,7 @@ public class ItemControllerIT {
     @Test
     @WithAnonymousUser
     void testDeleteAllByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/all-by-group-id/test_group_id";
+        String url = ENDPOINT + "/all-by-group-id/" + GROUP_1_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -111,7 +112,7 @@ public class ItemControllerIT {
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testDeleteAllByGroupId_badRequest_wrongPermission() throws Exception {
         when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        String url = ENDPOINT + "/all-by-group-id/test_group_id";
+        String url = ENDPOINT + "/all-by-group-id/" + GROUP_1_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isBadRequest());
     }

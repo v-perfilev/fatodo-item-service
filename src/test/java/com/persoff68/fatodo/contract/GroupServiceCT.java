@@ -8,6 +8,7 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,19 +22,19 @@ public class GroupServiceCT {
 
     @Test
     void testCanRead() {
-        boolean result = groupServiceClient.canRead(List.of("test_group_id"));
+        boolean result = groupServiceClient.canRead(List.of(UUID.randomUUID()));
         assertThat(result).isTrue();
     }
 
     @Test
     void testCanEdit() {
-        boolean result = groupServiceClient.canEdit(List.of("test_group_id"));
+        boolean result = groupServiceClient.canEdit(List.of(UUID.randomUUID()));
         assertThat(result).isTrue();
     }
 
     @Test
     void testCanAdmin() {
-        boolean result = groupServiceClient.canAdmin(List.of("test_group_id"));
+        boolean result = groupServiceClient.canAdmin(List.of(UUID.randomUUID()));
         assertThat(result).isTrue();
     }
 
