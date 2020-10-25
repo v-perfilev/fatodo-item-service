@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,12 +21,12 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final PermissionValidator permissionValidator;
 
-    public List<Item> getAllByGroupId(String groupId) {
+    public List<Item> getAllByGroupId(UUID groupId) {
         permissionValidator.validateGet(List.of(groupId));
         return itemRepository.findAllByGroupId(groupId);
     }
 
-    public Item getById(String id) {
+    public Item getById(UUID id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
         permissionValidator.validateGet(List.of(item.getGroupId()));
@@ -62,16 +63,16 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    public void delete(String id) {
+    public void delete(UUID id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
         permissionValidator.validateDelete(List.of(item.getGroupId()));
         itemRepository.delete(item);
     }
 
-    public void deleteAllByGroupId(String groupId) {
+    public void deleteAllByGroupId(UUID groupId) {
         permissionValidator.validateDelete(List.of(groupId));
-        List<String> idList = itemRepository.findAllByGroupId(groupId)
+        List<UUID> idList = itemRepository.findAllByGroupId(groupId)
                 .stream().map(Item::getId).collect(Collectors.toList());
         itemRepository.deleteAllByIdInAndGroupId(idList, groupId);
     }

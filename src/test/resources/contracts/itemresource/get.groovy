@@ -8,13 +8,13 @@ Contract.make {
     request {
         method GET()
         url($(
-                consumer(regex("/api/items/.+")),
-                producer("/api/items/test_id_1")
+                consumer(regex("/api/items/" + uuid().toString())),
+                producer("/api/items/8a51fdaa-189c-4959-9016-ae79adfe0320")
         ))
         headers {
             header 'Authorization': $(
                     consumer(containing("Bearer")),
-                    producer("Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIzIiwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJhdXRob3JpdGllcyI6IlJPTEVfVVNFUiIsImlhdCI6MCwiZXhwIjozMjUwMzY3NjQwMH0.ggV38p_Fnqo2OZNtwR3NWKZhMXPd-vf4PrRxN0NmTWsHPrKwWZJSGO2dJBBPWXWs4OI6tjsNV2TM3Kf6NK92hw")
+                    producer("Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI4ZjlhN2NhZS03M2M4LTRhZDYtYjEzNS01YmQxMDliNTFkMmUiLCJ1c2VybmFtZSI6InRlc3RfdXNlciIsImF1dGhvcml0aWVzIjoiUk9MRV9VU0VSIiwiaWF0IjowLCJleHAiOjMyNTAzNjc2NDAwfQ.Go0MIqfjREMHOLeqoX2Ej3DbeSG7ZxlL4UAvcxqNeO-RgrKUCrgEu77Ty1vgR_upxVGDAWZS-JfuSYPHSRtv-w")
             )
         }
     }
@@ -24,13 +24,12 @@ Contract.make {
             contentType applicationJson()
         }
         body(
-                "id": "test_id_1",
-                "title": "test_title_1",
+                "title": "test_value",
                 "type": "TASK",
                 "priority": "NORMAL",
-                "description": "test_body_1",
+                "description": "test_value",
                 "status": "ACTIVE",
-                "groupId": "test_group_id",
+                "groupId": "ef9afb89-dc4b-4d39-b47a-199868b5de36",
         )
     }
 }

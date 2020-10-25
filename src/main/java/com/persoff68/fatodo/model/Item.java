@@ -3,6 +3,7 @@ package com.persoff68.fatodo.model;
 import com.persoff68.fatodo.model.constant.ItemPriority;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.constant.ItemType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,9 @@ import java.util.UUID;
 
 @Document(collection = "ftd_item")
 @Data
-@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class Item extends AbstractAuditingModel {
 
     @NotNull
@@ -38,7 +40,7 @@ public class Item extends AbstractAuditingModel {
     @NotNull
     private ItemStatus status;
 
-    private String groupId;
+    private UUID groupId;
 
     @Data
     @NoArgsConstructor
@@ -52,7 +54,7 @@ public class Item extends AbstractAuditingModel {
     @Data
     @NoArgsConstructor
     public static class Reminder {
-        private String id = UUID.randomUUID().toString();
+        private UUID id = UUID.randomUUID();
         private String periodicity;
         private DateParams date;
         private List<Integer> weekDays;

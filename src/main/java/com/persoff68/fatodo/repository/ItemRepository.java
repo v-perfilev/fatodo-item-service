@@ -9,17 +9,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ItemRepository extends MongoRepository<Item, String> {
+public interface ItemRepository extends MongoRepository<Item, UUID> {
 
     @CacheableMethod(cacheName = "items-by-group-id", key = "#groupId")
-    List<Item> findAllByGroupId(String groupId);
+    List<Item> findAllByGroupId(UUID groupId);
 
     @Override
     @CacheableMethod(cacheName = "items-by-id", key = "#id")
     @NonNull
-    Optional<Item> findById(@NonNull String id);
+    Optional<Item> findById(@NonNull UUID id);
 
     @Override
     @CacheEvictMethod(cacheName = "items-by-id", key = "#item.id")
@@ -35,5 +36,5 @@ public interface ItemRepository extends MongoRepository<Item, String> {
 
     @CacheEvictMethod(cacheName = "items-by-id", key = "#id")
     @CacheEvictMethod(cacheName = "items-by-group-id", key = "#groupId")
-    void deleteAllByIdInAndGroupId(List<String> id, String groupId);
+    void deleteAllByIdInAndGroupId(List<UUID> id, UUID groupId);
 }
