@@ -1,5 +1,5 @@
 # BUILD
-FROM openjdk:13 as build
+FROM openjdk:15 as build
 WORKDIR /build
 
 # maven dependencies layer
@@ -13,8 +13,7 @@ COPY src src
 RUN ./mvnw install -Dmaven.test.skip=true
 
 # DEPLOY
-FROM openjdk:13-alpine
-VOLUME /app
+FROM openjdk:15-alpine
 COPY --from=build /build/target/fatodo.jar /app/app.jar
 
 # wait tool layer
