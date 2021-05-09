@@ -8,8 +8,8 @@ Contract.make {
     request {
         method GET()
         url($(
-                consumer(regex("/api/item/all-by-group-id/" + uuid().toString())),
-                producer("/api/item/all-by-group-id/ef9afb89-dc4b-4d39-b47a-199868b5de36")
+                consumer(regex("/api/items/" + uuid().toString() + "/group-id")),
+                producer("/api/items/ef9afb89-dc4b-4d39-b47a-199868b5de36/group-id")
         ))
         headers {
             header 'Authorization': $(

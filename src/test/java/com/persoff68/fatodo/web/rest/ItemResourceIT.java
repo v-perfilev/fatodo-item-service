@@ -1,6 +1,7 @@
 package com.persoff68.fatodo.web.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestItem;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,14 +84,6 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithAnonymousUser
-    void testGetById_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + ITEM_ID;
-        mvc.perform(get(url))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetById_notFound() throws Exception {
         when(groupServiceClient.canRead(any())).thenReturn(false);
@@ -100,12 +94,51 @@ public class ItemResourceIT {
     }
 
     @Test
+    @WithAnonymousUser
+    void testGetById_unauthorized() throws Exception {
+        String url = ENDPOINT + "/" + ITEM_ID;
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetById_badRequest_wrongPermission() throws Exception {
         when(groupServiceClient.canRead(any())).thenReturn(false);
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(get(url))
                 .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    @WithCustomSecurityContext(authority = "ROLE_USER")
+    void testGetAllByGroupId_ok() throws Exception {
+        when(groupServiceClient.canRead(any())).thenReturn(true);
+        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, ItemDTO.class);
+        List<ItemDTO> itemDTOList = objectMapper.readValue(resultString, collectionType);
+        assertThat(itemDTOList.size()).isEqualTo(2);
+    }
+
+    @Test
+    @WithCustomSecurityContext(authority = "ROLE_USER")
+    void testGetAllByGroupId_badRequest_wrongPermission() throws Exception {
+        when(groupServiceClient.canRead(any())).thenReturn(false);
+        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        mvc.perform(get(url))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testGetAllByGroupId_unauthorized() throws Exception {
+        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
     }
 
 
@@ -274,6 +307,33 @@ public class ItemResourceIT {
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    @WithCustomSecurityContext(authority = "ROLE_USER")
+    void testDeleteAllByGroupId_ok() throws Exception {
+        when(groupServiceClient.canAdmin(any())).thenReturn(true);
+        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        mvc.perform(delete(url))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithCustomSecurityContext(authority = "ROLE_USER")
+    void testDeleteAllByGroupId_badRequest_wrongPermission() throws Exception {
+        when(groupServiceClient.canAdmin(any())).thenReturn(false);
+        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        mvc.perform(delete(url))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testDeleteAllByGroupId_unauthorized() throws Exception {
+        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        mvc.perform(delete(url))
+                .andExpect(status().isUnauthorized());
     }
 
 }

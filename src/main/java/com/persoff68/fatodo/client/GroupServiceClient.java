@@ -10,15 +10,15 @@ import java.util.UUID;
 @FeignClient(name = "group-service", primary = false)
 public interface GroupServiceClient {
 
-    @PostMapping(value = "/api/permission/read",
+    @PostMapping(value = "/api/permissions/read",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     boolean canRead(List<UUID> groupIds);
 
-    @PostMapping(value = "/api/permission/edit",
+    @PostMapping(value = "/api/permissions/edit",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     boolean canEdit(List<UUID> groupIds);
 
-    @PostMapping(value = "/api/permission/admin",
+    @PostMapping(value = "/api/permissions/admin",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     boolean canAdmin(List<UUID> groupIds);
 

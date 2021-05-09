@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(ItemResource.ENDPOINT)
@@ -36,6 +38,13 @@ public class ItemResource {
         Item item = itemService.getById(id);
         ItemDTO itemDTO = itemMapper.itemToItemDTO(item);
         return ResponseEntity.ok(itemDTO);
+    }
+
+    @GetMapping(value = "/{groupId}/group-id", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemDTO>> getAllByGroupId(@PathVariable UUID groupId) {
+        List<Item> itemList = itemService.getAllByGroupId(groupId);
+        List<ItemDTO> itemDTOList = itemList.stream().map(itemMapper::itemToItemDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(itemDTOList);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -61,5 +70,12 @@ public class ItemResource {
         itemService.delete(id);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping(value = "/{groupId}/group-id", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deleteAllByGroupId(@PathVariable UUID groupId) {
+        itemService.deleteAllByGroupId(groupId);
+        return ResponseEntity.ok().build();
+    }
+
 
 }
