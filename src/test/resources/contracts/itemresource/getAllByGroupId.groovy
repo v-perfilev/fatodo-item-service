@@ -9,7 +9,7 @@ Contract.make {
         method GET()
         url($(
                 consumer(regex("/api/items/" + uuid().toString() + "/group-id")),
-                producer("/api/items/ef9afb89-dc4b-4d39-b47a-199868b5de36/group-id")
+                producer("/api/items/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/group-id")
         ))
         headers {
             header 'Authorization': $(
@@ -30,7 +30,7 @@ Contract.make {
                         "priority"   : "NORMAL",
                         "description": "test_value",
                         "status"     : "ACTIVE",
-                        "groupId"    : "ef9afb89-dc4b-4d39-b47a-199868b5de36"
+                        "groupId"    : "12886ad8-f1a2-487c-a5f1-ff71d63a3b52"
                 ],
                 [
                         "title"      : "test_value",
@@ -38,7 +38,7 @@ Contract.make {
                         "priority"   : "NORMAL",
                         "description": "test_value",
                         "status"     : "ACTIVE",
-                        "groupId"    : "ef9afb89-dc4b-4d39-b47a-199868b5de36"
+                        "groupId"    : "12886ad8-f1a2-487c-a5f1-ff71d63a3b52"
                 ]
         ])
     }

@@ -1,15 +1,15 @@
-package contracts.itemresource
+package contracts.groupresource
 
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get item by Id'
-    description 'should return status 200 and ItemDTO'
+    name 'get group by id'
+    description 'should return status 200 and GroupDTO'
     request {
         method GET()
         url($(
-                consumer(regex("/api/items/" + uuid().toString())),
-                producer("/api/items/8a51fdaa-189c-4959-9016-ae79adfe0320")
+                consumer(regex("/api/groups/" + uuid().toString())),
+                producer("/api/groups/12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
         ))
         headers {
             header 'Authorization': $(
@@ -24,12 +24,14 @@ Contract.make {
             contentType applicationJson()
         }
         body(
+                "id": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
                 "title": "test_value",
-                "type": "TASK",
-                "priority": "NORMAL",
-                "description": "test_value",
-                "status": "ACTIVE",
-                "groupId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
+                "users": [
+                        [
+                                "id"        : "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e",
+                                "permission": "ADMIN"
+                        ]
+                ]
         )
     }
 }

@@ -1,55 +1,49 @@
 package com.persoff68.fatodo.client;
 
 import com.persoff68.fatodo.exception.ClientException;
-import com.persoff68.fatodo.service.exception.ModelNotFoundException;
+import com.persoff68.fatodo.model.dto.ImageDTO;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.UUID;
-
 @Component
 @Primary
 @RequiredArgsConstructor
-public class GroupServiceClientWrapper implements GroupServiceClient {
+public class ImageServiceClientWrapper implements ImageServiceClient {
 
-    @Qualifier("groupServiceClient")
-    private final GroupServiceClient groupServiceClient;
+    @Qualifier("imageServiceClient")
+    private final ImageServiceClient imageServiceClient;
 
     @Override
-    public boolean canRead(List<UUID> groupIds) {
+    public String createGroupImage(ImageDTO imageDTO) {
         try {
-            return groupServiceClient.canRead(groupIds);
-        } catch (FeignException.NotFound e) {
-            throw new ModelNotFoundException();
+            return imageServiceClient.createGroupImage(imageDTO);
         } catch (Exception e) {
             throw new ClientException();
         }
     }
 
     @Override
-    public boolean canEdit(List<UUID> groupIds) {
+    public String updateGroupImage(ImageDTO imageDTO) {
         try {
-            return groupServiceClient.canEdit(groupIds);
+            return imageServiceClient.updateGroupImage(imageDTO);
         } catch (FeignException.NotFound e) {
-            throw new ModelNotFoundException();
+            return imageServiceClient.createGroupImage(imageDTO);
         } catch (Exception e) {
             throw new ClientException();
         }
     }
 
     @Override
-    public boolean canAdmin(List<UUID> groupIds) {
+    public void deleteGroupImage(String filename) {
         try {
-            return groupServiceClient.canAdmin(groupIds);
+            imageServiceClient.deleteGroupImage(filename);
         } catch (FeignException.NotFound e) {
-            throw new ModelNotFoundException();
+            // skip
         } catch (Exception e) {
             throw new ClientException();
         }
     }
-
 }

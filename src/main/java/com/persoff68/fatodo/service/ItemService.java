@@ -6,7 +6,6 @@ import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelInvalidException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
-import com.persoff68.fatodo.service.validator.PermissionValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,17 +18,17 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
-    private final PermissionValidator permissionValidator;
+    private final PermissionService permissionService;
 
     public List<Item> getAllByGroupId(UUID groupId) {
-        permissionValidator.validateGet(List.of(groupId));
+        permissionService.checkReadPermission(groupId);
         return itemRepository.findAllByGroupId(groupId);
     }
 
     public Item getById(UUID id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionValidator.validateGet(List.of(item.getGroupId()));
+        permissionService.checkReadPermission(item.getGroupId());
         return item;
     }
 
@@ -37,7 +36,7 @@ public class ItemService {
         if (item.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
-        permissionValidator.validateCreate(List.of(item.getGroupId()));
+        permissionService.checkEditPermission(item.getGroupId());
 
         item.setStatus(ItemStatus.ACTIVE);
 
@@ -50,7 +49,7 @@ public class ItemService {
         }
         Item item = itemRepository.findById(newItem.getId())
                 .orElseThrow(ModelNotFoundException::new);
-        permissionValidator.validateUpdate(List.of(item.getGroupId()));
+        permissionService.checkEditPermission(item.getGroupId());
 
         item.setTitle(newItem.getTitle());
         item.setType(newItem.getType());
@@ -66,12 +65,12 @@ public class ItemService {
     public void delete(UUID id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionValidator.validateDelete(List.of(item.getGroupId()));
+        permissionService.checkAdminPermission(item.getGroupId());
         itemRepository.delete(item);
     }
 
     public void deleteAllByGroupId(UUID groupId) {
-        permissionValidator.validateDelete(List.of(groupId));
+        permissionService.checkAdminPermission(groupId);
         List<UUID> idList = itemRepository.findAllByGroupId(groupId)
                 .stream().map(Item::getId).collect(Collectors.toList());
         itemRepository.deleteAllByIdInAndGroupId(idList, groupId);

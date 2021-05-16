@@ -58,7 +58,7 @@ Contract.make {
                 "priority": "NORMAL",
                 "description": "test_body",
                 "status": "ACTIVE",
-                "groupId": "ef9afb89-dc4b-4d39-b47a-199868b5de36",
+                "groupId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
         )
     }
 }

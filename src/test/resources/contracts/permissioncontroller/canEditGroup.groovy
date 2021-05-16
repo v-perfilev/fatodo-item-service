@@ -1,15 +1,15 @@
-package contracts.itemresource
+package contracts.permissioncontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'delete items by groupId'
-    description 'should return status 200'
+    name 'can read group by id'
+    description 'should return status 200 and boolean'
     request {
-        method DELETE()
+        method GET()
         url($(
-                consumer(regex("/api/items/" + uuid().toString() + "/group-id")),
-                producer("/api/items/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/group-id")
+                consumer(regex("/api/permissions/group/" + uuid().toString())),
+                producer("/api/permissions/group/12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
         ))
         headers {
             header 'Authorization': $(
@@ -20,5 +20,9 @@ Contract.make {
     }
     response {
         status 200
+        headers {
+            contentType applicationJson()
+        }
+        body("true")
     }
 }

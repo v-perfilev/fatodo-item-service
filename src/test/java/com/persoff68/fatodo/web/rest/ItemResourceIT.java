@@ -6,30 +6,28 @@ import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestItemVM;
-import com.persoff68.fatodo.client.GroupServiceClient;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.repository.ItemRepository;
+import com.persoff68.fatodo.service.PermissionService;
 import com.persoff68.fatodo.web.rest.vm.ItemVM;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,6 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
+@AutoConfigureMockMvc
 public class ItemResourceIT {
     private static final String ENDPOINT = "/api/items";
 
@@ -45,21 +44,17 @@ public class ItemResourceIT {
     private static final UUID GROUP_2_ID = UUID.randomUUID();
 
     @Autowired
-    WebApplicationContext context;
+    MockMvc mvc;
     @Autowired
     ItemRepository itemRepository;
     @Autowired
     ObjectMapper objectMapper;
 
-    @MockBean
-    GroupServiceClient groupServiceClient;
-
-    MockMvc mvc;
+    @SpyBean
+    PermissionService permissionService;
 
     @BeforeEach
     void setup() {
-        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-
         Item item1 = TestItem.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
         Item item2 = TestItem.defaultBuilder().groupId(GROUP_1_ID).build();
         Item item3 = TestItem.defaultBuilder().groupId(GROUP_2_ID).build();
@@ -73,7 +68,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetById_ok() throws Exception {
-        when(groupServiceClient.canRead(any())).thenReturn(true);
+        doReturn(true).when(permissionService).hasReadPermission(any());
         UUID id = ITEM_ID;
         String url = ENDPOINT + "/" + id;
         ResultActions resultActions = mvc.perform(get(url))
@@ -86,7 +81,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetById_notFound() throws Exception {
-        when(groupServiceClient.canRead(any())).thenReturn(false);
+        doReturn(false).when(permissionService).hasReadPermission(any());
         UUID id = UUID.randomUUID();
         String url = ENDPOINT + "/" + id;
         mvc.perform(get(url))
@@ -104,7 +99,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetById_badRequest_wrongPermission() throws Exception {
-        when(groupServiceClient.canRead(any())).thenReturn(false);
+        doReturn(false).when(permissionService).hasReadPermission(any());
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(get(url))
                 .andExpect(status().isBadRequest());
@@ -114,7 +109,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetAllByGroupId_ok() throws Exception {
-        when(groupServiceClient.canRead(any())).thenReturn(true);
+        doReturn(true).when(permissionService).hasReadPermission(any());
         String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
@@ -127,7 +122,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetAllByGroupId_badRequest_wrongPermission() throws Exception {
-        when(groupServiceClient.canRead(any())).thenReturn(false);
+        doReturn(false).when(permissionService).hasReadPermission(any());
         String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
         mvc.perform(get(url))
                 .andExpect(status().isBadRequest());
@@ -145,7 +140,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_created() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(true);
+        doReturn(true).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(post(ENDPOINT)
@@ -172,7 +167,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_badRequest_invalidModel() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(true);
+        doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
@@ -183,7 +178,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_badRequest_invalid() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(true);
+        doReturn(true).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).title(null).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
@@ -194,7 +189,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testCreate_badRequest_wrongPermission() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(false);
+        doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
@@ -206,7 +201,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_ok() throws Exception {
-        when(groupServiceClient.canEdit(any())).thenReturn(true);
+        doReturn(true).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
@@ -243,7 +238,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_badRequest_canNotEdit() throws Exception {
-        when(groupServiceClient.canEdit(any())).thenReturn(false);
+        doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
@@ -253,19 +248,8 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
-    public void testUpdate_badRequest_canNotAdmin() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(false);
-        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_2_ID).build();
-        String requestBody = objectMapper.writeValueAsString(vm);
-        mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
     public void testUpdate_badRequest_invalid() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(false);
+        doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).title(null).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
@@ -277,7 +261,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testDelete_ok() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(true);
+        doReturn(true).when(permissionService).hasAdminPermission(any());
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
@@ -303,7 +287,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testDelete_badRequest_wrongPermission() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(false);
+        doReturn(false).when(permissionService).hasAdminPermission(any());
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isBadRequest());
@@ -313,7 +297,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testDeleteAllByGroupId_ok() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(true);
+        doReturn(true).when(permissionService).hasAdminPermission(any());
         String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
@@ -322,7 +306,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testDeleteAllByGroupId_badRequest_wrongPermission() throws Exception {
-        when(groupServiceClient.canAdmin(any())).thenReturn(false);
+        doReturn(false).when(permissionService).hasAdminPermission(any());
         String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
         mvc.perform(delete(url))
                 .andExpect(status().isBadRequest());
