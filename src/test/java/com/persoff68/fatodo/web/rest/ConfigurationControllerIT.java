@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ConfigurationControllerIT {
     private static final String ENDPOINT = "/api/configuration";
 
-    private static final UUID USER_ID = UUID.fromString("d2eb0f4f-1736-4361-889b-b6d833dd9815");
+    private static final String USER_ID = "d2eb0f4f-1736-4361-889b-b6d833dd9815";
     private static final UUID GROUP_1_ID = UUID.fromString("12886ad8-f1a2-487c-a5f1-ff71d63a3b52");
     private static final UUID GROUP_2_ID = UUID.fromString("605db3e3-9320-4ec9-999e-85da23c31e29");
     private static final UUID GROUP_3_ID = UUID.fromString("5ad38dae-1952-4c80-a214-49655323a096");
@@ -56,7 +56,8 @@ public class ConfigurationControllerIT {
     public void setup() {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
-        Group.User groupUser = TestGroupUser.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
+        Group.User groupUser = TestGroupUser.defaultBuilder()
+                .id(UUID.fromString(USER_ID)).permission(Permission.ADMIN).build();
         Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).users(List.of(groupUser)).build();
         Group group2 = TestGroup.defaultBuilder().id(GROUP_2_ID).users(List.of(groupUser)).build();
         Group group3 = TestGroup.defaultBuilder().id(GROUP_3_ID).users(List.of(groupUser)).build();
@@ -69,7 +70,7 @@ public class ConfigurationControllerIT {
     }
 
     @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    @WithCustomSecurityContext(id = USER_ID)
     void testSetOrder_ok() throws Exception {
         List<UUID> groupIdList = List.of(GROUP_3_ID, GROUP_1_ID, GROUP_2_ID);
         String requestBody = objectMapper.writeValueAsString(groupIdList);
@@ -92,11 +93,11 @@ public class ConfigurationControllerIT {
 
         List<Configuration> configurationList = configurationRepository.findAll();
         assertThat(configurationList.size()).isEqualTo(1);
-        assertThat(configurationList.get(0).getUserId()).isEqualTo(USER_ID);
+        assertThat(configurationList.get(0).getUserId()).isEqualTo(UUID.fromString(USER_ID));
     }
 
     @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    @WithCustomSecurityContext(id = USER_ID)
     void testSetOrder_ok_notFullList() throws Exception {
         List<UUID> groupIdList = List.of(GROUP_3_ID, GROUP_2_ID);
         String requestBody = objectMapper.writeValueAsString(groupIdList);

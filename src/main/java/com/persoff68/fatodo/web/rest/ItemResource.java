@@ -4,6 +4,7 @@ import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.mapper.ItemMapper;
 import com.persoff68.fatodo.service.ItemService;
+import com.persoff68.fatodo.service.UserService;
 import com.persoff68.fatodo.web.rest.vm.ItemVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,16 @@ public class ItemResource {
     static final String ENDPOINT = "/api/items";
 
     private final ItemService itemService;
+    private final UserService userService;
     private final ItemMapper itemMapper;
+
+    @GetMapping(value = "/{groupId}/group-id", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemDTO>> getAllByGroupId(@PathVariable UUID groupId) {
+        List<Item> itemList = itemService.getAllByGroupId(groupId);
+        List<ItemDTO> itemDTOList = itemList.stream().map(itemMapper::itemToItemDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(itemDTOList);
+    }
+
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> getById(@PathVariable UUID id) {
@@ -40,11 +50,10 @@ public class ItemResource {
         return ResponseEntity.ok(itemDTO);
     }
 
-    @GetMapping(value = "/{groupId}/group-id", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemDTO>> getAllByGroupId(@PathVariable UUID groupId) {
-        List<Item> itemList = itemService.getAllByGroupId(groupId);
-        List<ItemDTO> itemDTOList = itemList.stream().map(itemMapper::itemToItemDTO).collect(Collectors.toList());
-        return ResponseEntity.ok(itemDTOList);
+    @GetMapping(value = "/{id}/user-ids", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UUID>> getUserIdsById(@PathVariable UUID id) {
+        List<UUID> userIdList = userService.getItemUserIdsById(id);
+        return ResponseEntity.ok(userIdList);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,

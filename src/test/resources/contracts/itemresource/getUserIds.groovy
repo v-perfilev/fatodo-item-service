@@ -3,13 +3,13 @@ package contracts.itemresource
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get item by id'
-    description 'should return status 200 and ItemDTO'
+    name 'get item user ids by id'
+    description 'should return status 200 and list of uuid'
     request {
         method GET()
         url($(
-                consumer(regex("/api/items/" + uuid().toString())),
-                producer("/api/items/8a51fdaa-189c-4959-9016-ae79adfe0320")
+                consumer(regex("/api/items/" + uuid().toString() + "/user-ids")),
+                producer("/api/items/8a51fdaa-189c-4959-9016-ae79adfe0320/user-ids")
         ))
         headers {
             header 'Authorization': $(
@@ -23,13 +23,8 @@ Contract.make {
         headers {
             contentType applicationJson()
         }
-        body(
-                "title": "test_value",
-                "type": "TASK",
-                "priority": "NORMAL",
-                "description": "test_value",
-                "status": "ACTIVE",
-                "groupId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
-        )
+        body([
+                "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e"
+        ])
     }
 }

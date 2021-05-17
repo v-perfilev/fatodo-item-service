@@ -69,13 +69,19 @@ public class GroupResourceIT {
     public void setup() {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
-        Group.User groupUser1 = TestGroupUser.defaultBuilder().id(UUID.fromString(ADMIN_ID)).permission(Permission.ADMIN).build();
-        Group.User groupUser2 = TestGroupUser.defaultBuilder().permission(Permission.ADMIN).build();
-        Group.User groupUser3 = TestGroupUser.defaultBuilder().id(UUID.fromString(READ_ID)).permission(Permission.READ).build();
+        Group.User groupUser1 = TestGroupUser.defaultBuilder()
+                .id(UUID.fromString(ADMIN_ID)).permission(Permission.ADMIN).build();
+        Group.User groupUser2 = TestGroupUser.defaultBuilder()
+                .permission(Permission.ADMIN).build();
+        Group.User groupUser3 = TestGroupUser.defaultBuilder()
+                .id(UUID.fromString(READ_ID)).permission(Permission.READ).build();
 
-        Group group1 = TestGroup.defaultBuilder().users(List.of(groupUser1)).build();
-        Group group2 = TestGroup.defaultBuilder().id(UUID.fromString(GROUP_ID)).users(List.of(groupUser1, groupUser3)).build();
-        Group group3 = TestGroup.defaultBuilder().id(UUID.fromString(WRONG_GROUP_ID)).users(List.of(groupUser2)).build();
+        Group group1 = TestGroup.defaultBuilder()
+                .users(List.of(groupUser1)).build();
+        Group group2 = TestGroup.defaultBuilder()
+                .id(UUID.fromString(GROUP_ID)).users(List.of(groupUser1, groupUser3)).build();
+        Group group3 = TestGroup.defaultBuilder()
+                .id(UUID.fromString(WRONG_GROUP_ID)).users(List.of(groupUser2)).build();
 
         groupRepository.deleteAll();
         groupRepository.save(group1);
@@ -120,11 +126,11 @@ public class GroupResourceIT {
     }
 
     @Test
-    @WithAnonymousUser
-    void testGetById_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_ID;
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    public void testGetById_badRequest_wrongUser() throws Exception {
+        String url = ENDPOINT + "/" + WRONG_GROUP_ID;
         mvc.perform(get(url))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -134,6 +140,53 @@ public class GroupResourceIT {
         String url = ENDPOINT + "/" + id;
         mvc.perform(get(url))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testGetById_unauthorized() throws Exception {
+        String url = ENDPOINT + "/" + GROUP_ID;
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    public void testGetUserIdsById_ok() throws Exception {
+        UUID id = UUID.fromString(GROUP_ID);
+        String url = ENDPOINT + "/" + id + "/user-ids";
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
+        List<UUID> userIdList = objectMapper.readValue(resultString, listType);
+        assertThat(userIdList.size()).isEqualTo(2);
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    public void testGetUserIdsById_notFound() throws Exception {
+        UUID id = UUID.randomUUID();
+        String url = ENDPOINT + "/" + id + "/user-ids";
+        mvc.perform(get(url))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    public void testGetUserIdsById_badRequest_wrongUser() throws Exception {
+        String url = ENDPOINT + "/" + WRONG_GROUP_ID + "/user-ids";
+        mvc.perform(get(url))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testGetUserIdsById_unauthorized() throws Exception {
+        String url = ENDPOINT + "/" + GROUP_ID + "/user-ids";
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
     }
 
 
@@ -151,16 +204,6 @@ public class GroupResourceIT {
         assertThat(resultDTO.getTitle()).isEqualTo(vm.getTitle());
         assertThat(resultDTO.getColor()).isEqualTo(vm.getColor());
         assertThat(resultDTO.getUsers()).hasSize(1);
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testCreate_unauthorized() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(null).build();
-        MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
-        mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -195,6 +238,17 @@ public class GroupResourceIT {
     }
 
     @Test
+    @WithAnonymousUser
+    public void testCreate_unauthorized() throws Exception {
+        GroupVM vm = TestGroupVM.defaultBuilder().id(null).build();
+        MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
+        mvc.perform(post(ENDPOINT)
+                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     public void testUpdate_ok() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
@@ -207,16 +261,6 @@ public class GroupResourceIT {
         assertThat(resultDTO.getId()).isNotNull();
         assertThat(resultDTO.getTitle()).isEqualTo(vm.getTitle());
         assertThat(resultDTO.getUsers()).hasSize(2);
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testUpdate_unauthorized() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
-        MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
-        mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -259,6 +303,16 @@ public class GroupResourceIT {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @WithAnonymousUser
+    public void testUpdate_unauthorized() throws Exception {
+        GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
+        MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
+        mvc.perform(put(ENDPOINT)
+                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
@@ -266,14 +320,6 @@ public class GroupResourceIT {
         String url = ENDPOINT + "/" + GROUP_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testDelete_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_ID;
-        mvc.perform(delete(url))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -291,6 +337,14 @@ public class GroupResourceIT {
         String url = ENDPOINT + "/" + WRONG_GROUP_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void testDelete_unauthorized() throws Exception {
+        String url = ENDPOINT + "/" + GROUP_ID;
+        mvc.perform(delete(url))
+                .andExpect(status().isUnauthorized());
     }
 
 }

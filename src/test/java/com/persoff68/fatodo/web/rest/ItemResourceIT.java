@@ -4,10 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
+import com.persoff68.fatodo.builder.TestGroup;
+import com.persoff68.fatodo.builder.TestGroupUser;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestItemVM;
+import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.dto.ItemDTO;
+import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.PermissionService;
 import com.persoff68.fatodo.web.rest.vm.ItemVM;
@@ -39,12 +43,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ItemResourceIT {
     private static final String ENDPOINT = "/api/items";
 
+    private static final UUID GROUP_ID = UUID.randomUUID();
     private static final UUID ITEM_ID = UUID.randomUUID();
-    private static final UUID GROUP_1_ID = UUID.randomUUID();
-    private static final UUID GROUP_2_ID = UUID.randomUUID();
 
     @Autowired
     MockMvc mvc;
+    @Autowired
+    GroupRepository groupRepository;
     @Autowired
     ItemRepository itemRepository;
     @Autowired
@@ -55,18 +60,56 @@ public class ItemResourceIT {
 
     @BeforeEach
     void setup() {
-        Item item1 = TestItem.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
-        Item item2 = TestItem.defaultBuilder().groupId(GROUP_1_ID).build();
-        Item item3 = TestItem.defaultBuilder().groupId(GROUP_2_ID).build();
-
+        groupRepository.deleteAll();
         itemRepository.deleteAll();
+
+        Group.User groupUser1 = TestGroupUser.defaultBuilder().build();
+        Group.User groupUser2 = TestGroupUser.defaultBuilder().build();
+        Group group = TestGroup.defaultBuilder().id(GROUP_ID).users(List.of(groupUser1, groupUser2)).build();
+
+        groupRepository.save(group);
+
+        Item item1 = TestItem.defaultBuilder().id(ITEM_ID).groupId(GROUP_ID).build();
+        Item item2 = TestItem.defaultBuilder().groupId(GROUP_ID).build();
+
         itemRepository.save(item1);
         itemRepository.save(item2);
-        itemRepository.save(item3);
+    }
+
+
+    @Test
+    @WithCustomSecurityContext
+    void testGetAllByGroupId_ok() throws Exception {
+        doReturn(true).when(permissionService).hasReadPermission(any());
+        String url = ENDPOINT + "/" + GROUP_ID + "/group-id";
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, ItemDTO.class);
+        List<ItemDTO> itemDTOList = objectMapper.readValue(resultString, collectionType);
+        assertThat(itemDTOList.size()).isEqualTo(2);
     }
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
+    void testGetAllByGroupId_badRequest_wrongPermission() throws Exception {
+        doReturn(false).when(permissionService).hasReadPermission(any());
+        String url = ENDPOINT + "/" + GROUP_ID + "/group-id";
+        mvc.perform(get(url))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testGetAllByGroupId_unauthorized() throws Exception {
+        String url = ENDPOINT + "/" + GROUP_ID + "/group-id";
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    @WithCustomSecurityContext
     void testGetById_ok() throws Exception {
         doReturn(true).when(permissionService).hasReadPermission(any());
         UUID id = ITEM_ID;
@@ -79,13 +122,22 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
     void testGetById_notFound() throws Exception {
         doReturn(false).when(permissionService).hasReadPermission(any());
         UUID id = UUID.randomUUID();
         String url = ENDPOINT + "/" + id;
         mvc.perform(get(url))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    void testGetById_badRequest_wrongPermission() throws Exception {
+        doReturn(false).when(permissionService).hasReadPermission(any());
+        String url = ENDPOINT + "/" + ITEM_ID;
+        mvc.perform(get(url))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -96,52 +148,52 @@ public class ItemResourceIT {
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
-    void testGetById_badRequest_wrongPermission() throws Exception {
-        doReturn(false).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + ITEM_ID;
-        mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
-    }
-
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
-    void testGetAllByGroupId_ok() throws Exception {
+    @WithCustomSecurityContext
+    void testGetUserIdsById_ok() throws Exception {
         doReturn(true).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/" + ITEM_ID + "/user-ids";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, ItemDTO.class);
-        List<ItemDTO> itemDTOList = objectMapper.readValue(resultString, collectionType);
-        assertThat(itemDTOList.size()).isEqualTo(2);
+        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
+        List<UUID> userIdList = objectMapper.readValue(resultString, listType);
+        assertThat(userIdList.size()).isEqualTo(2);
     }
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
-    void testGetAllByGroupId_badRequest_wrongPermission() throws Exception {
+    @WithCustomSecurityContext
+    void testGetUserIdsById_notFound() throws Exception {
         doReturn(false).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/" + UUID.randomUUID() + "/user-ids";
+        mvc.perform(get(url))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    void testGetUserIdsId_badRequest_wrongPermission() throws Exception {
+        doReturn(false).when(permissionService).hasReadPermission(any());
+        String url = ENDPOINT + "/" + ITEM_ID + "/user-ids";
         mvc.perform(get(url))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithAnonymousUser
-    void testGetAllByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+    void testGetUserIdsById_unauthorized() throws Exception {
+        String url = ENDPOINT + "/" + ITEM_ID + "/user-ids";
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
 
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
     public void testCreate_created() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -155,54 +207,54 @@ public class ItemResourceIT {
     }
 
     @Test
+    @WithCustomSecurityContext
+    public void testCreate_badRequest_invalidModel() throws Exception {
+        doReturn(false).when(permissionService).hasEditPermission(any());
+        ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_ID).build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    public void testCreate_badRequest_invalid() throws Exception {
+        doReturn(true).when(permissionService).hasEditPermission(any());
+        ItemVM vm = TestItemVM.defaultBuilder().id(null).title(null).groupId(GROUP_ID).build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    public void testCreate_badRequest_wrongPermission() throws Exception {
+        doReturn(false).when(permissionService).hasEditPermission(any());
+        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_ID).build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @WithAnonymousUser
     public void testCreate_unauthorized() throws Exception {
-        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
-    public void testCreate_badRequest_invalidModel() throws Exception {
-        doReturn(false).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_1_ID).build();
-        String requestBody = objectMapper.writeValueAsString(vm);
-        mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isBadRequest());
-    }
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
-    public void testCreate_badRequest_invalid() throws Exception {
-        doReturn(true).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(null).title(null).groupId(GROUP_1_ID).build();
-        String requestBody = objectMapper.writeValueAsString(vm);
-        mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
-    public void testCreate_badRequest_wrongPermission() throws Exception {
-        doReturn(false).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
-        String requestBody = objectMapper.writeValueAsString(vm);
-        mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
     public void testUpdate_ok() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -216,19 +268,9 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithAnonymousUser
-    public void testUpdate_unauthorized() throws Exception {
-        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
-        String requestBody = objectMapper.writeValueAsString(vm);
-        mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
     public void testUpdate_notFound() throws Exception {
-        ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -236,10 +278,10 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
     public void testUpdate_badRequest_canNotEdit() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -247,24 +289,52 @@ public class ItemResourceIT {
     }
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
     public void testUpdate_badRequest_invalid() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).title(null).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).title(null).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @WithAnonymousUser
+    public void testUpdate_unauthorized() throws Exception {
+        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_ID).build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
     void testDelete_ok() throws Exception {
         doReturn(true).when(permissionService).hasAdminPermission(any());
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    void testDelete_notFound() throws Exception {
+        UUID id = UUID.randomUUID();
+        String url = ENDPOINT + "/" + id;
+        mvc.perform(delete(url))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    void testDelete_badRequest_wrongPermission() throws Exception {
+        doReturn(false).when(permissionService).hasAdminPermission(any());
+        String url = ENDPOINT + "/" + ITEM_ID;
+        mvc.perform(delete(url))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -275,39 +345,21 @@ public class ItemResourceIT {
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
-    void testDelete_notFound() throws Exception {
-        UUID id = UUID.randomUUID();
-        String url = ENDPOINT + "/" + id;
-        mvc.perform(delete(url))
-                .andExpect(status().isNotFound());
-    }
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
-    void testDelete_badRequest_wrongPermission() throws Exception {
-        doReturn(false).when(permissionService).hasAdminPermission(any());
-        String url = ENDPOINT + "/" + ITEM_ID;
-        mvc.perform(delete(url))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
     void testDeleteAllByGroupId_ok() throws Exception {
         doReturn(true).when(permissionService).hasAdminPermission(any());
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/" + GROUP_ID + "/group-id";
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @WithCustomSecurityContext(authority = "ROLE_USER")
+    @WithCustomSecurityContext
     void testDeleteAllByGroupId_badRequest_wrongPermission() throws Exception {
         doReturn(false).when(permissionService).hasAdminPermission(any());
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/" + GROUP_ID + "/group-id";
         mvc.perform(delete(url))
                 .andExpect(status().isBadRequest());
     }
@@ -315,7 +367,7 @@ public class ItemResourceIT {
     @Test
     @WithAnonymousUser
     void testDeleteAllByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/" + GROUP_ID + "/group-id";
         mvc.perform(delete(url))
                 .andExpect(status().isUnauthorized());
     }
