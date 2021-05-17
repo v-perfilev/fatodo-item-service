@@ -43,7 +43,7 @@ public class GroupService {
     }
 
     @CacheableMethod(cacheName = "groups-by-id", key = "#id")
-    public Group get(UUID id) {
+    public Group getById(UUID id) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
         permissionService.checkReadPermission(group.getId());

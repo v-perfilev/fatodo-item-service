@@ -52,7 +52,7 @@ public class GroupResource {
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GroupDTO> getById(@PathVariable UUID id) {
-        Group group = groupService.get(id);
+        Group group = groupService.getById(id);
         GroupDTO groupDTO = groupMapper.groupToGroupDTO(group);
         return ResponseEntity.ok(groupDTO);
     }

@@ -15,24 +15,23 @@ import com.persoff68.fatodo.repository.GroupRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
+@AutoConfigureMockMvc
 public class ConfigurationControllerIT {
     private static final String ENDPOINT = "/api/configuration";
 
@@ -42,7 +41,7 @@ public class ConfigurationControllerIT {
     private static final UUID GROUP_3_ID = UUID.fromString("5ad38dae-1952-4c80-a214-49655323a096");
 
     @Autowired
-    WebApplicationContext context;
+    MockMvc mvc;
     @Autowired
     GroupRepository groupRepository;
     @Autowired
@@ -50,12 +49,8 @@ public class ConfigurationControllerIT {
     @Autowired
     ObjectMapper objectMapper;
 
-    MockMvc mvc;
-
     @BeforeEach
     public void setup() {
-        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-
         Group.User groupUser = TestGroupUser.defaultBuilder()
                 .id(UUID.fromString(USER_ID)).permission(Permission.ADMIN).build();
         Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).users(List.of(groupUser)).build();

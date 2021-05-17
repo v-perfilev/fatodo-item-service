@@ -17,7 +17,7 @@ public class UserService {
     private final ItemService itemService;
 
     public List<UUID> getGroupUserIdsById(UUID groupId) {
-        Group group = groupService.get(groupId);
+        Group group = groupService.getById(groupId);
         return group.getUsers().stream()
                 .map(Group.User::getId)
                 .collect(Collectors.toList());
