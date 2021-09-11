@@ -3,13 +3,13 @@ package contracts.membercontroller
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get members by item id'
-    description 'should return status 200 and list of members'
+    name 'get user ids by item id'
+    description 'should return status 200 and list of uuid'
     request {
         method GET()
         url($(
-                consumer(regex("/api/members/item/" + uuid().toString())),
-                producer("/api/members/item/8a51fdaa-189c-4959-9016-ae79adfe0320")
+                consumer(regex("/api/members/item/" + uuid().toString() + "/ids")),
+                producer("/api/members/item/8a51fdaa-189c-4959-9016-ae79adfe0320/ids")
         ))
         headers {
             header 'Authorization': $(

@@ -88,36 +88,36 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetMembersByGroupId_ok() throws Exception {
-        String url = ENDPOINT + "/group/" + GROUP_ID;
+    public void testGetUserIdsByGroupId_ok() throws Exception {
+        String url = ENDPOINT + "/group/" + GROUP_ID + "/ids";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, Member.class);
-        List<Member> memberList = objectMapper.readValue(resultString, listType);
-        assertThat(memberList.size()).isEqualTo(2);
+        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
+        List<UUID> userIdList = objectMapper.readValue(resultString, listType);
+        assertThat(userIdList.size()).isEqualTo(2);
     }
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetMembersByGroupId_notFound() throws Exception {
-        String url = ENDPOINT + "/group/" + UUID.randomUUID();
+    public void testGetUserIdsByGroupId_notFound() throws Exception {
+        String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/ids";
         mvc.perform(get(url))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetMembersByGroupId_badRequest_wrongPermission() throws Exception {
-        String url = ENDPOINT + "/group/" + WRONG_GROUP_ID;
+    public void testGetUserIdsByGroupId_badRequest_wrongPermission() throws Exception {
+        String url = ENDPOINT + "/group/" + WRONG_GROUP_ID + "/ids";
         mvc.perform(get(url))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithAnonymousUser
-    void testGetMembersByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/group/" + GROUP_ID;
+    void testGetUserIdsByGroupId_unauthorized() throws Exception {
+        String url = ENDPOINT + "/group/" + GROUP_ID + "/ids";
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -125,36 +125,36 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    void testGetMembersByItemId_ok() throws Exception {
-        String url = ENDPOINT + "/item/" + ITEM_ID;
+    void testGetUserIdsByItemId_ok() throws Exception {
+        String url = ENDPOINT + "/item/" + ITEM_ID + "/ids";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, Member.class);
-        List<Member> memberList = objectMapper.readValue(resultString, listType);
+        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
+        List<UUID> memberList = objectMapper.readValue(resultString, listType);
         assertThat(memberList.size()).isEqualTo(2);
     }
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    void testGetMembersByItemId_notFound() throws Exception {
-        String url = ENDPOINT + "/item/" + UUID.randomUUID();
+    void testGetUserIdsByItemId_notFound() throws Exception {
+        String url = ENDPOINT + "/item/" + UUID.randomUUID() + "/ids";
         mvc.perform(get(url))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    void testGetMembersByItemId_badRequest_wrongPermission() throws Exception {
-        String url = ENDPOINT + "/item/" + WRONG_ITEM_ID;
+    void testGetUserIdsByItemId_badRequest_wrongPermission() throws Exception {
+        String url = ENDPOINT + "/item/" + WRONG_ITEM_ID + "/ids";
         mvc.perform(get(url))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithAnonymousUser
-    void testGetMembersByItemId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/item/" + ITEM_ID;
+    void testGetUserIdsByItemId_unauthorized() throws Exception {
+        String url = ENDPOINT + "/item/" + ITEM_ID + "/ids";
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
