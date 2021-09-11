@@ -9,8 +9,8 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ItemMapper {
 
-    Item itemVMToItem(ItemVM itemVM);
+    Item vmToPojo(ItemVM itemVM);
 
-    ItemDTO itemToItemDTO(Item item);
+    ItemDTO pojoToDTO(Item item);
 
 }

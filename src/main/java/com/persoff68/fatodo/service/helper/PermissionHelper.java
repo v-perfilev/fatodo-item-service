@@ -51,19 +51,19 @@ public class PermissionHelper {
     }
 
     private boolean hasReadPermission(Group group, UUID userId) {
-        return group.getUsers().stream()
+        return group.getMembers().stream()
                 .anyMatch(user -> user.getId().equals(userId));
     }
 
     private boolean hasEditPermission(Group group, UUID userId) {
-        return group.getUsers().stream()
+        return group.getMembers().stream()
                 .filter(user -> user.getId().equals(userId))
                 .anyMatch(user -> user.getPermission().equals(Permission.ADMIN)
                         || user.getPermission().equals(Permission.EDIT));
     }
 
     private boolean hasAdminPermission(Group group, UUID userId) {
-        return group.getUsers().stream()
+        return group.getMembers().stream()
                 .filter(user -> user.getId().equals(userId))
                 .anyMatch(user -> user.getPermission().equals(Permission.ADMIN));
     }

@@ -1,15 +1,15 @@
-package contracts.groupresource
+package contracts.membercontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get group user ids by id'
-    description 'should return status 200 and list of UUID'
+    name 'get members by group id'
+    description 'should return status 200 and list of members'
     request {
         method GET()
         url($(
-                consumer(regex("/api/groups/" + uuid().toString() + "/user-ids")),
-                producer("/api/groups/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/user-ids")
+                consumer(regex("/api/members/group/" + uuid().toString())),
+                producer("/api/members/group/12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
         ))
         headers {
             header 'Authorization': $(
@@ -24,7 +24,10 @@ Contract.make {
             contentType applicationJson()
         }
         body([
-                "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e"
+                [
+                        "id": "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e"
+                ]
+
         ])
     }
 }

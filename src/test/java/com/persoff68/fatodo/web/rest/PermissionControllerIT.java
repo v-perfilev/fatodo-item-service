@@ -4,10 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
-import com.persoff68.fatodo.builder.TestGroupUser;
+import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
@@ -52,12 +53,12 @@ public class PermissionControllerIT {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 
-        Group.User groupUser1 = TestGroupUser.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
-        Group group1 = TestGroup.defaultBuilder().id(GROUP_CAN_EDIT_ID).users(List.of(groupUser1)).build();
+        Member member1 = TestMember.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
+        Group group1 = TestGroup.defaultBuilder().id(GROUP_CAN_EDIT_ID).members(List.of(member1)).build();
         groupRepository.save(group1);
 
-        Group.User groupUser2 = TestGroupUser.defaultBuilder().build();
-        Group group2 = TestGroup.defaultBuilder().id(GROUP_CAN_NOTHING_ID).users(List.of(groupUser2)).build();
+        Member member2 = TestMember.defaultBuilder().build();
+        Group group2 = TestGroup.defaultBuilder().id(GROUP_CAN_NOTHING_ID).members(List.of(member2)).build();
         groupRepository.save(group2);
 
         Item item1 = TestItem.defaultBuilder().id(ITEM_CAN_EDIT_ID).groupId(GROUP_CAN_EDIT_ID).build();

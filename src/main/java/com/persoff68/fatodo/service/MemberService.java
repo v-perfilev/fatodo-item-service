@@ -2,30 +2,28 @@ package com.persoff68.fatodo.service;
 
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class MemberService {
 
     private final GroupService groupService;
     private final ItemService itemService;
 
-    public List<UUID> getGroupUserIdsById(UUID groupId) {
+    public List<Member> getMembersByGroupId(UUID groupId) {
         Group group = groupService.getById(groupId);
-        return group.getUsers().stream()
-                .map(Group.User::getId)
-                .collect(Collectors.toList());
+        return group.getMembers();
     }
 
-    public List<UUID> getItemUserIdsById(UUID itemId) {
+    public List<Member> getMembersByItemId(UUID itemId) {
         Item item = itemService.getById(itemId);
-        return getGroupUserIdsById(item.getGroupId());
+        return getMembersByGroupId(item.getGroupId());
     }
 
 }

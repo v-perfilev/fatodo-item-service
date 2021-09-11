@@ -1,11 +1,12 @@
 package com.persoff68.fatodo.contract;
 
 import com.persoff68.fatodo.builder.TestGroup;
-import com.persoff68.fatodo.builder.TestGroupUser;
 import com.persoff68.fatodo.builder.TestItem;
+import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
@@ -48,10 +49,10 @@ public abstract class ContractBase {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 
-        Group.User groupUser = TestGroupUser.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
+        Member member = TestMember.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
 
-        Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).users(List.of(groupUser)).build();
-        Group group2 = TestGroup.defaultBuilder().id(GROUP_2_ID).users(List.of(groupUser)).build();
+        Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).members(List.of(member)).build();
+        Group group2 = TestGroup.defaultBuilder().id(GROUP_2_ID).members(List.of(member)).build();
 
         groupRepository.save(group1);
         groupRepository.save(group2);

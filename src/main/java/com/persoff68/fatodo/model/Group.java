@@ -1,6 +1,5 @@
 package com.persoff68.fatodo.model;
 
-import com.persoff68.fatodo.model.constant.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,9 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Document(collection = "ftd_group")
 @Data
@@ -28,28 +25,20 @@ public class Group extends AbstractAuditingModel {
     private String imageFilename;
 
     @NotNull
-    private List<User> users;
+    private List<Member> members;
 
     public Group(Group group) {
         this.title = group.title;
         this.color = group.color;
         this.imageFilename = group.imageFilename;
 
-        this.users = new ArrayList<>(group.users);
+        this.members = List.copyOf(group.members);
 
         this.id = group.id;
         this.createdBy = group.createdBy;
         this.createdAt = group.createdAt;
         this.lastModifiedBy = group.lastModifiedBy;
         this.lastModifiedAt = group.lastModifiedAt;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class User {
-        private UUID id;
-        private Permission permission;
     }
 
 }

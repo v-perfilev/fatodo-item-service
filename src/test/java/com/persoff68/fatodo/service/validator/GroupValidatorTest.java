@@ -1,8 +1,9 @@
 package com.persoff68.fatodo.service.validator;
 
 import com.persoff68.fatodo.builder.TestGroup;
-import com.persoff68.fatodo.builder.TestGroupUser;
+import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.model.Group;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.security.jwt.JwtTokenProvider;
 import com.persoff68.fatodo.service.exception.GroupInvalidException;
@@ -33,28 +34,28 @@ public class GroupValidatorTest {
 
     @Test
     void testValidateCreate_emptyUserList() {
-        Group group = TestGroup.defaultBuilder().users(Collections.emptyList()).build();
+        Group group = TestGroup.defaultBuilder().members(Collections.emptyList()).build();
         assertThatThrownBy(() -> groupValidator.validateCreate(group)).isInstanceOf(GroupInvalidException.class);
     }
 
     @Test
     void testValidateCreate_moreThanOneUser() {
-        Group.User groupUser1 = TestGroupUser.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
-        Group.User groupUser2 = TestGroupUser.defaultBuilder().build();
-        Group group = TestGroup.defaultBuilder().users(List.of(groupUser1, groupUser2)).build();
+        Member member1 = TestMember.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
+        Member member2 = TestMember.defaultBuilder().build();
+        Group group = TestGroup.defaultBuilder().members(List.of(member1, member2)).build();
         assertThatThrownBy(() -> groupValidator.validateCreate(group)).isInstanceOf(GroupInvalidException.class);
     }
 
     @Test
     void testValidateUpdate_emptyUserList() {
-        Group group = TestGroup.defaultBuilder().users(Collections.emptyList()).build();
+        Group group = TestGroup.defaultBuilder().members(Collections.emptyList()).build();
         assertThatThrownBy(() -> groupValidator.validateUpdate(group)).isInstanceOf(GroupInvalidException.class);
     }
 
     @Test
     void testValidateUpdate_listHasNoAdmins() {
-        Group.User groupUser = TestGroupUser.defaultBuilder().id(USER_ID).permission(Permission.READ).build();
-        Group group = TestGroup.defaultBuilder().users(List.of(groupUser)).build();
+        Member member = TestMember.defaultBuilder().id(USER_ID).permission(Permission.READ).build();
+        Group group = TestGroup.defaultBuilder().members(List.of(member)).build();
         assertThatThrownBy(() -> groupValidator.validateUpdate(group)).isInstanceOf(GroupInvalidException.class);
     }
 

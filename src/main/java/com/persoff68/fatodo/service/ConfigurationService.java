@@ -2,6 +2,7 @@ package com.persoff68.fatodo.service;
 
 import com.persoff68.fatodo.model.Configuration;
 import com.persoff68.fatodo.model.Group;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class ConfigurationService {
     }
 
     public void addGroup(Group group) {
-        List<UUID> userIdList = group.getUsers().stream().map(Group.User::getId).collect(Collectors.toList());
+        List<UUID> userIdList = group.getMembers().stream().map(Member::getId).collect(Collectors.toList());
         List<Configuration> configurationList = configurationRepository.findAllByUserIdIn(userIdList);
 
         List<UUID> existingUserIdList = configurationList.stream()
@@ -50,7 +51,7 @@ public class ConfigurationService {
     }
 
     public void removeGroup(Group group) {
-        List<UUID> userIdList = group.getUsers().stream().map(Group.User::getId).collect(Collectors.toList());
+        List<UUID> userIdList = group.getMembers().stream().map(Member::getId).collect(Collectors.toList());
         List<Configuration> configurationList = configurationRepository.findAllByUserIdIn(userIdList);
 
         configurationList.forEach(c -> removeGroupFromConfiguration(c, group.getId()));

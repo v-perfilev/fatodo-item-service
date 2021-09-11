@@ -1,6 +1,7 @@
 package com.persoff68.fatodo.service.validator;
 
 import com.persoff68.fatodo.model.Group;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.service.exception.GroupInvalidException;
 import lombok.RequiredArgsConstructor;
@@ -13,34 +14,34 @@ import java.util.List;
 public class GroupValidator {
 
     public void validateCreate(Group group) {
-        List<Group.User> userList = group.getUsers();
-        checkIfUserListIsNotEmpty(userList);
-        checkIfUserListContainsOneUser(userList);
+        List<Member> memberList = group.getMembers();
+        checkIfMemberListIsNotEmpty(memberList);
+        checkIfMemberListContainsOneUser(memberList);
     }
 
     public void validateUpdate(Group group) {
-        List<Group.User> userList = group.getUsers();
-        checkIfUserListIsNotEmpty(userList);
-        checkIfListHasAdmins(userList);
+        List<Member> userList = group.getMembers();
+        checkIfMemberListIsNotEmpty(userList);
+        checkIfMemberListHasAdmins(userList);
     }
 
     public void validateDelete(Group group) {
         // no checks yet
     }
 
-    private void checkIfUserListIsNotEmpty(List<Group.User> userList) {
+    private void checkIfMemberListIsNotEmpty(List<Member> userList) {
         if (userList.isEmpty()) {
-            throw new GroupInvalidException("Group user list is empty");
+            throw new GroupInvalidException("Group member list is empty");
         }
     }
 
-    private void checkIfUserListContainsOneUser(List<Group.User> userList) {
+    private void checkIfMemberListContainsOneUser(List<Member> userList) {
         if (userList.size() != 1) {
-            throw new GroupInvalidException("List of group users contains more than one user");
+            throw new GroupInvalidException("List of group members contains more than one member");
         }
     }
 
-    private void checkIfListHasAdmins(List<Group.User> userList) {
+    private void checkIfMemberListHasAdmins(List<Member> userList) {
         long adminCount = userList.stream()
                 .filter(groupUser -> groupUser.getPermission().equals(Permission.ADMIN))
                 .count();

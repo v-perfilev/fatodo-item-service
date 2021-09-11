@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
-import com.persoff68.fatodo.builder.TestGroupUser;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestItemVM;
+import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
@@ -63,9 +64,10 @@ public class ItemResourceIT {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 
-        Group.User groupUser1 = TestGroupUser.defaultBuilder().build();
-        Group.User groupUser2 = TestGroupUser.defaultBuilder().build();
-        Group group = TestGroup.defaultBuilder().id(GROUP_ID).users(List.of(groupUser1, groupUser2)).build();
+        Member member1 = TestMember.defaultBuilder().build();
+        Member member2 = TestMember.defaultBuilder().build();
+        Group group = TestGroup.defaultBuilder()
+                .id(GROUP_ID).members(List.of(member1, member2)).build();
 
         groupRepository.save(group);
 
@@ -151,52 +153,12 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testGetUserIdsById_ok() throws Exception {
-        doReturn(true).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + ITEM_ID + "/user-ids";
-        ResultActions resultActions = mvc.perform(get(url))
-                .andExpect(status().isOk());
-        String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
-        List<UUID> userIdList = objectMapper.readValue(resultString, listType);
-        assertThat(userIdList.size()).isEqualTo(2);
-    }
-
-    @Test
-    @WithCustomSecurityContext
-    void testGetUserIdsById_notFound() throws Exception {
-        doReturn(false).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + UUID.randomUUID() + "/user-ids";
-        mvc.perform(get(url))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithCustomSecurityContext
-    void testGetUserIdsId_badRequest_wrongPermission() throws Exception {
-        doReturn(false).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + ITEM_ID + "/user-ids";
-        mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithAnonymousUser
-    void testGetUserIdsById_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + ITEM_ID + "/user-ids";
-        mvc.perform(get(url))
-                .andExpect(status().isUnauthorized());
-    }
-
-
-    @Test
-    @WithCustomSecurityContext
     public void testCreate_created() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isCreated());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
@@ -213,7 +175,7 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isBadRequest());
     }
 
@@ -224,7 +186,7 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().id(null).title(null).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isBadRequest());
     }
 
@@ -235,7 +197,7 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isBadRequest());
     }
 
@@ -245,7 +207,7 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -257,7 +219,7 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
@@ -273,7 +235,7 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isNotFound());
     }
 
@@ -284,7 +246,7 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isBadRequest());
     }
 
@@ -295,7 +257,7 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).title(null).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isBadRequest());
     }
 
@@ -305,7 +267,7 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isUnauthorized());
     }
 

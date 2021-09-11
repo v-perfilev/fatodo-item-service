@@ -14,20 +14,18 @@ import java.util.UUID;
 @Repository
 public interface GroupRepository extends MongoRepository<Group, UUID> {
 
-    List<Group> findAllByIdIn(List<UUID> groupIds);
-
-    @Query(value = "{ 'users.id': ?0 }")
+    @Query(value = "{ 'members.id': ?0 }")
     List<Group> findAllByUserId(UUID userId);
 
     @Override
     @CacheEvictMethod(cacheName = "groups-by-id", key = "#group.id")
-    @CacheEvictMethod(cacheName = "groups-by-user-id", key = "#group.users.id")
+    @CacheEvictMethod(cacheName = "groups-by-members-id", key = "#group.members.id")
     @NonNull
     <S extends Group> S save(@NonNull S group);
 
     @Override
     @CacheEvictMethod(cacheName = "groups-by-id", key = "#group.id")
-    @CacheEvictMethod(cacheName = "groups-by-user-id", key = "#group.users.id")
+    @CacheEvictMethod(cacheName = "groups-by-members-id", key = "#group.members.id")
     void delete(@Nonnull Group group);
 
 }

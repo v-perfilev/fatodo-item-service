@@ -6,7 +6,6 @@ import com.persoff68.fatodo.model.mapper.GroupMapper;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.GroupService;
-import com.persoff68.fatodo.service.UserService;
 import com.persoff68.fatodo.web.rest.exception.InvalidFormException;
 import com.persoff68.fatodo.web.rest.vm.GroupVM;
 import lombok.RequiredArgsConstructor;
@@ -37,15 +36,14 @@ public class GroupResource {
     static final String ENDPOINT = "/api/groups";
 
     private final GroupService groupService;
-    private final UserService userService;
     private final GroupMapper groupMapper;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<GroupDTO>> getAllForUser() {
+    public ResponseEntity<List<GroupDTO>> getAllForMember() {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Group> groupList = groupService.getAllByUserId(userId);
         List<GroupDTO> groupDTOList = groupList.stream()
-                .map(groupMapper::groupToGroupDTO)
+                .map(groupMapper::pojoToDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(groupDTOList);
     }
@@ -53,31 +51,25 @@ public class GroupResource {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GroupDTO> getById(@PathVariable UUID id) {
         Group group = groupService.getById(id);
-        GroupDTO groupDTO = groupMapper.groupToGroupDTO(group);
+        GroupDTO groupDTO = groupMapper.pojoToDTO(group);
         return ResponseEntity.ok(groupDTO);
-    }
-
-    @GetMapping(value = "/{id}/user-ids", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UUID>> getUserIdsById(@PathVariable UUID id) {
-        List<UUID> userIdList = userService.getGroupUserIdsById(id);
-        return ResponseEntity.ok(userIdList);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GroupDTO> create(@ModelAttribute @Valid GroupVM groupVM) {
-        Group newGroup = groupMapper.groupVMToGroup(groupVM);
+        Group newGroup = groupMapper.vmToPojo(groupVM);
         byte[] imageContent = getBytesFromMultipartFile(groupVM.getImageContent());
         Group group = groupService.create(newGroup, imageContent);
-        GroupDTO groupDTO = groupMapper.groupToGroupDTO(group);
+        GroupDTO groupDTO = groupMapper.pojoToDTO(group);
         return ResponseEntity.status(HttpStatus.CREATED).body(groupDTO);
     }
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GroupDTO> update(@ModelAttribute @Valid GroupVM groupVM) {
-        Group newGroup = groupMapper.groupVMToGroup(groupVM);
+        Group newGroup = groupMapper.vmToPojo(groupVM);
         byte[] imageContent = getBytesFromMultipartFile(groupVM.getImageContent());
         Group group = groupService.update(newGroup, imageContent);
-        GroupDTO groupDTO = groupMapper.groupToGroupDTO(group);
+        GroupDTO groupDTO = groupMapper.pojoToDTO(group);
         return ResponseEntity.ok(groupDTO);
     }
 

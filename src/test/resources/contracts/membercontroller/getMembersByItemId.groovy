@@ -1,15 +1,15 @@
-package contracts.itemresource
+package contracts.membercontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get item user ids by id'
-    description 'should return status 200 and list of uuid'
+    name 'get members by item id'
+    description 'should return status 200 and list of members'
     request {
         method GET()
         url($(
-                consumer(regex("/api/items/" + uuid().toString() + "/user-ids")),
-                producer("/api/items/8a51fdaa-189c-4959-9016-ae79adfe0320/user-ids")
+                consumer(regex("/api/members/item/" + uuid().toString())),
+                producer("/api/members/item/8a51fdaa-189c-4959-9016-ae79adfe0320")
         ))
         headers {
             header 'Authorization': $(
@@ -24,7 +24,9 @@ Contract.make {
             contentType applicationJson()
         }
         body([
-                "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e"
+                [
+                        "id": "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e"
+                ]
         ])
     }
 }

@@ -3,6 +3,7 @@ package com.persoff68.fatodo.service;
 import com.persoff68.fatodo.config.aop.cache.annotation.CacheableMethod;
 import com.persoff68.fatodo.model.Configuration;
 import com.persoff68.fatodo.model.Group;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
@@ -55,7 +56,7 @@ public class GroupService {
             throw new ModelAlreadyExistsException();
         }
 
-        newGroup.setUsers(createInitUserList());
+        newGroup.setMembers(createInitMemberList());
         groupValidator.validateCreate(newGroup);
 
         String imageFilename = imageService.createGroup(image);
@@ -96,13 +97,13 @@ public class GroupService {
     }
 
 
-    private List<Group.User> createInitUserList() {
+    private List<Member> createInitMemberList() {
         UUID userId = SecurityUtils.getCurrentId()
                 .orElseThrow(UnauthorizedException::new);
-        Group.User user = new Group.User();
-        user.setId(userId);
-        user.setPermission(Permission.ADMIN);
-        return Collections.singletonList(user);
+        Member member = new Member();
+        member.setId(userId);
+        member.setPermission(Permission.ADMIN);
+        return Collections.singletonList(member);
     }
 
 }

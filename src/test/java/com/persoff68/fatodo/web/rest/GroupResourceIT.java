@@ -6,10 +6,11 @@ import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.TestUtils;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
-import com.persoff68.fatodo.builder.TestGroupUser;
+import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.builder.TestGroupVM;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.model.Group;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.GroupDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
@@ -69,23 +70,26 @@ public class GroupResourceIT {
 
     @BeforeEach
     public void setup() {
+        groupRepository.deleteAll();
+
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
-        Group.User groupUser1 = TestGroupUser.defaultBuilder()
+        Member member1 = TestMember.defaultBuilder()
                 .id(UUID.fromString(ADMIN_ID)).permission(Permission.ADMIN).build();
-        Group.User groupUser2 = TestGroupUser.defaultBuilder()
+        Member member2 = TestMember.defaultBuilder()
                 .permission(Permission.ADMIN).build();
-        Group.User groupUser3 = TestGroupUser.defaultBuilder()
+        Member member3 = TestMember.defaultBuilder()
                 .id(UUID.fromString(READ_ID)).permission(Permission.READ).build();
 
         Group group1 = TestGroup.defaultBuilder()
-                .users(List.of(groupUser1)).build();
+                .members(List.of(member1)).build();
         Group group2 = TestGroup.defaultBuilder()
-                .id(UUID.fromString(GROUP_ID)).users(List.of(groupUser1, groupUser3)).build();
+                .id(UUID.fromString(GROUP_ID))
+                .members(List.of(member1, member3)).build();
         Group group3 = TestGroup.defaultBuilder()
-                .id(UUID.fromString(WRONG_GROUP_ID)).users(List.of(groupUser2)).build();
+                .id(UUID.fromString(WRONG_GROUP_ID))
+                .members(List.of(member2)).build();
 
-        groupRepository.deleteAll();
         groupRepository.save(group1);
         groupRepository.save(group2);
         groupRepository.save(group3);
@@ -98,7 +102,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    void testGetAllForUser_ok() throws Exception {
+    void testGetAllForMember_ok() throws Exception {
         ResultActions resultActions = mvc.perform(get(ENDPOINT))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -109,7 +113,7 @@ public class GroupResourceIT {
 
     @Test
     @WithAnonymousUser
-    void testGetAllForUser_unauthorized() throws Exception {
+    void testGetAllForMember_unauthorized() throws Exception {
         mvc.perform(get(ENDPOINT))
                 .andExpect(status().isUnauthorized());
     }
@@ -155,45 +159,6 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsById_ok() throws Exception {
-        UUID id = UUID.fromString(GROUP_ID);
-        String url = ENDPOINT + "/" + id + "/user-ids";
-        ResultActions resultActions = mvc.perform(get(url))
-                .andExpect(status().isOk());
-        String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
-        List<UUID> userIdList = objectMapper.readValue(resultString, listType);
-        assertThat(userIdList.size()).isEqualTo(2);
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsById_notFound() throws Exception {
-        UUID id = UUID.randomUUID();
-        String url = ENDPOINT + "/" + id + "/user-ids";
-        mvc.perform(get(url))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsById_badRequest_wrongUser() throws Exception {
-        String url = ENDPOINT + "/" + WRONG_GROUP_ID + "/user-ids";
-        mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithAnonymousUser
-    void testGetUserIdsById_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_ID + "/user-ids";
-        mvc.perform(get(url))
-                .andExpect(status().isUnauthorized());
-    }
-
-
-    @Test
-    @WithCustomSecurityContext(id = ADMIN_ID)
     public void testCreate_created() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(null).build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
@@ -205,7 +170,7 @@ public class GroupResourceIT {
         assertThat(resultDTO.getId()).isNotNull();
         assertThat(resultDTO.getTitle()).isEqualTo(vm.getTitle());
         assertThat(resultDTO.getColor()).isEqualTo(vm.getColor());
-        assertThat(resultDTO.getUsers()).hasSize(1);
+        assertThat(resultDTO.getMembers()).hasSize(1);
     }
 
     @Test
@@ -262,7 +227,7 @@ public class GroupResourceIT {
         GroupDTO resultDTO = objectMapper.readValue(resultString, GroupDTO.class);
         assertThat(resultDTO.getId()).isNotNull();
         assertThat(resultDTO.getTitle()).isEqualTo(vm.getTitle());
-        assertThat(resultDTO.getUsers()).hasSize(2);
+        assertThat(resultDTO.getMembers()).hasSize(2);
     }
 
     @Test

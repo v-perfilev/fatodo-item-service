@@ -9,8 +9,8 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface GroupMapper {
 
-    GroupDTO groupToGroupDTO(Group group);
+    GroupDTO pojoToDTO(Group group);
 
-    Group groupVMToGroup(GroupVM groupVM);
+    Group vmToPojo(GroupVM groupVM);
 
 }

@@ -5,9 +5,10 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
-import com.persoff68.fatodo.builder.TestGroupUser;
+import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.model.Configuration;
 import com.persoff68.fatodo.model.Group;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.GroupDTO;
 import com.persoff68.fatodo.repository.ConfigurationRepository;
@@ -51,11 +52,11 @@ public class ConfigurationControllerIT {
 
     @BeforeEach
     public void setup() {
-        Group.User groupUser = TestGroupUser.defaultBuilder()
+        Member member = TestMember.defaultBuilder()
                 .id(UUID.fromString(USER_ID)).permission(Permission.ADMIN).build();
-        Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).users(List.of(groupUser)).build();
-        Group group2 = TestGroup.defaultBuilder().id(GROUP_2_ID).users(List.of(groupUser)).build();
-        Group group3 = TestGroup.defaultBuilder().id(GROUP_3_ID).users(List.of(groupUser)).build();
+        Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).members(List.of(member)).build();
+        Group group2 = TestGroup.defaultBuilder().id(GROUP_2_ID).members(List.of(member)).build();
+        Group group3 = TestGroup.defaultBuilder().id(GROUP_3_ID).members(List.of(member)).build();
 
         groupRepository.deleteAll();
         configurationRepository.deleteAll();
@@ -71,7 +72,7 @@ public class ConfigurationControllerIT {
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         String url = ENDPOINT + "/order";
         mvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isOk());
 
         String groupUrl = "/api/groups";
@@ -98,7 +99,7 @@ public class ConfigurationControllerIT {
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         String url = ENDPOINT + "/order";
         mvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isOk());
 
         String groupUrl = "/api/groups";
@@ -121,7 +122,7 @@ public class ConfigurationControllerIT {
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         String url = ENDPOINT + "/order";
         mvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isUnauthorized());
     }
 
