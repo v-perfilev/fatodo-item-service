@@ -14,13 +14,6 @@ public class UserService {
 
     private final UserServiceClient userServiceClient;
 
-    public void checkUserExists(UUID userId) {
-        boolean doesUserExist = userServiceClient.doesIdExist(userId);
-        if (!doesUserExist) {
-            throw new ModelNotFoundException();
-        }
-    }
-
     public void checkUsersExist(List<UUID> userIdList) {
         boolean doUsersExist = userServiceClient.doIdsExist(userIdList);
         if (!doUsersExist) {

@@ -18,15 +18,6 @@ public class UserServiceClientWrapper implements UserServiceClient {
     private final UserServiceClient userServiceClient;
 
     @Override
-    public boolean doesIdExist(UUID id) {
-        try {
-            return userServiceClient.doesIdExist(id);
-        } catch (Exception e) {
-            throw new ClientException();
-        }
-    }
-
-    @Override
     public boolean doIdsExist(List<UUID> idList) {
         try {
             return userServiceClient.doIdsExist(idList);

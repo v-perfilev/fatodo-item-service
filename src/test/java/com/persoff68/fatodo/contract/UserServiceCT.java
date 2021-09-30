@@ -21,12 +21,6 @@ public class UserServiceCT {
     UserServiceClient userServiceClient;
 
     @Test
-    void testCheckUserExists() {
-        boolean doesIdExist = userServiceClient.doesIdExist(UUID.randomUUID());
-        assertThat(doesIdExist).isFalse();
-    }
-
-    @Test
     void testCheckUsersExist() {
         boolean doIdsExist = userServiceClient.doIdsExist(Collections.singletonList(UUID.randomUUID()));
         assertThat(doIdsExist).isFalse();
