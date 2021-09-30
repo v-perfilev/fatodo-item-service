@@ -81,21 +81,6 @@ public class MemberService {
         groupRepository.save(group);
     }
 
-    public void leaveGroup(UUID groupId, UUID userId) {
-        permissionService.checkReadPermission(groupId);
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(ModelNotFoundException::new);
-
-        List<Member> memberList = group.getMembers();
-        List<Member> updatedMemberList = memberList.stream()
-                .filter(member -> !member.getId().equals(userId))
-                .collect(Collectors.toList());
-
-        group.setMembers(updatedMemberList);
-        groupValidator.validateUpdate(group);
-        groupRepository.save(group);
-    }
-
     public void editGroupMember(UUID groupId, UUID userId, Permission permission) {
         permissionService.checkAdminPermission(groupId);
         Group group = groupRepository.findById(groupId)
@@ -112,5 +97,19 @@ public class MemberService {
         groupRepository.save(group);
     }
 
+    public void leaveGroup(UUID groupId, UUID userId) {
+        permissionService.checkReadPermission(groupId);
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(ModelNotFoundException::new);
+
+        List<Member> memberList = group.getMembers();
+        List<Member> updatedMemberList = memberList.stream()
+                .filter(member -> !member.getId().equals(userId))
+                .collect(Collectors.toList());
+
+        group.setMembers(updatedMemberList);
+        groupValidator.validateUpdate(group);
+        groupRepository.save(group);
+    }
 
 }

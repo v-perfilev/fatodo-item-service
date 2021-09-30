@@ -7,6 +7,7 @@ import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestMember;
+import com.persoff68.fatodo.builder.TestMemberVM;
 import com.persoff68.fatodo.client.UserServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
@@ -14,6 +15,7 @@ import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
+import com.persoff68.fatodo.web.rest.vm.MemberVM;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -287,6 +289,118 @@ public class MemberControllerIT {
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(READ_USER_ID)));
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    public void testEditGroupMember_ok() throws Exception {
+        String url = ENDPOINT + "/group/" + GROUP_ID + "/edit";
+        MemberVM memberVM = TestMemberVM.defaultBuilder()
+                .id(UUID.fromString(READ_USER_ID)).permission(Permission.EDIT).build();
+        String requestBody = objectMapper.writeValueAsString(memberVM);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        Group group = groupRepository.findById(UUID.fromString(GROUP_ID)).orElseThrow();
+        Condition<Member> userCondition = new Condition<>(
+                m -> m.getId().equals(UUID.fromString(READ_USER_ID)) && m.getPermission().equals(Permission.EDIT),
+                "edit user"
+        );
+        assertThat(group.getMembers()).haveExactly(1, userCondition);
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = READ_USER_ID)
+    public void testEditGroupMember_badRequest_wrongPermission() throws Exception {
+        String url = ENDPOINT + "/group/" + GROUP_ID + "/edit";
+        MemberVM memberVM = TestMemberVM.defaultBuilder()
+                .id(UUID.fromString(ADMIN_ID)).permission(Permission.EDIT).build();
+        String requestBody = objectMapper.writeValueAsString(memberVM);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    public void testEditGroupMember_notFound_groupNotFound() throws Exception {
+        String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/edit";
+        MemberVM memberVM = TestMemberVM.defaultBuilder()
+                .id(UUID.fromString(READ_USER_ID)).permission(Permission.EDIT).build();
+        String requestBody = objectMapper.writeValueAsString(memberVM);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    public void testEditGroupMember_notFound_userNotFound() throws Exception {
+        String url = ENDPOINT + "/group/" + GROUP_ID + "/edit";
+        MemberVM memberVM = TestMemberVM.defaultBuilder()
+                .id(UUID.randomUUID()).permission(Permission.EDIT).build();
+        String requestBody = objectMapper.writeValueAsString(memberVM);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void testEditGroupMember_unauthorized() throws Exception {
+        String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/edit";
+        MemberVM memberVM = TestMemberVM.defaultBuilder()
+                .id(UUID.fromString(READ_USER_ID)).permission(Permission.EDIT).build();
+        String requestBody = objectMapper.writeValueAsString(memberVM);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = READ_USER_ID)
+    void testLeaveGroup_ok() throws Exception {
+        String url = ENDPOINT + "/group/" + GROUP_ID + "/leave";
+        mvc.perform(get(url))
+                .andExpect(status().isOk());
+        Group group = groupRepository.findById(UUID.fromString(GROUP_ID)).orElseThrow();
+        Condition<Member> userCondition = new Condition<>(
+                m -> m.getId().equals(UUID.fromString(READ_USER_ID)),
+                "read user"
+        );
+        assertThat(group.getMembers()).doNotHave(userCondition);
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    void testLeaveGroup_badRequest_invalidGroup() throws Exception {
+        String url = ENDPOINT + "/group/" + GROUP_ID + "/leave";
+        mvc.perform(get(url))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = NEW_USER_ID)
+    void testLeaveGroup_badRequest_wrongPermissions() throws Exception {
+        String url = ENDPOINT + "/group/" + GROUP_ID + "/leave";
+        mvc.perform(get(url))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    void testLeaveGroup_notFound_groupNotFound() throws Exception {
+        String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/leave";
+        mvc.perform(get(url))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testLeaveGroup_unauthorized() throws Exception {
+        String url = ENDPOINT + "/group/" + GROUP_ID + "/leave";
+        mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
 
