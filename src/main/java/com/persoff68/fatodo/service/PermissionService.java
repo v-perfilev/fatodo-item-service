@@ -42,10 +42,11 @@ public class PermissionService {
         }
     }
 
-    public boolean hasReadItemPermission(UUID itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(ModelNotFoundException::new);
-        return hasReadPermission(item.getGroupId());
+    public void checkReadItemPermission(UUID itemId) {
+        boolean hasPermission = hasReadItemPermission(itemId);
+        if (!hasPermission) {
+            throw new PermissionException();
+        }
     }
 
     public boolean hasReadPermission(UUID groupId) {
@@ -60,11 +61,23 @@ public class PermissionService {
         return checkPermission(groupId, permissionHelper::canAdmin);
     }
 
-    private boolean checkPermission(UUID groupId, Predicate<Group> checkOneGroup) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(ModelNotFoundException::new);
-        return checkOneGroup.test(group);
+
+    public boolean hasReadItemPermission(UUID itemId) {
+        return checkItemPermission(itemId, permissionHelper::canRead);
     }
 
+    private boolean checkPermission(UUID groupId, Predicate<Group> checkGroup) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(ModelNotFoundException::new);
+        return checkGroup.test(group);
+    }
+
+    private boolean checkItemPermission(UUID itemId, Predicate<Group> checkGroup) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(ModelNotFoundException::new);
+        Group group = groupRepository.findById(item.getGroupId())
+                .orElseThrow(ModelNotFoundException::new);
+        return checkGroup.test(group);
+    }
 
 }

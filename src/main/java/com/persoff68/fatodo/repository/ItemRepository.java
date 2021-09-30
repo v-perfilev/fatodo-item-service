@@ -18,23 +18,23 @@ public interface ItemRepository extends MongoRepository<Item, UUID> {
     List<Item> findAllByGroupId(UUID groupId);
 
     @Override
-    @CacheableMethod(cacheName = "items-by-id", key = "#id")
+    @CacheableMethod(cacheName = "item-by-id", key = "#id")
     @NonNull
     Optional<Item> findById(@NonNull UUID id);
 
     @Override
-    @CacheEvictMethod(cacheName = "items-by-id", key = "#item.id")
+    @CacheEvictMethod(cacheName = "item-by-id", key = "#item.id")
     @CacheEvictMethod(cacheName = "items-by-group-id", key = "#item.groupId")
     @NonNull
     <S extends Item> S save(@NonNull S item);
 
 
     @Override
-    @CacheEvictMethod(cacheName = "items-by-id", key = "#item.id")
+    @CacheEvictMethod(cacheName = "item-by-id", key = "#item.id")
     @CacheEvictMethod(cacheName = "items-by-group-id", key = "#item.groupId")
     void delete(@NonNull Item item);
 
-    @CacheEvictMethod(cacheName = "items-by-id", key = "#id")
+    @CacheEvictMethod(cacheName = "item-by-id", key = "#id")
     @CacheEvictMethod(cacheName = "items-by-group-id", key = "#groupId")
     void deleteAllByIdInAndGroupId(List<UUID> id, UUID groupId);
 }

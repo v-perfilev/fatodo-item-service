@@ -17,32 +17,33 @@ public class GroupValidator {
         List<Member> memberList = group.getMembers();
         checkIfMemberListIsNotEmpty(memberList);
         checkIfMemberListContainsOneUser(memberList);
+        checkIfMemberListHasAdmins(memberList);
     }
 
     public void validateUpdate(Group group) {
-        List<Member> userList = group.getMembers();
-        checkIfMemberListIsNotEmpty(userList);
-        checkIfMemberListHasAdmins(userList);
+        List<Member> memberList = group.getMembers();
+        checkIfMemberListIsNotEmpty(memberList);
+        checkIfMemberListHasAdmins(memberList);
     }
 
     public void validateDelete(Group group) {
         // no checks yet
     }
 
-    private void checkIfMemberListIsNotEmpty(List<Member> userList) {
-        if (userList.isEmpty()) {
+    private void checkIfMemberListIsNotEmpty(List<Member> memberList) {
+        if (memberList.isEmpty()) {
             throw new GroupInvalidException("Group member list is empty");
         }
     }
 
-    private void checkIfMemberListContainsOneUser(List<Member> userList) {
-        if (userList.size() != 1) {
+    private void checkIfMemberListContainsOneUser(List<Member> memberList) {
+        if (memberList.size() != 1) {
             throw new GroupInvalidException("List of group members contains more than one member");
         }
     }
 
-    private void checkIfMemberListHasAdmins(List<Member> userList) {
-        long adminCount = userList.stream()
+    private void checkIfMemberListHasAdmins(List<Member> memberList) {
+        long adminCount = memberList.stream()
                 .filter(groupUser -> groupUser.getPermission().equals(Permission.ADMIN))
                 .count();
         if (adminCount == 0) {

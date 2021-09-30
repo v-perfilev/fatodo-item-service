@@ -1,25 +1,20 @@
-package com.persoff68.fatodo.model;
-
+package com.persoff68.fatodo.web.rest.vm;
 
 import com.persoff68.fatodo.model.constant.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member {
+public class MemberVM {
+    @NotNull
     private UUID id;
+    @NotNull
     private Permission permission;
-
-    public static Member adminMember(UUID id) {
-        return new Member(id, Permission.ADMIN);
-    }
-
-    public static Member readMember(UUID id) {
-        return new Member(id, Permission.READ);
-    }
 }
+

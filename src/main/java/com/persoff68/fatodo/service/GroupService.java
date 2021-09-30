@@ -1,6 +1,5 @@
 package com.persoff68.fatodo.service;
 
-import com.persoff68.fatodo.config.aop.cache.annotation.CacheableMethod;
 import com.persoff68.fatodo.model.Configuration;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
@@ -33,7 +32,6 @@ public class GroupService {
     private final PermissionService permissionService;
     private final GroupValidator groupValidator;
 
-    @CacheableMethod(cacheName = "groups-by-user-id", key = "#userId")
     public List<Group> getAllByUserId(UUID userId) {
         Map<UUID, Integer> orderMap = configurationService.getByUserId(userId).getGroups()
                 .stream().collect(Collectors.toMap(Configuration.Group::getId, Configuration.Group::getOrder));
@@ -43,66 +41,71 @@ public class GroupService {
                 .collect(Collectors.toList());
     }
 
-    @CacheableMethod(cacheName = "groups-by-id", key = "#id")
     public Group getById(UUID id) {
-        Group group = groupRepository.findById(id)
+        permissionService.checkReadPermission(id);
+        return groupRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkReadPermission(group.getId());
-        return group;
     }
 
-    public Group create(Group newGroup, byte[] image) {
-        if (newGroup.getId() != null) {
+    public Group create(Group groupToCreate, byte[] image) {
+        if (groupToCreate.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
 
-        newGroup.setMembers(createInitMemberList());
-        groupValidator.validateCreate(newGroup);
-
-        String imageFilename = imageService.createGroup(image);
-        newGroup.setImageFilename(imageFilename);
-        Group group = groupRepository.save(newGroup);
+        groupToCreate.setMembers(createInitMemberList());
+        groupValidator.validateCreate(groupToCreate);
+        Group group = groupRepository.save(groupToCreate);
         configurationService.addGroup(group);
+
+        if (image != null && image.length > 0) {
+            String imageFilename = imageService.createGroup(image);
+            group.setImageFilename(imageFilename);
+            group = groupRepository.save(group);
+        }
+
         return group;
     }
 
-    public Group update(Group newGroup, byte[] image) {
-        if (newGroup.getId() == null) {
+    public Group update(Group groupToUpdate, byte[] image) {
+        UUID id = groupToUpdate.getId();
+        if (id == null) {
             throw new ModelInvalidException();
         }
-        Group group = groupRepository.findById(newGroup.getId())
-                .orElseThrow(ModelNotFoundException::new);
+        permissionService.checkEditPermission(id);
 
-        permissionService.checkEditPermission(group.getId());
-        group.setTitle(newGroup.getTitle());
-        group.setColor(newGroup.getColor());
-        groupValidator.validateUpdate(group);
-
-        String imageFilename = imageService.updateGroup(group, newGroup, image);
-        group.setImageFilename(imageFilename);
-        return groupRepository.save(group);
-    }
-
-    public void delete(UUID id) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
+        group.setTitle(groupToUpdate.getTitle());
+        group.setColor(groupToUpdate.getColor());
+        groupValidator.validateUpdate(group);
+        group = groupRepository.save(group);
 
-        permissionService.checkAdminPermission(group.getId());
-        groupValidator.validateDelete(group);
+        if (image != null && image.length > 0) {
+            String imageFilename = imageService.updateGroup(group, groupToUpdate, image);
+            group.setImageFilename(imageFilename);
+            group = groupRepository.save(group);
+        }
+
+        return group;
+    }
+
+    public void delete(UUID groupId) {
+        permissionService.checkAdminPermission(groupId);
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(ModelNotFoundException::new);
 
         itemService.deleteAllByGroupId(group.getId());
         imageService.deleteGroup(group);
+        configurationService.deleteGroup(group);
         groupRepository.delete(group);
-        configurationService.removeGroup(group);
     }
 
 
     private List<Member> createInitMemberList() {
         UUID userId = SecurityUtils.getCurrentId()
                 .orElseThrow(UnauthorizedException::new);
-        Member member = new Member();
-        member.setId(userId);
-        member.setPermission(Permission.ADMIN);
+        Member member = Member.adminMember(userId);
         return Collections.singletonList(member);
     }
 

@@ -50,7 +50,7 @@ public class ConfigurationService {
         dbOperation(configurationList, null);
     }
 
-    public void removeGroup(Group group) {
+    public void deleteGroup(Group group) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getId).collect(Collectors.toList());
         List<Configuration> configurationList = configurationRepository.findAllByUserIdIn(userIdList);
 

@@ -26,7 +26,7 @@ public class PermissionHelperIT {
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanReadOneGroup() {
+    void testCanRead() {
         Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.READ).build();
         Group group = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
         boolean hasPermission = permissionHelper.canRead(group);
@@ -35,38 +35,17 @@ public class PermissionHelperIT {
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanReadOneGroup_noUser() {
+    void testCanRead_noUser() {
         Member groupUser = TestMember.defaultBuilder().build();
         Group group = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
         boolean hasPermission = permissionHelper.canRead(group);
         assertThat(hasPermission).isFalse();
     }
 
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanReadManyGroups() {
-        Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.READ).build();
-        Group group1 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        Group group2 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        boolean hasPermission = permissionHelper.canRead(List.of(group1, group2));
-        assertThat(hasPermission).isTrue();
-    }
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanReadManyGroups_noUser() {
-        Member groupUser1 = TestMember.defaultBuilder().id(USER_ID).permission(Permission.READ).build();
-        Group group1 = TestGroup.defaultBuilder().members(List.of(groupUser1)).build();
-        Member groupUser2 = TestMember.defaultBuilder().build();
-        Group group2 = TestGroup.defaultBuilder().members(List.of(groupUser2)).build();
-        boolean hasPermission = permissionHelper.canRead(List.of(group1, group2));
-        assertThat(hasPermission).isFalse();
-    }
-
-
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanEditOneGroup() {
+    void testCanEdit() {
         Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.EDIT).build();
         Group group = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
         boolean hasPermission = permissionHelper.canEdit(group);
@@ -75,7 +54,7 @@ public class PermissionHelperIT {
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanEditOneGroup_wrongRole() {
+    void testCanEdit_wrongRole() {
         Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.READ).build();
         Group group = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
         boolean hasPermission = permissionHelper.canEdit(group);
@@ -84,48 +63,17 @@ public class PermissionHelperIT {
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanEditOneGroup_noUser() {
+    void testCanEdit_noUser() {
         Member groupUser = TestMember.defaultBuilder().build();
         Group group = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
         boolean hasPermission = permissionHelper.canEdit(group);
         assertThat(hasPermission).isFalse();
     }
 
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanEditManyGroups() {
-        Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.EDIT).build();
-        Group group1 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        Group group2 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        boolean hasPermission = permissionHelper.canEdit(List.of(group1, group2));
-        assertThat(hasPermission).isTrue();
-    }
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanEditManyGroups_wrongRole() {
-        Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.READ).build();
-        Group group1 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        Group group2 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        boolean hasPermission = permissionHelper.canEdit(List.of(group1, group2));
-        assertThat(hasPermission).isFalse();
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanEditManyGroups_noUser() {
-        Member groupUser1 = TestMember.defaultBuilder().id(USER_ID).permission(Permission.EDIT).build();
-        Group group1 = TestGroup.defaultBuilder().members(List.of(groupUser1)).build();
-        Member groupUser2 = TestMember.defaultBuilder().build();
-        Group group2 = TestGroup.defaultBuilder().members(List.of(groupUser2)).build();
-        boolean hasPermission = permissionHelper.canEdit(List.of(group1, group2));
-        assertThat(hasPermission).isFalse();
-    }
-
-
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanAdminOneGroup() {
+    void testCanAdmin() {
         Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
         Group group = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
         boolean hasPermission = permissionHelper.canAdmin(group);
@@ -134,7 +82,7 @@ public class PermissionHelperIT {
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanAdminOneGroup_wrongRole() {
+    void testCanAdmin_wrongRole() {
         Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.EDIT).build();
         Group group = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
         boolean hasPermission = permissionHelper.canAdmin(group);
@@ -143,41 +91,10 @@ public class PermissionHelperIT {
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanAdminOneGroup_noUser() {
+    void testCanAdmin_noUser() {
         Member groupUser = TestMember.defaultBuilder().build();
         Group group = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
         boolean hasPermission = permissionHelper.canAdmin(group);
-        assertThat(hasPermission).isFalse();
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanAdminManyGroups() {
-        Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
-        Group group1 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        Group group2 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        boolean hasPermission = permissionHelper.canAdmin(List.of(group1, group2));
-        assertThat(hasPermission).isTrue();
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanAdminManyGroups_wrongRole() {
-        Member groupUser = TestMember.defaultBuilder().id(USER_ID).permission(Permission.EDIT).build();
-        Group group1 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        Group group2 = TestGroup.defaultBuilder().members(List.of(groupUser)).build();
-        boolean hasPermission = permissionHelper.canAdmin(List.of(group1, group2));
-        assertThat(hasPermission).isFalse();
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanAdminManyGroups_noUser() {
-        Member groupUser1 = TestMember.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
-        Group group1 = TestGroup.defaultBuilder().members(List.of(groupUser1)).build();
-        Member groupUser2 = TestMember.defaultBuilder().build();
-        Group group2 = TestGroup.defaultBuilder().members(List.of(groupUser2)).build();
-        boolean hasPermission = permissionHelper.canAdmin(List.of(group1, group2));
         assertThat(hasPermission).isFalse();
     }
 
