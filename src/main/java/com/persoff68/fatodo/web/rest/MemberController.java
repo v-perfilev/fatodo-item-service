@@ -23,22 +23,10 @@ import java.util.UUID;
 @RequestMapping(MemberController.ENDPOINT)
 @RequiredArgsConstructor
 public class MemberController {
-
     static final String ENDPOINT = "/api/members";
 
     private final MemberService memberService;
 
-    @GetMapping(value = "/group/{groupId}/ids", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UUID>> getUserIdsByGroupId(@PathVariable UUID groupId) {
-        List<UUID> userIdList = memberService.getUserIdsByGroupId(groupId);
-        return ResponseEntity.ok(userIdList);
-    }
-
-    @GetMapping(value = "/item/{itemId}/ids", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UUID>> getUserIdsByItemId(@PathVariable UUID itemId) {
-        List<UUID> userIdList = memberService.getUserIdsByItemId(itemId);
-        return ResponseEntity.ok(userIdList);
-    }
 
     @PostMapping(value = "/group/{groupId}/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> addMembersToGroup(@PathVariable UUID groupId,

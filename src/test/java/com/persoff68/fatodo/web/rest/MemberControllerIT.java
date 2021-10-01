@@ -1,7 +1,6 @@
 package com.persoff68.fatodo.web.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
@@ -26,7 +25,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -102,81 +100,6 @@ public class MemberControllerIT {
 
         when(userServiceClient.doIdsExist(any())).thenReturn(true);
     }
-
-
-    @Test
-    @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsByGroupId_ok() throws Exception {
-        String url = ENDPOINT + "/group/" + GROUP_ID + "/ids";
-        ResultActions resultActions = mvc.perform(get(url))
-                .andExpect(status().isOk());
-        String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
-        List<UUID> userIdList = objectMapper.readValue(resultString, listType);
-        assertThat(userIdList.size()).isEqualTo(2);
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsByGroupId_notFound() throws Exception {
-        String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/ids";
-        mvc.perform(get(url))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsByGroupId_badRequest_wrongPermission() throws Exception {
-        String url = ENDPOINT + "/group/" + WRONG_GROUP_ID + "/ids";
-        mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithAnonymousUser
-    void testGetUserIdsByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/group/" + GROUP_ID + "/ids";
-        mvc.perform(get(url))
-                .andExpect(status().isUnauthorized());
-    }
-
-
-    @Test
-    @WithCustomSecurityContext(id = ADMIN_ID)
-    void testGetUserIdsByItemId_ok() throws Exception {
-        String url = ENDPOINT + "/item/" + ITEM_ID + "/ids";
-        ResultActions resultActions = mvc.perform(get(url))
-                .andExpect(status().isOk());
-        String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
-        List<UUID> memberList = objectMapper.readValue(resultString, listType);
-        assertThat(memberList.size()).isEqualTo(2);
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = ADMIN_ID)
-    void testGetUserIdsByItemId_notFound() throws Exception {
-        String url = ENDPOINT + "/item/" + UUID.randomUUID() + "/ids";
-        mvc.perform(get(url))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = ADMIN_ID)
-    void testGetUserIdsByItemId_badRequest_wrongPermission() throws Exception {
-        String url = ENDPOINT + "/item/" + WRONG_ITEM_ID + "/ids";
-        mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithAnonymousUser
-    void testGetUserIdsByItemId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/item/" + ITEM_ID + "/ids";
-        mvc.perform(get(url))
-                .andExpect(status().isUnauthorized());
-    }
-
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
