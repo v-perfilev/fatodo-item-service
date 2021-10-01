@@ -39,7 +39,7 @@ Contract.make {
                 "id": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
                 "title": "test_title_new",
                 "color": "test_color_new",
-                "users": [
+                "members": [
                         [
                                 "id"        : "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e",
                                 "permission": "ADMIN"

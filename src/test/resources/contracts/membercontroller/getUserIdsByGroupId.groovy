@@ -25,7 +25,6 @@ Contract.make {
         }
         body([
                 "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e"
-
         ])
     }
 }

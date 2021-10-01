@@ -24,9 +24,7 @@ Contract.make {
             contentType applicationJson()
         }
         body([
-                [
-                        "id": "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e"
-                ]
+                "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e"
         ])
     }
 }
