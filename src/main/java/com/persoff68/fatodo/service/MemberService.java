@@ -1,9 +1,11 @@
 package com.persoff68.fatodo.service;
 
 import com.persoff68.fatodo.model.Group;
+import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
+import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import com.persoff68.fatodo.service.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +21,26 @@ import java.util.stream.Stream;
 public class MemberService {
 
     private final GroupRepository groupRepository;
+    private final ItemRepository itemRepository;
     private final PermissionService permissionService;
     private final UserService userService;
     private final GroupValidator groupValidator;
+
+    public List<UUID> getUserIdsByGroupId(UUID groupId) {
+        permissionService.checkReadPermission(groupId);
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(ModelNotFoundException::new);
+        return group.getMembers().stream()
+                .map(Member::getId)
+                .collect(Collectors.toList());
+    }
+
+    public List<UUID> getUserIdsByItemId(UUID itemId) {
+        permissionService.checkReadItemPermission(itemId);
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(ModelNotFoundException::new);
+        return getUserIdsByGroupId(item.getGroupId());
+    }
 
     public void addMembersToGroup(UUID groupId, List<UUID> userIdList) {
         permissionService.checkAdminPermission(groupId);
