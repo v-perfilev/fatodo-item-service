@@ -1,6 +1,7 @@
 package com.persoff68.fatodo.contract;
 
 import com.persoff68.fatodo.client.CommentServiceClient;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +23,7 @@ public class CommentServiceCT {
     CommentServiceClient commentServiceClient;
 
     @Test
+    @Disabled
     void testDeleteAllThreadsByTargetId() {
         List<UUID> targetIdList = Collections.singletonList(UUID.randomUUID());
         assertDoesNotThrow(() -> commentServiceClient.deleteAllThreadsByTargetIds(targetIdList));

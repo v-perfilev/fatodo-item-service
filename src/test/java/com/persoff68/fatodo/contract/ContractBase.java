@@ -3,6 +3,7 @@ package com.persoff68.fatodo.contract;
 import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestMember;
+import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.client.UserServiceClient;
 import com.persoff68.fatodo.model.Group;
@@ -46,6 +47,8 @@ public abstract class ContractBase {
     ImageServiceClient imageServiceClient;
     @MockBean
     UserServiceClient userServiceClient;
+    @MockBean
+    CommentServiceClient commentServiceClient;
 
     @BeforeEach
     public void setup() {
@@ -73,6 +76,7 @@ public abstract class ContractBase {
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");
         when(imageServiceClient.updateGroupImage(any())).thenReturn("filename");
         doNothing().when(imageServiceClient).deleteGroupImage(any());
+        doNothing().when(commentServiceClient).deleteAllThreadsByTargetIds(any());
     }
 
 }
