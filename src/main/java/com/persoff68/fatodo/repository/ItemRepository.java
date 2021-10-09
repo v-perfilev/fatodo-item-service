@@ -5,6 +5,7 @@ import com.persoff68.fatodo.config.aop.cache.annotation.CacheEvictMethod;
 import com.persoff68.fatodo.config.aop.cache.annotation.CacheableMethod;
 import com.persoff68.fatodo.model.Item;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,6 +17,9 @@ public interface ItemRepository extends MongoRepository<Item, UUID> {
 
     @CacheableMethod(cacheName = "items-by-group-id", key = "#groupId")
     List<Item> findAllByGroupId(UUID groupId);
+
+    @Query(value = "{'id' : {'$in' : ?0}}")
+    List<Item> findAllById(List<UUID> itemIdList);
 
     @Override
     @CacheableMethod(cacheName = "item-by-id", key = "#id")

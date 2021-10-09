@@ -20,6 +20,9 @@ public interface GroupRepository extends MongoRepository<Group, UUID> {
     @CacheableMethod(cacheName = "groups-by-user-id", key = "#userId")
     List<Group> findAllByUserId(UUID userId);
 
+    @Query(value = "{'id' : {'$in' : ?0}}")
+    List<Group> findAllById(List<UUID> groupIdList);
+
     @Override
     @Query(value = "{ 'id': ?0 }")
     @CacheableMethod(cacheName = "group-by-id", key = "#id")

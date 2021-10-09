@@ -10,8 +10,10 @@ import com.persoff68.fatodo.service.helper.PermissionHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +55,10 @@ public class PermissionService {
         return checkPermission(groupId, permissionHelper::canRead);
     }
 
+    public boolean hasMultipleAdminPermission(List<UUID> groupIdList) {
+        return checkMultiplePermission(groupIdList, permissionHelper::canAdmin);
+    }
+
     public boolean hasEditPermission(UUID groupId) {
         return checkPermission(groupId, permissionHelper::canEdit);
     }
@@ -61,9 +67,12 @@ public class PermissionService {
         return checkPermission(groupId, permissionHelper::canAdmin);
     }
 
-
     public boolean hasReadItemPermission(UUID itemId) {
         return checkItemPermission(itemId, permissionHelper::canRead);
+    }
+
+    public boolean hasMultipleAdminItemPermission(List<UUID> itemIdList) {
+        return checkMultipleItemPermission(itemIdList, permissionHelper::canAdmin);
     }
 
     private boolean checkPermission(UUID groupId, Predicate<Group> checkGroup) {
@@ -72,12 +81,39 @@ public class PermissionService {
         return checkGroup.test(group);
     }
 
+    private boolean checkMultiplePermission(List<UUID> groupIdList, Predicate<Group> checkGroup) {
+        groupIdList = groupIdList.stream().distinct().collect(Collectors.toList());
+        List<Group> groupList = groupRepository.findAllById(groupIdList);
+        if (groupList.size() != groupIdList.size()) {
+            throw new ModelNotFoundException();
+        }
+        return groupList.stream()
+                .map(checkGroup::test)
+                .allMatch(Predicate.isEqual(true));
+    }
+
     private boolean checkItemPermission(UUID itemId, Predicate<Group> checkGroup) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(ModelNotFoundException::new);
         Group group = groupRepository.findById(item.getGroupId())
                 .orElseThrow(ModelNotFoundException::new);
         return checkGroup.test(group);
+    }
+
+    private boolean checkMultipleItemPermission(List<UUID> itemIdList, Predicate<Group> checkGroup) {
+        itemIdList = itemIdList.stream().distinct().collect(Collectors.toList());
+        List<Item> itemList = itemRepository.findAllById(itemIdList);
+        if (itemList.size() != itemIdList.size()) {
+            throw new ModelNotFoundException();
+        }
+        List<UUID> groupIdList = itemList.stream()
+                .map(Item::getGroupId)
+                .distinct()
+                .collect(Collectors.toList());
+        List<Group> groupList = groupRepository.findAllById(groupIdList);
+        return groupList.stream()
+                .map(checkGroup::test)
+                .allMatch(Predicate.isEqual(true));
     }
 
 }
