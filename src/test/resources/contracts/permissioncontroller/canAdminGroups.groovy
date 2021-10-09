@@ -6,7 +6,7 @@ Contract.make {
     name 'can read groups by ids'
     description 'should return status 200 and boolean'
     request {
-        method GET()
+        method POST()
         url("/api/permissions/groups/admin")
         headers {
             header 'Authorization': $(
