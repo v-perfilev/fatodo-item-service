@@ -8,6 +8,7 @@ import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.builder.TestGroupVM;
+import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
@@ -65,6 +66,8 @@ public class GroupResourceIT {
     ItemService itemService;
     @MockBean
     ImageServiceClient imageServiceClient;
+    @MockBean
+    CommentServiceClient commentServiceClient;
 
     MockMvc mvc;
 
@@ -96,6 +99,7 @@ public class GroupResourceIT {
 
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");
         when(imageServiceClient.updateGroupImage(any())).thenReturn("filename");
+        doNothing().when(commentServiceClient).deleteAllThreadsByTargetIds(any());
         doNothing().when(imageServiceClient).deleteGroupImage(any());
         doNothing().when(itemService).deleteAllByGroupId(any());
     }

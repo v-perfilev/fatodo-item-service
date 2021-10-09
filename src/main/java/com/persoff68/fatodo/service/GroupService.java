@@ -1,9 +1,9 @@
 package com.persoff68.fatodo.service;
 
+import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.model.Configuration;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
-import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
@@ -31,6 +31,7 @@ public class GroupService {
     private final ItemService itemService;
     private final PermissionService permissionService;
     private final GroupValidator groupValidator;
+    private final CommentServiceClient commentServiceClient;
 
     public List<Group> getAllByUserId(UUID userId) {
         Map<UUID, Integer> orderMap = configurationService.getByUserId(userId).getGroups()
@@ -95,6 +96,8 @@ public class GroupService {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
 
+        List<UUID> idList = Collections.singletonList(groupId);
+        commentServiceClient.deleteAllThreadsByTargetIds(idList);
         itemService.deleteAllByGroupId(group.getId());
         imageService.deleteGroup(group);
         configurationService.deleteGroup(group);

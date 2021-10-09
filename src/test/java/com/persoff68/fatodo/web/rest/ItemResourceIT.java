@@ -8,6 +8,7 @@ import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestItemVM;
 import com.persoff68.fatodo.builder.TestMember;
+import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -32,6 +34,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,6 +62,9 @@ public class ItemResourceIT {
     @SpyBean
     PermissionService permissionService;
 
+    @MockBean
+    CommentServiceClient commentServiceClient;
+
     @BeforeEach
     void setup() {
         groupRepository.deleteAll();
@@ -76,6 +82,8 @@ public class ItemResourceIT {
 
         itemRepository.save(item1);
         itemRepository.save(item2);
+
+        doNothing().when(commentServiceClient).deleteAllThreadsByTargetIds(any());
     }
 
 

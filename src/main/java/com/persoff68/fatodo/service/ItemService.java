@@ -1,5 +1,6 @@
 package com.persoff68.fatodo.service;
 
+import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.repository.ItemRepository;
@@ -9,6 +10,7 @@ import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final PermissionService permissionService;
+    private final CommentServiceClient commentServiceClient;
 
     public List<Item> getAllByGroupId(UUID groupId) {
         permissionService.checkReadPermission(groupId);
@@ -66,6 +69,8 @@ public class ItemService {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
         permissionService.checkAdminPermission(item.getGroupId());
+        List<UUID> idList = Collections.singletonList(item.getId());
+        commentServiceClient.deleteAllThreadsByTargetIds(idList);
         itemRepository.delete(item);
     }
 
@@ -73,6 +78,7 @@ public class ItemService {
         permissionService.checkAdminPermission(groupId);
         List<UUID> idList = itemRepository.findAllByGroupId(groupId)
                 .stream().map(Item::getId).collect(Collectors.toList());
+        commentServiceClient.deleteAllThreadsByTargetIds(idList);
         itemRepository.deleteAllByIdInAndGroupId(idList, groupId);
     }
 
