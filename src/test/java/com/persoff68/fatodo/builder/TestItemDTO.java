@@ -1,6 +1,6 @@
 package com.persoff68.fatodo.builder;
 
-import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.constant.ItemPriority;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.constant.ItemType;
@@ -14,8 +14,16 @@ public class TestItemDTO extends ItemDTO {
     private static final String DEFAULT_VALUE = "test_value";
 
     @Builder
-    public TestItemDTO(UUID id, String title, ItemType type, ItemPriority priority, Item.DateParams date, String description, List<Item.Reminder> reminders, List<String> tags, ItemStatus status, UUID groupId) {
-        super(title, type, priority, date, description, reminders, tags, status, groupId);
+    public TestItemDTO(UUID id,
+                       String title,
+                       ItemType type,
+                       ItemPriority priority,
+                       DateParams date,
+                       String description,
+                       List<String> tags,
+                       ItemStatus status,
+                       UUID groupId) {
+        super(groupId, title, type, priority, date, description, tags, status);
         this.setId(id);
     }
 

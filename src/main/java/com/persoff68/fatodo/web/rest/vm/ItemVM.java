@@ -1,6 +1,8 @@
 package com.persoff68.fatodo.web.rest.vm;
 
+import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.Reminder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,8 @@ public class ItemVM {
 
     private UUID id;
 
+    private UUID groupId;
+
     @NotNull
     private String title;
 
@@ -25,14 +29,12 @@ public class ItemVM {
     @NotNull
     private String priority;
 
-    private Item.DateParams date;
+    private DateParams date;
 
     private String description;
 
-    private List<Item.Reminder> reminders;
+    private List<Reminder> reminders;
 
     private List<String> tags;
-
-    private UUID groupId;
 
 }

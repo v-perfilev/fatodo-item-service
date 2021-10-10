@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
@@ -19,6 +20,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class Item extends AbstractAuditingModel {
+
+    @Indexed
+    private UUID groupId;
 
     @NotNull
     private String title;
@@ -33,32 +37,9 @@ public class Item extends AbstractAuditingModel {
 
     private String description;
 
-    private List<Reminder> reminders;
-
     private List<String> tags;
 
     @NotNull
     private ItemStatus status;
-
-    private UUID groupId;
-
-    @Data
-    @NoArgsConstructor
-    public static class DateParams {
-        private int time;
-        private int date;
-        private int month;
-        private int year;
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class Reminder {
-        private UUID id = UUID.randomUUID();
-        private String periodicity;
-        private DateParams date;
-        private List<Integer> weekDays;
-        private List<Integer> monthDays;
-    }
 
 }

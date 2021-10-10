@@ -43,6 +43,7 @@ public class ItemService {
 
         item.setStatus(ItemStatus.ACTIVE);
 
+        // TODO if reminders set - request to reminder service
         return itemRepository.save(item);
     }
 
@@ -59,9 +60,9 @@ public class ItemService {
         item.setPriority(newItem.getPriority());
         item.setDate(newItem.getDate());
         item.setDescription(newItem.getDescription());
-        item.setReminders(newItem.getReminders());
         item.setTags(newItem.getTags());
 
+        // TODO if reminders changed - request to reminder service
         return itemRepository.save(item);
     }
 
@@ -72,6 +73,7 @@ public class ItemService {
         List<UUID> idList = Collections.singletonList(item.getId());
         commentServiceClient.deleteAllThreadsByTargetIds(idList);
         itemRepository.delete(item);
+        // TODO remove all reminders
     }
 
     public void deleteAllByGroupId(UUID groupId) {
@@ -80,6 +82,7 @@ public class ItemService {
                 .stream().map(Item::getId).collect(Collectors.toList());
         commentServiceClient.deleteAllThreadsByTargetIds(idList);
         itemRepository.deleteAllByIdInAndGroupId(idList, groupId);
+        // TODO remove all reminders
     }
 
 }

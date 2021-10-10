@@ -1,6 +1,7 @@
 package com.persoff68.fatodo.builder;
 
-import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.DateParams;
+import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.model.constant.ItemPriority;
 import com.persoff68.fatodo.model.constant.ItemType;
 import com.persoff68.fatodo.web.rest.vm.ItemVM;
@@ -14,8 +15,16 @@ public class TestItemVM extends ItemVM {
     private static final String DEFAULT_VALUE = "test_value";
 
     @Builder
-    public TestItemVM(UUID id, @NotNull String title, @NotNull String type, @NotNull String priority, Item.DateParams date, String description, List<Item.Reminder> reminders, List<String> tags, UUID groupId) {
-        super(id, title, type, priority, date, description, reminders, tags, groupId);
+    public TestItemVM(UUID id,
+                      UUID groupId,
+                      @NotNull String title,
+                      @NotNull String type,
+                      @NotNull String priority,
+                      DateParams date,
+                      String description,
+                      List<Reminder> reminders,
+                      List<String> tags) {
+        super(groupId, id, title, type, priority, date, description, reminders, tags);
     }
 
     public static TestItemVMBuilder defaultBuilder() {
