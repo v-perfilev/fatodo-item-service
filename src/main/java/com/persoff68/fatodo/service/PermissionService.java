@@ -55,10 +55,6 @@ public class PermissionService {
         return checkPermission(groupId, permissionHelper::canRead);
     }
 
-    public boolean hasMultipleAdminPermission(List<UUID> groupIdList) {
-        return checkMultiplePermission(groupIdList, permissionHelper::canAdmin);
-    }
-
     public boolean hasEditPermission(UUID groupId) {
         return checkPermission(groupId, permissionHelper::canEdit);
     }
@@ -67,8 +63,20 @@ public class PermissionService {
         return checkPermission(groupId, permissionHelper::canAdmin);
     }
 
+    public boolean hasMultipleAdminPermission(List<UUID> groupIdList) {
+        return checkMultiplePermission(groupIdList, permissionHelper::canAdmin);
+    }
+
     public boolean hasReadItemPermission(UUID itemId) {
         return checkItemPermission(itemId, permissionHelper::canRead);
+    }
+
+    public boolean hasEditItemPermission(UUID itemId) {
+        return checkItemPermission(itemId, permissionHelper::canEdit);
+    }
+
+    public boolean hasAdminItemPermission(UUID itemId) {
+        return checkItemPermission(itemId, permissionHelper::canAdmin);
     }
 
     public boolean hasMultipleAdminItemPermission(List<UUID> itemIdList) {

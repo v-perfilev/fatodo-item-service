@@ -28,15 +28,39 @@ public class PermissionController {
         return ResponseEntity.ok(hasPermission);
     }
 
-    @PostMapping(value = "/groups/admin")
-    public ResponseEntity<Boolean> canAdminGroups(@RequestBody List<UUID> groupIdList) {
-        boolean hasPermission = permissionService.hasMultipleAdminPermission(groupIdList);
+    @GetMapping(value = "/group/edit/{groupId}")
+    public ResponseEntity<Boolean> canEditGroup(@PathVariable UUID groupId) {
+        boolean hasPermission = permissionService.hasEditPermission(groupId);
+        return ResponseEntity.ok(hasPermission);
+    }
+
+    @GetMapping(value = "/group/admin/{groupId}")
+    public ResponseEntity<Boolean> canAdminGroup(@PathVariable UUID groupId) {
+        boolean hasPermission = permissionService.hasAdminPermission(groupId);
         return ResponseEntity.ok(hasPermission);
     }
 
     @GetMapping(value = "/item/read/{itemId}")
     public ResponseEntity<Boolean> canReadItem(@PathVariable UUID itemId) {
         boolean hasPermission = permissionService.hasReadItemPermission(itemId);
+        return ResponseEntity.ok(hasPermission);
+    }
+
+    @GetMapping(value = "/item/edit/{itemId}")
+    public ResponseEntity<Boolean> canEditItem(@PathVariable UUID itemId) {
+        boolean hasPermission = permissionService.hasEditItemPermission(itemId);
+        return ResponseEntity.ok(hasPermission);
+    }
+
+    @GetMapping(value = "/item/admin/{itemId}")
+    public ResponseEntity<Boolean> canAdminItem(@PathVariable UUID itemId) {
+        boolean hasPermission = permissionService.hasAdminItemPermission(itemId);
+        return ResponseEntity.ok(hasPermission);
+    }
+
+    @PostMapping(value = "/groups/admin")
+    public ResponseEntity<Boolean> canAdminGroups(@RequestBody List<UUID> groupIdList) {
+        boolean hasPermission = permissionService.hasMultipleAdminPermission(groupIdList);
         return ResponseEntity.ok(hasPermission);
     }
 

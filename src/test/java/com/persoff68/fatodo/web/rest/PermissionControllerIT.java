@@ -68,6 +68,7 @@ public class PermissionControllerIT {
 
         Item item2 = TestItem.defaultBuilder().id(ITEM_CAN_NOTHING_ID).groupId(GROUP_CAN_NOTHING_ID).build();
         itemRepository.save(item2);
+
     }
 
     @Test
@@ -104,6 +105,196 @@ public class PermissionControllerIT {
     @WithAnonymousUser
     void testCanReadGroup_unauthorized() throws Exception {
         String url = ENDPOINT + "/group/read/" + GROUP_CAN_ADMIN_ID;
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditGroup_true() throws Exception {
+        String url = ENDPOINT + "/group/edit/" + GROUP_CAN_ADMIN_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditGroup_false() throws Exception {
+        String url = ENDPOINT + "/group/edit/" + GROUP_CAN_NOTHING_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditGroup_notFound() throws Exception {
+        String url = ENDPOINT + "/group/edit/" + UUID.randomUUID();
+        mvc.perform(get(url))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testCanEditGroup_unauthorized() throws Exception {
+        String url = ENDPOINT + "/group/edit/" + GROUP_CAN_ADMIN_ID;
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanAdminGroup_true() throws Exception {
+        String url = ENDPOINT + "/group/admin/" + GROUP_CAN_ADMIN_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanAdminGroup_false() throws Exception {
+        String url = ENDPOINT + "/group/admin/" + GROUP_CAN_NOTHING_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanAdminGroup_notFound() throws Exception {
+        String url = ENDPOINT + "/group/admin/" + UUID.randomUUID();
+        mvc.perform(get(url))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testCanAdminGroup_unauthorized() throws Exception {
+        String url = ENDPOINT + "/group/admin/" + GROUP_CAN_ADMIN_ID;
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanReadItem_true() throws Exception {
+        String url = ENDPOINT + "/item/read/" + ITEM_CAN_ADMIN_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanReadItem_false() throws Exception {
+        String url = ENDPOINT + "/item/read/" + ITEM_CAN_NOTHING_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanReadItem_notFound() throws Exception {
+        String url = ENDPOINT + "/item/read/" + UUID.randomUUID();
+        mvc.perform(get(url))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testCanReadItem_unauthorized() throws Exception {
+        String url = ENDPOINT + "/item/read/" + ITEM_CAN_ADMIN_ID;
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditItem_true() throws Exception {
+        String url = ENDPOINT + "/item/edit/" + ITEM_CAN_ADMIN_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditItem_false() throws Exception {
+        String url = ENDPOINT + "/item/edit/" + ITEM_CAN_NOTHING_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditItem_notFound() throws Exception {
+        String url = ENDPOINT + "/item/edit/" + UUID.randomUUID();
+        mvc.perform(get(url))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testCanEditItem_unauthorized() throws Exception {
+        String url = ENDPOINT + "/item/edit/" + ITEM_CAN_ADMIN_ID;
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanAdminItem_true() throws Exception {
+        String url = ENDPOINT + "/item/admin/" + ITEM_CAN_ADMIN_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanAdminItem_false() throws Exception {
+        String url = ENDPOINT + "/item/admin/" + ITEM_CAN_NOTHING_ID;
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanAdminItem_notFound() throws Exception {
+        String url = ENDPOINT + "/item/admin/" + UUID.randomUUID();
+        mvc.perform(get(url))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testCanAdminItem_unauthorized() throws Exception {
+        String url = ENDPOINT + "/item/admin/" + ITEM_CAN_ADMIN_ID;
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -155,45 +346,6 @@ public class PermissionControllerIT {
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanReadItem_true() throws Exception {
-        String url = ENDPOINT + "/item/read/" + ITEM_CAN_ADMIN_ID;
-        ResultActions resultActions = mvc.perform(get(url))
-                .andExpect(status().isOk());
-        String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        boolean result = Boolean.parseBoolean(resultString);
-        assertThat(result).isTrue();
-    }
-
-
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanReadItem_false() throws Exception {
-        String url = ENDPOINT + "/item/read/" + ITEM_CAN_NOTHING_ID;
-        ResultActions resultActions = mvc.perform(get(url))
-                .andExpect(status().isOk());
-        String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        boolean result = Boolean.parseBoolean(resultString);
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
-    void testCanReadItem_notFound() throws Exception {
-        String url = ENDPOINT + "/item/read/" + UUID.randomUUID();
-        mvc.perform(get(url))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithAnonymousUser
-    void testCanReadItem_unauthorized() throws Exception {
-        String url = ENDPOINT + "/item/read/" + ITEM_CAN_ADMIN_ID;
-        mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
 
