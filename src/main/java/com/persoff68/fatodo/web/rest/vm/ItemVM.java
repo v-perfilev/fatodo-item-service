@@ -1,8 +1,9 @@
 package com.persoff68.fatodo.web.rest.vm;
 
 import com.persoff68.fatodo.model.DateParams;
-import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Reminder;
+import com.persoff68.fatodo.web.rest.validator.DateParamsConstraint;
+import com.persoff68.fatodo.web.rest.validator.RemindersConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ public class ItemVM {
 
     private UUID id;
 
+    @NotNull
     private UUID groupId;
 
     @NotNull
@@ -29,10 +31,12 @@ public class ItemVM {
     @NotNull
     private String priority;
 
+    @DateParamsConstraint
     private DateParams date;
 
     private String description;
 
+    @RemindersConstraint
     private List<Reminder> reminders;
 
     private List<String> tags;

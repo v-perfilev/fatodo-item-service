@@ -8,6 +8,7 @@ import com.persoff68.fatodo.web.rest.vm.ItemVM;
 import lombok.Builder;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,17 +25,19 @@ public class TestItemVM extends ItemVM {
                       String description,
                       List<Reminder> reminders,
                       List<String> tags) {
-        super(groupId, id, title, type, priority, date, description, reminders, tags);
+        super(id, groupId, title, type, priority, date, description, reminders, tags);
     }
 
     public static TestItemVMBuilder defaultBuilder() {
+        Reminder reminder = TestReminder.defaultBuilder().build();
         return TestItemVM.builder()
                 .id(UUID.randomUUID())
+                .groupId(UUID.randomUUID())
                 .title(DEFAULT_VALUE)
                 .type(ItemType.TASK.toString())
                 .priority(ItemPriority.NORMAL.toString())
                 .description(DEFAULT_VALUE)
-                .groupId(UUID.randomUUID());
+                .reminders(Collections.singletonList(reminder));
     }
 
 }

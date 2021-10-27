@@ -15,14 +15,14 @@ public class TestItemDTO extends ItemDTO {
 
     @Builder
     public TestItemDTO(UUID id,
+                       UUID groupId,
                        String title,
                        ItemType type,
                        ItemPriority priority,
                        DateParams date,
                        String description,
                        List<String> tags,
-                       ItemStatus status,
-                       UUID groupId) {
+                       ItemStatus status) {
         super(groupId, title, type, priority, date, description, tags, status);
         this.setId(id);
     }
@@ -30,12 +30,12 @@ public class TestItemDTO extends ItemDTO {
     public static TestItemDTOBuilder defaultBuilder() {
         return TestItemDTO.builder()
                 .id(UUID.randomUUID())
+                .groupId(UUID.randomUUID())
                 .title(DEFAULT_VALUE)
                 .type(ItemType.TASK)
                 .priority(ItemPriority.NORMAL)
                 .description(DEFAULT_VALUE)
-                .status(ItemStatus.ACTIVE)
-                .groupId(UUID.randomUUID());
+                .status(ItemStatus.ACTIVE);
     }
 
 }
