@@ -28,6 +28,11 @@ public class ItemService {
         return itemRepository.findAllByGroupId(groupId);
     }
 
+    public Item getByIdWithoutPermissionCheck(UUID id) {
+        return itemRepository.findById(id)
+                .orElseThrow(ModelNotFoundException::new);
+    }
+
     public Item getById(UUID id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);

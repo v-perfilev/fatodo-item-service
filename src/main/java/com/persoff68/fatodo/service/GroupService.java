@@ -42,6 +42,11 @@ public class GroupService {
                 .collect(Collectors.toList());
     }
 
+    public Group getByIdWithoutPermissionCheck(UUID id) {
+        return groupRepository.findById(id)
+                .orElseThrow(ModelNotFoundException::new);
+    }
+
     public Group getById(UUID id) {
         permissionService.checkReadPermission(id);
         return groupRepository.findById(id)
