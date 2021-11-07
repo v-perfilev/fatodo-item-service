@@ -41,4 +41,6 @@ public class ItemVM {
 
     private List<String> tags;
 
+    private boolean deleteReminders;
+
 }

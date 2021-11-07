@@ -52,7 +52,7 @@ public class ItemResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> create(@RequestBody @Valid ItemVM itemVM) {
         Item item = itemMapper.vmToPojo(itemVM);
-        item = itemService.create(item);
+        item = itemService.create(item, itemVM.getReminders());
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.status(HttpStatus.CREATED).body(itemDTO);
     }
@@ -61,7 +61,7 @@ public class ItemResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> update(@RequestBody @Valid ItemVM itemVM) {
         Item item = itemMapper.vmToPojo(itemVM);
-        item = itemService.update(item);
+        item = itemService.update(item, itemVM.getReminders(), itemVM.isDeleteReminders());
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.ok(itemDTO);
     }

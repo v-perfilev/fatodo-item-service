@@ -1,7 +1,9 @@
 package com.persoff68.fatodo.service;
 
 import com.persoff68.fatodo.client.CommentServiceClient;
+import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
@@ -22,6 +24,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final PermissionService permissionService;
     private final CommentServiceClient commentServiceClient;
+    private final NotificationServiceClient notificationServiceClient;
 
     public List<Item> getAllByGroupId(UUID groupId) {
         permissionService.checkReadPermission(groupId);
@@ -40,19 +43,22 @@ public class ItemService {
         return item;
     }
 
-    public Item create(Item item) {
-        if (item.getId() != null) {
+    public Item create(Item newItem, List<Reminder> reminderList) {
+        if (newItem.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
-        permissionService.checkEditPermission(item.getGroupId());
+        permissionService.checkEditPermission(newItem.getGroupId());
 
-        item.setStatus(ItemStatus.ACTIVE);
+        newItem.setStatus(ItemStatus.ACTIVE);
 
-        // TODO if reminders set - request to reminder service
-        return itemRepository.save(item);
+        Item item = itemRepository.save(newItem);
+        if (reminderList != null) {
+            notificationServiceClient.setReminders(item.getId(), reminderList);
+        }
+        return item;
     }
 
-    public Item update(Item newItem) {
+    public Item update(Item newItem, List<Reminder> reminderList, boolean deleteReminders) {
         if (newItem.getId() == null) {
             throw new ModelInvalidException();
         }
@@ -67,8 +73,13 @@ public class ItemService {
         item.setDescription(newItem.getDescription());
         item.setTags(newItem.getTags());
 
-        // TODO if reminders changed - request to reminder service
-        return itemRepository.save(item);
+        itemRepository.save(item);
+        if (reminderList != null) {
+            notificationServiceClient.setReminders(item.getId(), reminderList);
+        } else if (deleteReminders) {
+            notificationServiceClient.deleteReminders(item.getId());
+        }
+        return item;
     }
 
     public void delete(UUID id) {
@@ -77,17 +88,17 @@ public class ItemService {
         permissionService.checkAdminPermission(item.getGroupId());
         List<UUID> idList = Collections.singletonList(item.getId());
         commentServiceClient.deleteAllThreadsByTargetIds(idList);
+        notificationServiceClient.deleteReminders(id);
         itemRepository.delete(item);
-        // TODO remove all reminders
     }
 
     public void deleteAllByGroupId(UUID groupId) {
         permissionService.checkAdminPermission(groupId);
-        List<UUID> idList = itemRepository.findAllByGroupId(groupId)
+        List<UUID> itemIdList = itemRepository.findAllByGroupId(groupId)
                 .stream().map(Item::getId).collect(Collectors.toList());
-        commentServiceClient.deleteAllThreadsByTargetIds(idList);
-        itemRepository.deleteAllByIdInAndGroupId(idList, groupId);
-        // TODO remove all reminders
+        commentServiceClient.deleteAllThreadsByTargetIds(itemIdList);
+        itemIdList.forEach(notificationServiceClient::deleteReminders);
+        itemRepository.deleteAllByIdInAndGroupId(itemIdList, groupId);
     }
 
 }
