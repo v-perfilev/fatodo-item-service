@@ -102,11 +102,11 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testGetAllByGroupId_badRequest_wrongPermission() throws Exception {
+    void testGetAllByGroupId_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasReadPermission(any());
         String url = ENDPOINT + "/" + GROUP_ID + "/group-id";
         mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -143,11 +143,11 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testGetById_badRequest_wrongPermission() throws Exception {
+    void testGetById_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasReadPermission(any());
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -200,13 +200,13 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testCreate_badRequest_wrongPermission() throws Exception {
+    public void testCreate_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -249,13 +249,13 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdate_badRequest_canNotEdit() throws Exception {
+    public void testUpdate_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -300,11 +300,11 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testDelete_badRequest_wrongPermission() throws Exception {
+    void testDelete_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasAdminPermission(any());
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(delete(url))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -327,11 +327,11 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testDeleteAllByGroupId_badRequest_wrongPermission() throws Exception {
+    void testDeleteAllByGroupId_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasAdminPermission(any());
         String url = ENDPOINT + "/" + GROUP_ID + "/group-id";
         mvc.perform(delete(url))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test

@@ -6,8 +6,8 @@ import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.TestUtils;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
-import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.builder.TestGroupVM;
+import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.model.Group;
@@ -137,10 +137,10 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetById_badRequest_wrongUser() throws Exception {
+    public void testGetById_forbidden_wrongUser() throws Exception {
         String url = ENDPOINT + "/" + WRONG_GROUP_ID;
         mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -167,7 +167,7 @@ public class GroupResourceIT {
         GroupVM vm = TestGroupVM.defaultBuilder().id(null).build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         ResultActions resultActions = mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
                 .andExpect(status().isCreated());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         GroupDTO resultDTO = objectMapper.readValue(resultString, GroupDTO.class);
@@ -183,7 +183,7 @@ public class GroupResourceIT {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
                 .andExpect(status().isBadRequest());
     }
 
@@ -193,7 +193,7 @@ public class GroupResourceIT {
         GroupVM vm = TestGroupVM.defaultBuilder().id(null).title(null).build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
                 .andExpect(status().isBadRequest());
 
     }
@@ -204,7 +204,7 @@ public class GroupResourceIT {
         GroupVM vm = TestGroupVM.defaultBuilder().build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
                 .andExpect(status().isBadRequest());
     }
 
@@ -214,7 +214,7 @@ public class GroupResourceIT {
         GroupVM vm = TestGroupVM.defaultBuilder().id(null).build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -225,7 +225,7 @@ public class GroupResourceIT {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         GroupDTO resultDTO = objectMapper.readValue(resultString, GroupDTO.class);
@@ -236,22 +236,22 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdate_badRequest_wrongUser() throws Exception {
+    public void testUpdate_forbidden_wrongUser() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
-                .andExpect(status().isBadRequest());
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                .andExpect(status().isForbidden());
     }
 
     @Test
     @WithCustomSecurityContext(id = READ_ID)
-    public void testUpdate_badRequest_wrongPermission() throws Exception {
+    public void testUpdate_forbidden_wrongPermission() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
-                .andExpect(status().isBadRequest());
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -260,7 +260,7 @@ public class GroupResourceIT {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.randomUUID()).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
                 .andExpect(status().isNotFound());
     }
 
@@ -270,7 +270,7 @@ public class GroupResourceIT {
         GroupVM vm = new GroupVM();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
                 .andExpect(status().isBadRequest());
     }
 
@@ -280,7 +280,7 @@ public class GroupResourceIT {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
-                .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
+                        .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -304,10 +304,10 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = "3c300277-b5ea-48d1-80db-ead620cf5846")
-    public void testDelete_badRequest_wrongUser() throws Exception {
+    public void testDelete_forbidden_wrongUser() throws Exception {
         String url = ENDPOINT + "/" + WRONG_GROUP_ID;
         mvc.perform(delete(url))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test

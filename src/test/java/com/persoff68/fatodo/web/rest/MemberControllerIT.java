@@ -125,10 +125,10 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsByGroupId_badRequest_wrongPermission() throws Exception {
+    public void testGetUserIdsByGroupId_forbidden() throws Exception {
         String url = ENDPOINT + "/group/" + WRONG_GROUP_ID + "/ids";
         mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -162,10 +162,10 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    void testGetUserIdsByItemId_badRequest_wrongPermission() throws Exception {
+    void testGetUserIdsByItemId_forbidden() throws Exception {
         String url = ENDPOINT + "/item/" + WRONG_ITEM_ID + "/ids";
         mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -195,12 +195,12 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = READ_USER_ID)
-    public void testAddMembersToGroup_badRequest_wrongRole() throws Exception {
+    public void testAddMembersToGroup_forbidden() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/add";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(NEW_USER_ID)));
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -253,12 +253,12 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = READ_USER_ID)
-    public void testRemoveMembersToGroup_badRequest_wrongRole() throws Exception {
+    public void testRemoveMembersToGroup_forbidden() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/remove";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.randomUUID()));
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -311,14 +311,14 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = READ_USER_ID)
-    public void testEditGroupMember_badRequest_wrongPermission() throws Exception {
+    public void testEditGroupMember_forbidden() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/edit";
         MemberVM memberVM = TestMemberVM.defaultBuilder()
                 .id(UUID.fromString(ADMIN_ID)).permission(Permission.EDIT).build();
         String requestBody = objectMapper.writeValueAsString(memberVM);
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -381,15 +381,15 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = NEW_USER_ID)
-    void testLeaveGroup_badRequest_wrongPermissions() throws Exception {
+    void testLeaveGroup_forbidden() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/leave";
         mvc.perform(get(url))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    void testLeaveGroup_notFound_groupNotFound() throws Exception {
+    void testLeaveGroup_notFound() throws Exception {
         String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/leave";
         mvc.perform(get(url))
                 .andExpect(status().isNotFound());
