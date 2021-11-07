@@ -24,8 +24,9 @@ public class TestItemVM extends ItemVM {
                       DateParams date,
                       String description,
                       List<Reminder> reminders,
-                      List<String> tags) {
-        super(id, groupId, title, type, priority, date, description, reminders, tags);
+                      List<String> tags,
+                      boolean deleteReminders) {
+        super(id, groupId, title, type, priority, date, description, reminders, tags, deleteReminders);
     }
 
     public static TestItemVMBuilder defaultBuilder() {

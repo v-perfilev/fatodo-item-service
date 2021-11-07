@@ -9,6 +9,7 @@ import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestItemVM;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
+import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
@@ -64,6 +65,8 @@ public class ItemResourceIT {
 
     @MockBean
     CommentServiceClient commentServiceClient;
+    @MockBean
+    NotificationServiceClient notificationServiceClient;
 
     @BeforeEach
     void setup() {
@@ -84,6 +87,8 @@ public class ItemResourceIT {
         itemRepository.save(item2);
 
         doNothing().when(commentServiceClient).deleteAllThreadsByTargetIds(any());
+        doNothing().when(notificationServiceClient).setReminders(any(), any());
+        doNothing().when(notificationServiceClient).deleteReminders(any());
     }
 
 
