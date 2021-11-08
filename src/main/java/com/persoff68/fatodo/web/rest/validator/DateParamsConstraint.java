@@ -10,10 +10,12 @@ import java.lang.annotation.Target;
 
 @Documented
 @Constraint(validatedBy = DateParamsValidator.class)
-@Target( { ElementType.METHOD, ElementType.FIELD })
+@Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DateParamsConstraint {
     String message() default "Invalid date params";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

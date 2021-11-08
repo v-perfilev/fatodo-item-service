@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ReminderService {
-    private final static String ITEM_URL_PREFIX = "/items/";
+    private static final String ITEM_URL_PREFIX = "/items/";
 
     private final ItemService itemService;
     private final GroupService groupService;
