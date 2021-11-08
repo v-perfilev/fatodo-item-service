@@ -2,6 +2,7 @@ package com.persoff68.fatodo.client;
 
 import com.persoff68.fatodo.exception.ClientException;
 import com.persoff68.fatodo.model.Reminder;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
@@ -31,6 +32,8 @@ public class NotificationServiceClientWrapper implements NotificationServiceClie
     public void deleteReminders(UUID targetId) {
         try {
             notificationServiceClient.deleteReminders(targetId);
+        } catch (FeignException.NotFound e) {
+            // skip
         } catch (Exception e) {
             throw new ClientException();
         }

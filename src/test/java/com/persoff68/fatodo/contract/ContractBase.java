@@ -5,6 +5,7 @@ import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
+import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.client.UserServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
@@ -49,6 +50,8 @@ public abstract class ContractBase {
     UserServiceClient userServiceClient;
     @MockBean
     CommentServiceClient commentServiceClient;
+    @MockBean
+    NotificationServiceClient notificationServiceClient;
 
     @BeforeEach
     public void setup() {
@@ -77,6 +80,8 @@ public abstract class ContractBase {
         when(imageServiceClient.updateGroupImage(any())).thenReturn("filename");
         doNothing().when(imageServiceClient).deleteGroupImage(any());
         doNothing().when(commentServiceClient).deleteAllThreadsByTargetIds(any());
+        doNothing().when(notificationServiceClient).setReminders(any(), any());
+        doNothing().when(notificationServiceClient).deleteReminders(any());
     }
 
 }
