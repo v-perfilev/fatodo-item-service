@@ -37,6 +37,10 @@ public class DateUtils {
         return date >= 1 || date <= lengthOfMonth;
     }
 
+    public static boolean isDateOffsetValid(int dateOffset) {
+        return dateOffset >= -1 && dateOffset <= 1;
+    }
+
     public static boolean isDateInFuture(int time, int date, int month, int year) {
         int hours = getHours(time);
         int minutes = getMinutes(time);

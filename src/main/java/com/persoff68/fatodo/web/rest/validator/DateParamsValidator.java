@@ -22,7 +22,10 @@ public class DateParamsValidator implements ConstraintValidator<DateParamsConstr
         int date = dateParams.getDate();
         int month = dateParams.getMonth();
         int year = dateParams.getYear();
-        return DateUtils.isTimeValid(time) && DateUtils.isDateValid(date, month, year);
+        int dateOffset = dateParams.getDateOffset();
+        return DateUtils.isTimeValid(time)
+                && DateUtils.isDateValid(date, month, year)
+                && DateUtils.isDateOffsetValid(dateOffset);
     }
 
 }
