@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 public class DateUtils {
     private static final int MINUTES_IN_HOUR = 60;
@@ -37,8 +38,8 @@ public class DateUtils {
         return date >= 1 || date <= lengthOfMonth;
     }
 
-    public static boolean isDateOffsetValid(int dateOffset) {
-        return dateOffset >= -1 && dateOffset <= 1;
+    public static boolean isTimezoneValid(String timezone) {
+        return Set.of(TimeZone.getAvailableIDs()).contains(timezone);
     }
 
     public static boolean isDateInFuture(int time, int date, int month, int year) {
