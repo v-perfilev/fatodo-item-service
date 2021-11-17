@@ -6,8 +6,8 @@ import lombok.Builder;
 public class TestDateParams extends DateParams {
 
     @Builder
-    TestDateParams(int time, int date, int month, int year, int dateOffset) {
-        super(time, date, month, year, dateOffset);
+    TestDateParams(int time, int date, int month, int year, String timezone) {
+        super(time, date, month, year, timezone);
     }
 
     public static TestDateParamsBuilder defaultBuilder() {
@@ -16,7 +16,7 @@ public class TestDateParams extends DateParams {
                 .date(10)
                 .month(10)
                 .year(2090)
-                .dateOffset(0);
+                .timezone("Europe/Berlin");
     }
 
 }
