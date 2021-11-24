@@ -10,6 +10,7 @@ import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelInvalidException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -28,7 +29,8 @@ public class ItemService {
 
     public List<Item> getAllByGroupId(UUID groupId) {
         permissionService.checkReadPermission(groupId);
-        return itemRepository.findAllByGroupId(groupId);
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return itemRepository.findAllByGroupId(groupId, sort);
     }
 
     public Item getByIdWithoutPermissionCheck(UUID id) {
@@ -94,7 +96,8 @@ public class ItemService {
 
     public void deleteAllByGroupId(UUID groupId) {
         permissionService.checkAdminPermission(groupId);
-        List<UUID> itemIdList = itemRepository.findAllByGroupId(groupId)
+        Sort sort = Sort.unsorted();
+        List<UUID> itemIdList = itemRepository.findAllByGroupId(groupId, sort)
                 .stream().map(Item::getId).collect(Collectors.toList());
         commentServiceClient.deleteAllThreadsByTargetIds(itemIdList);
         itemIdList.forEach(notificationServiceClient::deleteReminders);

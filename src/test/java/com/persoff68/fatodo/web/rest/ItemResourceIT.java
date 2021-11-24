@@ -103,6 +103,9 @@ public class ItemResourceIT {
         CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, ItemDTO.class);
         List<ItemDTO> itemDTOList = objectMapper.readValue(resultString, collectionType);
         assertThat(itemDTOList.size()).isEqualTo(2);
+        ItemDTO itemDTO1 = itemDTOList.get(0);
+        ItemDTO itemDTO2 = itemDTOList.get(1);
+        assertThat(itemDTO1.getCreatedAt().compareTo(itemDTO2.getCreatedAt())).isGreaterThan(0);
     }
 
     @Test
