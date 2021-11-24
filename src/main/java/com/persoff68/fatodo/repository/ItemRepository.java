@@ -15,6 +15,7 @@ import java.util.UUID;
 @Repository
 public interface ItemRepository extends MongoRepository<Item, UUID> {
 
+    @Query(value = "{ 'groupId': ?0 }, $orderby: { 'createdAt': -1 }")
     @CacheableMethod(cacheName = "items-by-group-id", key = "#groupId")
     List<Item> findAllByGroupId(UUID groupId);
 
