@@ -4,7 +4,6 @@ import com.mongodb.lang.NonNull;
 import com.persoff68.fatodo.config.aop.cache.annotation.CacheEvictMethod;
 import com.persoff68.fatodo.config.aop.cache.annotation.CacheableMethod;
 import com.persoff68.fatodo.model.Item;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,9 +15,9 @@ import java.util.UUID;
 @Repository
 public interface ItemRepository extends MongoRepository<Item, UUID> {
 
-    @Query(value = "{ 'groupId': ?0 }")
+    @Query(value = "{ 'groupId' : ?0 }", sort = "{ 'createdAt' : -1}")
     @CacheableMethod(cacheName = "items-by-group-id", key = "#groupId")
-    List<Item> findAllByGroupId(UUID groupId, Sort sort);
+    List<Item> findAllByGroupId(UUID groupId);
 
     @Query(value = "{'id' : {'$in' : ?0}}")
     List<Item> findAllById(List<UUID> itemIdList);
