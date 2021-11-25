@@ -77,7 +77,7 @@ public class GroupService {
         if (id == null) {
             throw new ModelInvalidException();
         }
-        permissionService.checkEditPermission(id);
+        permissionService.checkAdminPermission(id);
 
         Group group = groupRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);

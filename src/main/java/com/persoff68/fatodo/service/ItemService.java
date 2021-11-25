@@ -87,7 +87,7 @@ public class ItemService {
     public void delete(UUID id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkAdminPermission(item.getGroupId());
+        permissionService.checkEditPermission(item.getGroupId());
         List<UUID> idList = Collections.singletonList(item.getId());
         commentServiceClient.deleteAllThreadsByTargetIds(idList);
         notificationServiceClient.deleteReminders(id);

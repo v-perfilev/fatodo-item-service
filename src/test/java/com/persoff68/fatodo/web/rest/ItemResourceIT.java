@@ -291,7 +291,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testDelete_ok() throws Exception {
-        doReturn(true).when(permissionService).hasAdminPermission(any());
+        doReturn(true).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
@@ -309,7 +309,7 @@ public class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testDelete_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasAdminPermission(any());
+        doReturn(false).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/" + ITEM_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isForbidden());
