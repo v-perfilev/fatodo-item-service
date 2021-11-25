@@ -80,11 +80,8 @@ public class RemindersValidator implements ConstraintValidator<RemindersConstrai
         int time = dateParams.getTime();
         int date = dateParams.getDate();
         int month = dateParams.getMonth();
-        int year = 2020;
-        return DateUtils.isTimeValid(time)
-                && DateUtils.isDateValid(date, month, year)
-                && DateUtils.isDateInFuture(time, date, month, year);
+        int year = 2000;
+        return DateUtils.isTimeValid(time) && DateUtils.isDateValid(date, month, year);
     }
-
 
 }
