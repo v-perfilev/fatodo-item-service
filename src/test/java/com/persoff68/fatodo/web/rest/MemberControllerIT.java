@@ -8,7 +8,7 @@ import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.builder.TestMemberVM;
-import com.persoff68.fatodo.client.UserServiceClient;
+import com.persoff68.fatodo.client.ContactServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
@@ -65,7 +65,7 @@ public class MemberControllerIT {
     ObjectMapper objectMapper;
 
     @MockBean
-    UserServiceClient userServiceClient;
+    ContactServiceClient contactServiceClient;
 
     MockMvc mvc;
 
@@ -100,7 +100,7 @@ public class MemberControllerIT {
         itemRepository.save(item1);
         itemRepository.save(item2);
 
-        when(userServiceClient.doIdsExist(any())).thenReturn(true);
+        when(contactServiceClient.areUsersInContactList(any())).thenReturn(true);
     }
 
     @Test
@@ -215,13 +215,13 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testAddMembersToGroup_notFound_userNotFound() throws Exception {
-        when(userServiceClient.doIdsExist(any())).thenReturn(false);
+    public void testAddMembersToGroup_usersNotAllowed() throws Exception {
+        when(contactServiceClient.areUsersInContactList(any())).thenReturn(false);
         String url = ENDPOINT + "/group/" + GROUP_ID + "/add";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(NEW_USER_ID)));
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isForbidden());
     }
 
     @Test

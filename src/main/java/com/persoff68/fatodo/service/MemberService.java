@@ -23,7 +23,7 @@ public class MemberService {
     private final GroupRepository groupRepository;
     private final ItemRepository itemRepository;
     private final PermissionService permissionService;
-    private final UserService userService;
+    private final ContactService contactService;
     private final GroupValidator groupValidator;
 
     public List<UUID> getUserIdsByGroupId(UUID groupId) {
@@ -44,7 +44,7 @@ public class MemberService {
 
     public void addMembersToGroup(UUID groupId, List<UUID> userIdList) {
         permissionService.checkAdminPermission(groupId);
-        userService.checkUsersExist(userIdList);
+        contactService.checkIfUsersInContactList(userIdList);
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
 

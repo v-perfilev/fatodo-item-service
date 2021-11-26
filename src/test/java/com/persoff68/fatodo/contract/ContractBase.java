@@ -4,9 +4,9 @@ import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
+import com.persoff68.fatodo.client.ContactServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
-import com.persoff68.fatodo.client.UserServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
@@ -47,7 +47,7 @@ public abstract class ContractBase {
     @MockBean
     ImageServiceClient imageServiceClient;
     @MockBean
-    UserServiceClient userServiceClient;
+    ContactServiceClient contactServiceClient;
     @MockBean
     CommentServiceClient commentServiceClient;
     @MockBean
@@ -75,7 +75,7 @@ public abstract class ContractBase {
 
         itemRepository.save(item);
 
-        when(userServiceClient.doIdsExist(any())).thenReturn(true);
+        when(contactServiceClient.areUsersInContactList(any())).thenReturn(true);
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");
         when(imageServiceClient.updateGroupImage(any())).thenReturn("filename");
         doNothing().when(imageServiceClient).deleteGroupImage(any());
