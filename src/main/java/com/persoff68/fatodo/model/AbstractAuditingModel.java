@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -19,6 +20,7 @@ public abstract class AbstractAuditingModel extends AbstractModel implements Per
     protected UUID createdBy;
 
     @CreatedDate
+    @Indexed
     protected Instant createdAt;
 
     @LastModifiedBy
