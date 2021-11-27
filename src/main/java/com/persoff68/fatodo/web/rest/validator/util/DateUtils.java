@@ -34,7 +34,7 @@ public class DateUtils {
         if (month < 0 || month > 11) {
             return false;
         }
-        int lengthOfMonth = YearMonth.of(year, month - 1).lengthOfMonth();
+        int lengthOfMonth = YearMonth.of(year, month + 1).lengthOfMonth();
         return date >= 1 || date <= lengthOfMonth;
     }
 
