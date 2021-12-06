@@ -3,13 +3,13 @@ package contracts.itemresource
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get items by groupId'
+    name 'get archived items by groupId'
     description 'should return status 200 and list of ItemDTOs'
     request {
         method GET()
         url($(
-                consumer(regex("/api/items/" + uuid().toString() + "/group-id")),
-                producer("/api/items/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/group-id")
+                consumer(regex("/api/items/archived/" + uuid().toString() + "/group-id")),
+                producer("/api/items/archived/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/group-id")
         ))
         headers {
             header 'Authorization': $(
@@ -31,7 +31,7 @@ Contract.make {
                         "description": "test_value",
                         "status"     : "CREATED",
                         "groupId"    : "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
-                        "archived"   : false
+                        "archived" : true
                 ],
                 "count": 1
         ])

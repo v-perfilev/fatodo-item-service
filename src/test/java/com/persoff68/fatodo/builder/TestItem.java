@@ -23,8 +23,9 @@ public class TestItem extends Item {
              String description,
              List<String> tags,
              @NotNull ItemStatus status,
-             UUID groupId) {
-        super(groupId, title, type, priority, date, description, tags, status);
+             UUID groupId,
+             boolean archived) {
+        super(groupId, title, type, priority, date, description, tags, status, archived);
         this.setId(id);
     }
 
@@ -35,7 +36,7 @@ public class TestItem extends Item {
                 .type(ItemType.TASK)
                 .priority(ItemPriority.NORMAL)
                 .description(DEFAULT_VALUE)
-                .status(ItemStatus.ACTIVE)
+                .status(ItemStatus.CREATED)
                 .groupId(UUID.randomUUID());
     }
 

@@ -41,6 +41,11 @@ public class ItemVM {
 
     private List<String> tags;
 
+    @NotNull
+    private String status;
+
+    private boolean archived;
+
     private boolean deleteReminders;
 
 }

@@ -68,12 +68,11 @@ public abstract class ContractBase {
         groupRepository.save(group1);
         groupRepository.save(group2);
 
-        Item item = TestItem.defaultBuilder()
-                .id(ITEM_ID)
-                .groupId(GROUP_1_ID)
-                .build();
+        Item item1 = TestItem.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
+        Item item2 = TestItem.defaultBuilder().groupId(GROUP_1_ID).archived(true).build();
 
-        itemRepository.save(item);
+        itemRepository.save(item1);
+        itemRepository.save(item2);
 
         when(contactServiceClient.areUsersInContactList(any())).thenReturn(true);
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");

@@ -38,7 +38,7 @@ Contract.make {
                 ),
                 "status": $(
                         consumer(any()),
-                        producer("ACTIVE")
+                        producer("COMPLETED")
                 ),
                 "groupId": $(
                         consumer(any()),
@@ -57,7 +57,7 @@ Contract.make {
                 "type": "TASK",
                 "priority": "NORMAL",
                 "description": "test_body",
-                "status": "ACTIVE",
+                "status": "COMPLETED",
                 "groupId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
         )
     }

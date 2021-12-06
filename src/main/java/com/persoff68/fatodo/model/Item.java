@@ -42,4 +42,6 @@ public class Item extends AbstractAuditingModel {
     @NotNull
     private ItemStatus status;
 
+    private boolean archived;
+
 }

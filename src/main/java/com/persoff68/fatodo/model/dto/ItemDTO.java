@@ -34,4 +34,6 @@ public class ItemDTO extends AbstractAuditingDTO {
 
     private ItemStatus status;
 
+    private boolean archived;
+
 }

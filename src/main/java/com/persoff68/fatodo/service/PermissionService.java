@@ -23,6 +23,13 @@ public class PermissionService {
     private final ItemRepository itemRepository;
     private final PermissionHelper permissionHelper;
 
+    public void checkMultipleReadPermission(List<UUID> groupIdList) {
+        boolean hasPermission = hasMultipleReadPermission(groupIdList);
+        if (!hasPermission) {
+            throw new PermissionException();
+        }
+    }
+
     public void checkReadPermission(UUID groupId) {
         boolean hasPermission = hasReadPermission(groupId);
         if (!hasPermission) {
@@ -61,6 +68,10 @@ public class PermissionService {
 
     public boolean hasAdminPermission(UUID groupId) {
         return checkPermission(groupId, permissionHelper::canAdmin);
+    }
+
+    public boolean hasMultipleReadPermission(List<UUID> groupIdList) {
+        return checkMultiplePermission(groupIdList, permissionHelper::canRead);
     }
 
     public boolean hasMultipleAdminPermission(List<UUID> groupIdList) {
@@ -110,7 +121,7 @@ public class PermissionService {
 
     private boolean checkMultipleItemPermission(List<UUID> itemIdList, Predicate<Group> checkGroup) {
         itemIdList = itemIdList.stream().distinct().collect(Collectors.toList());
-        List<Item> itemList = itemRepository.findAllById(itemIdList);
+        List<Item> itemList = itemRepository.findAllByIds(itemIdList);
         if (itemList.size() != itemIdList.size()) {
             throw new ModelNotFoundException();
         }

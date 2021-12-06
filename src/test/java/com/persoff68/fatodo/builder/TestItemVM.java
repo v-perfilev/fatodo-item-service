@@ -3,6 +3,7 @@ package com.persoff68.fatodo.builder;
 import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.model.constant.ItemPriority;
+import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.constant.ItemType;
 import com.persoff68.fatodo.web.rest.vm.ItemVM;
 import lombok.Builder;
@@ -25,8 +26,10 @@ public class TestItemVM extends ItemVM {
                       String description,
                       List<Reminder> reminders,
                       List<String> tags,
+                      String status,
+                      boolean archived,
                       boolean deleteReminders) {
-        super(id, groupId, title, type, priority, date, description, reminders, tags, deleteReminders);
+        super(id, groupId, title, type, priority, date, description, reminders, tags, status, archived, deleteReminders);
     }
 
     public static TestItemVMBuilder defaultBuilder() {
@@ -38,7 +41,8 @@ public class TestItemVM extends ItemVM {
                 .type(ItemType.TASK.toString())
                 .priority(ItemPriority.NORMAL.toString())
                 .description(DEFAULT_VALUE)
-                .reminders(Collections.singletonList(reminder));
+                .reminders(Collections.singletonList(reminder))
+                .status(ItemStatus.CREATED.toString());
     }
 
 }
