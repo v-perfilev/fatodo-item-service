@@ -3,6 +3,8 @@ package com.persoff68.fatodo.web.rest.vm;
 import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.web.rest.validator.DateParamsConstraint;
+import com.persoff68.fatodo.web.rest.validator.ItemPriorityConstraint;
+import com.persoff68.fatodo.web.rest.validator.ItemTypeConstraint;
 import com.persoff68.fatodo.web.rest.validator.RemindersConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,10 +27,10 @@ public class ItemVM {
     @NotNull
     private String title;
 
-    @NotNull
+    @ItemTypeConstraint
     private String type;
 
-    @NotNull
+    @ItemPriorityConstraint
     private String priority;
 
     @DateParamsConstraint
@@ -40,11 +42,6 @@ public class ItemVM {
     private List<Reminder> reminders;
 
     private List<String> tags;
-
-    @NotNull
-    private String status;
-
-    private boolean archived;
 
     private boolean deleteReminders;
 

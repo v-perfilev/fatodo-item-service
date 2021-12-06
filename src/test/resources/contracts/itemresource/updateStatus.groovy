@@ -3,11 +3,11 @@ package contracts.itemresource
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'update item'
+    name 'update item status'
     description 'should return status 200 and ItemDTO'
     request {
         method PUT()
-        url("/api/items")
+        url("/api/items/status")
         headers {
             contentType applicationJson()
             header 'Authorization': $(
@@ -20,26 +20,10 @@ Contract.make {
                         consumer(any()),
                         producer("8a51fdaa-189c-4959-9016-ae79adfe0320")
                 ),
-                "title": $(
+                "status": $(
                         consumer(any()),
-                        producer("test_title_new")
+                        producer("COMPLETED")
                 ),
-                "type": $(
-                        consumer(any()),
-                        producer("TASK")
-                ),
-                "priority": $(
-                        consumer(any()),
-                        producer("NORMAL")
-                ),
-                "description": $(
-                        consumer(any()),
-                        producer("test_body")
-                ),
-                "groupId": $(
-                        consumer(any()),
-                        producer("ef9afb89-dc4b-4d39-b47a-199868b5de36")
-                )
         )
     }
     response {
@@ -49,11 +33,11 @@ Contract.make {
         }
         body(
                 "id": "8a51fdaa-189c-4959-9016-ae79adfe0320",
-                "title": "test_title_new",
+                "title": "test_value",
                 "type": "TASK",
                 "priority": "NORMAL",
-                "description": "test_body",
-                "status": "CREATED",
+                "description": "test_value",
+                "status": "COMPLETED",
                 "groupId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
                 "archived": false
         )

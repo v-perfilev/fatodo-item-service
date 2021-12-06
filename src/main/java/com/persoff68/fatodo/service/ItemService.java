@@ -3,9 +3,9 @@ package com.persoff68.fatodo.service;
 import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.model.constant.ItemStatus;
-import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
@@ -95,8 +95,6 @@ public class ItemService {
         item.setDate(newItem.getDate());
         item.setDescription(newItem.getDescription());
         item.setTags(newItem.getTags());
-        item.setStatus(newItem.getStatus());
-        item.setArchived(newItem.isArchived());
 
         itemRepository.save(item);
         if (reminderList != null) {
@@ -105,6 +103,25 @@ public class ItemService {
             notificationServiceClient.deleteReminders(item.getId());
         }
         return item;
+    }
+
+    public Item updateStatus(UUID itemId, ItemStatus status) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(ModelNotFoundException::new);
+        permissionService.checkEditPermission(item.getGroupId());
+        item.setStatus(status);
+        return itemRepository.save(item);
+    }
+
+    public Item updateArchived(UUID id, boolean archived) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(ModelNotFoundException::new);
+        permissionService.checkEditPermission(item.getGroupId());
+        item.setArchived(archived);
+        if (archived) {
+            notificationServiceClient.deleteReminders(id);
+        }
+        return itemRepository.save(item);
     }
 
     public void delete(UUID id) {

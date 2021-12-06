@@ -1,11 +1,14 @@
 package com.persoff68.fatodo.web.rest;
 
 import com.persoff68.fatodo.model.Item;
-import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.PageableList;
+import com.persoff68.fatodo.model.constant.ItemStatus;
+import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.mapper.ItemMapper;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
 import com.persoff68.fatodo.service.ItemService;
+import com.persoff68.fatodo.web.rest.vm.ItemArchivedVM;
+import com.persoff68.fatodo.web.rest.vm.ItemStatusVM;
 import com.persoff68.fatodo.web.rest.vm.ItemVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -93,6 +96,28 @@ public class ItemResource {
     public ResponseEntity<ItemDTO> update(@RequestBody @Valid ItemVM itemVM) {
         Item item = itemMapper.vmToPojo(itemVM);
         item = itemService.update(item, itemVM.getReminders(), itemVM.isDeleteReminders());
+        ItemDTO itemDTO = itemMapper.pojoToDTO(item);
+        return ResponseEntity.ok(itemDTO);
+    }
+
+    @PutMapping(value = "/status",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemDTO> updateStatus(@RequestBody @Valid ItemStatusVM itemStatusVM) {
+        UUID itemId = itemStatusVM.getId();
+        ItemStatus status = ItemStatus.valueOf(itemStatusVM.getStatus());
+        Item item = itemService.updateStatus(itemId, status);
+        ItemDTO itemDTO = itemMapper.pojoToDTO(item);
+        return ResponseEntity.ok(itemDTO);
+    }
+
+    @PutMapping(value = "/archived",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemDTO> updateArchived(@RequestBody @Valid ItemArchivedVM itemArchivedVM) {
+        UUID itemId = itemArchivedVM.getId();
+        boolean archived = itemArchivedVM.isArchived();
+        Item item = itemService.updateArchived(itemId, archived);
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.ok(itemDTO);
     }

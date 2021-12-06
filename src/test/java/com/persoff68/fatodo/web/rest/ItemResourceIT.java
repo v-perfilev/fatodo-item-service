@@ -7,6 +7,8 @@ import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestItem;
+import com.persoff68.fatodo.builder.TestItemArchivedVM;
+import com.persoff68.fatodo.builder.TestItemStatusVM;
 import com.persoff68.fatodo.builder.TestItemVM;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
@@ -14,12 +16,15 @@ import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
-import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.PageableList;
+import com.persoff68.fatodo.model.constant.ItemStatus;
+import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.PermissionService;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
+import com.persoff68.fatodo.web.rest.vm.ItemArchivedVM;
+import com.persoff68.fatodo.web.rest.vm.ItemStatusVM;
 import com.persoff68.fatodo.web.rest.vm.ItemVM;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -419,6 +424,108 @@ public class ItemResourceIT {
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    @WithCustomSecurityContext
+    public void testUpdateStatus_ok() throws Exception {
+        doReturn(true).when(permissionService).hasEditPermission(any());
+        String url = ENDPOINT + "/status";
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(ITEM_ID).status("COMPLETED").build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        ResultActions resultActions = mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
+        assertThat(resultDTO.getId()).isEqualTo(ITEM_ID);
+        assertThat(resultDTO.getStatus()).isEqualTo(ItemStatus.COMPLETED);
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    public void testUpdateStatus_notFound() throws Exception {
+        String url = ENDPOINT + "/status";
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().status("COMPLETED").build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    public void testUpdateStatus_forbidden() throws Exception {
+        doReturn(false).when(permissionService).hasEditPermission(any());
+        String url = ENDPOINT + "/status";
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(ITEM_ID).status("COMPLETED").build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void testUpdateStatus_unauthorized() throws Exception {
+        String url = ENDPOINT + "/status";
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(ITEM_ID).status("COMPLETED").build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    @WithCustomSecurityContext
+    public void testUpdateArchived_ok() throws Exception {
+        doReturn(true).when(permissionService).hasEditPermission(any());
+        String url = ENDPOINT + "/archived";
+        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(ITEM_ID).archived(true).build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        ResultActions resultActions = mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
+        assertThat(resultDTO.getId()).isEqualTo(ITEM_ID);
+        assertThat(resultDTO.isArchived()).isTrue();
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    public void testUpdateArchived_notFound() throws Exception {
+        String url = ENDPOINT + "/archived";
+        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().archived(true).build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    public void testUpdateArchived_forbidden() throws Exception {
+        doReturn(false).when(permissionService).hasEditPermission(any());
+        String url = ENDPOINT + "/archived";
+        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(ITEM_ID).archived(true).build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void testUpdateArchived_unauthorized() throws Exception {
+        String url = ENDPOINT + "/archived";
+        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(ITEM_ID).archived(true).build();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isUnauthorized());
     }
