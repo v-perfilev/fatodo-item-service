@@ -38,14 +38,14 @@ import java.util.stream.Collectors;
 public class ItemResource {
     static final String ENDPOINT = "/api/items";
 
-    private static final int DEFAULT_SIZE = 10;
+    public static final int DEFAULT_ITEMS_LENGTH = 10;
 
     private final ItemService itemService;
     private final ItemMapper itemMapper;
 
     @PostMapping(value = "/preview/group-ids", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<UUID, PageableList<ItemDTO>>> getPreviewByGroupIds(@RequestBody List<UUID> groupIdList) {
-        Map<UUID, PageableList<Item>> pairMap = itemService.getFirstPagesByGroupIds(groupIdList);
+    public ResponseEntity<Map<UUID, PageableList<ItemDTO>>> getMapByGroupIds(@RequestBody List<UUID> groupIdList) {
+        Map<UUID, PageableList<Item>> pairMap = itemService.getMapByGroupIds(groupIdList, DEFAULT_ITEMS_LENGTH);
         Map<UUID, PageableList<ItemDTO>> pageableListMap = pairMap.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> mapItemListToDTOList(entry.getValue())));
         return ResponseEntity.ok(pageableListMap);
@@ -56,7 +56,7 @@ public class ItemResource {
                                                                  @RequestParam(required = false) Integer offset,
                                                                  @RequestParam(required = false) Integer size) {
         offset = Optional.ofNullable(offset).orElse(0);
-        size = Optional.ofNullable(size).orElse(DEFAULT_SIZE);
+        size = Optional.ofNullable(size).orElse(DEFAULT_ITEMS_LENGTH);
         Pageable pageRequest = OffsetPageRequest.of(offset, size);
         PageableList<Item> pageableList = itemService.getAllByGroupId(groupId, pageRequest);
         PageableList<ItemDTO> dtoPageableList = mapItemListToDTOList(pageableList);
@@ -64,11 +64,11 @@ public class ItemResource {
     }
 
     @GetMapping(value = "/archived/{groupId}/group-id", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PageableList<ItemDTO>> getArchivedByGroupId(@PathVariable UUID groupId,
-                                                                      @RequestParam(required = false) Integer offset,
-                                                                      @RequestParam(required = false) Integer size) {
+    public ResponseEntity<PageableList<ItemDTO>> getAllArchivedByGroupId(@PathVariable UUID groupId,
+                                                                         @RequestParam(required = false) Integer offset,
+                                                                         @RequestParam(required = false) Integer size) {
         offset = Optional.ofNullable(offset).orElse(0);
-        size = Optional.ofNullable(size).orElse(DEFAULT_SIZE);
+        size = Optional.ofNullable(size).orElse(DEFAULT_ITEMS_LENGTH);
         Pageable pageRequest = OffsetPageRequest.of(offset, size);
         PageableList<Item> pageableList = itemService.getAllArchivedByGroupId(groupId, pageRequest);
         PageableList<ItemDTO> dtoPageableList = mapItemListToDTOList(pageableList);

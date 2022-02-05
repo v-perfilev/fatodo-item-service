@@ -109,7 +109,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testGetPreviewByGroupIds_ok() throws Exception {
+    void testGetMapByGroupIds_ok() throws Exception {
         doReturn(true).when(permissionService).hasMultipleReadPermission(any());
         String url = ENDPOINT + "/preview/group-ids";
         List<UUID> groupIdList = List.of(GROUP_1_ID, GROUP_2_ID);
@@ -135,7 +135,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testGetPreviewByGroupIds_forbidden() throws Exception {
+    void testGetMapByGroupIds_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasMultipleReadPermission(any());
         String url = ENDPOINT + "/preview/group-ids";
         List<UUID> groupIdList = List.of(GROUP_1_ID, GROUP_2_ID);
@@ -147,7 +147,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testGetPreviewByGroupIds_notFound() throws Exception {
+    void testGetMapByGroupIds_notFound() throws Exception {
         doThrow(new ModelNotFoundException()).when(permissionService).hasMultipleReadPermission(any());
         String url = ENDPOINT + "/preview/group-ids";
         List<UUID> groupIdList = List.of(GROUP_1_ID, UUID.randomUUID());
@@ -159,7 +159,7 @@ public class ItemResourceIT {
 
     @Test
     @WithAnonymousUser
-    void testGetPreviewByGroupIds_unauthorized() throws Exception {
+    void testGetMapByGroupIds_unauthorized() throws Exception {
         String url = ENDPOINT + "/preview/group-ids";
         List<UUID> groupIdList = List.of(GROUP_1_ID, GROUP_2_ID);
         String requestBody = objectMapper.writeValueAsString(groupIdList);
@@ -220,7 +220,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testGetArchivedByGroupId_ok() throws Exception {
+    void testGetAllArchivedByGroupId_ok() throws Exception {
         doReturn(true).when(permissionService).hasReadPermission(any());
         String url = ENDPOINT + "/archived/" + GROUP_1_ID + "/group-id";
         ResultActions resultActions = mvc.perform(get(url))
@@ -237,7 +237,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testGetArchivedByGroupId_ok_pageable() throws Exception {
+    void testGetAllArchivedByGroupId_ok_pageable() throws Exception {
         doReturn(true).when(permissionService).hasReadPermission(any());
         String url = ENDPOINT + "/archived/" + GROUP_1_ID + "/group-id?offset=1&size=10";
         ResultActions resultActions = mvc.perform(get(url))
@@ -251,7 +251,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    void testGetArchivedByGroupId_forbidden() throws Exception {
+    void testGetAllArchivedByGroupId_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasReadPermission(any());
         String url = ENDPOINT + "/archived/" + GROUP_1_ID + "/group-id";
         mvc.perform(get(url))
@@ -260,7 +260,7 @@ public class ItemResourceIT {
 
     @Test
     @WithAnonymousUser
-    void testGetArchivedByGroupId_unauthorized() throws Exception {
+    void testGetAllArchivedByGroupId_unauthorized() throws Exception {
         String url = ENDPOINT + "/archived/" + GROUP_1_ID + "/group-id";
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());

@@ -26,25 +26,22 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemService {
-    public static final int PREVIEW_COUNT = 4;
-    public static final int VIEW_COUNT = 10;
 
     private final ItemRepository itemRepository;
     private final PermissionService permissionService;
     private final CommentServiceClient commentServiceClient;
     private final NotificationServiceClient notificationServiceClient;
 
-    public Map<UUID, PageableList<Item>> getFirstPagesByGroupIds(List<UUID> groupIdList) {
+    public Map<UUID, PageableList<Item>> getMapByGroupIds(List<UUID> groupIdList, int size) {
         permissionService.checkMultipleReadPermission(groupIdList);
         return groupIdList.stream()
                 .distinct()
-                .collect(Collectors.toMap(Function.identity(), this::getPreviewPageableList));
+                .collect(Collectors.toMap(Function.identity(), (groupId) -> getPageableListForMap(groupId, size)));
     }
-
 
     public PageableList<Item> getAllByGroupId(UUID groupId, Pageable pageable) {
         permissionService.checkReadPermission(groupId);
-        Page<Item> itemPage = itemRepository.findAllByGroupIdPageable(groupId, pageable);
+        Page<Item> itemPage = itemRepository.findByGroupIdPageable(groupId, pageable);
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
 
@@ -143,9 +140,9 @@ public class ItemService {
         itemRepository.deleteAllByIdInAndGroupId(itemIdList, groupId);
     }
 
-    private PageableList<Item> getPreviewPageableList(UUID groupId) {
-        Pageable requestPage = OffsetPageRequest.of(0, PREVIEW_COUNT);
-        Page<Item> itemPage = itemRepository.findAllByGroupIdPageable(groupId, requestPage);
+    private PageableList<Item> getPageableListForMap(UUID groupId, int size) {
+        Pageable requestPage = OffsetPageRequest.of(0, size);
+        Page<Item> itemPage = itemRepository.findByGroupIdPageable(groupId, requestPage);
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
 
