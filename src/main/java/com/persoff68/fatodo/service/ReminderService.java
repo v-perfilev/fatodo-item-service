@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +38,7 @@ public class ReminderService {
     private List<UUID> getUserIdsFromGroup(Group group) {
         return group.getMembers().stream()
                 .map(Member::getId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

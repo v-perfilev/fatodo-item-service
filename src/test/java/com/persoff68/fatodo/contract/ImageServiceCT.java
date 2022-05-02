@@ -11,11 +11,12 @@ import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest
 @AutoConfigureStubRunner(ids = {"com.persoff68.fatodo:imageservice:+:stubs"},
         stubsMode = StubRunnerProperties.StubsMode.REMOTE)
-public class ImageServiceCT {
+class ImageServiceCT {
 
     @Autowired
     ImageServiceClient imageServiceClient;
@@ -40,8 +41,7 @@ public class ImageServiceCT {
 
     @Test
     void testDeleteGroupImage() {
-        imageServiceClient.deleteGroupImage("test_filename");
-        assertThat(true).isTrue();
+        assertDoesNotThrow(() -> imageServiceClient.deleteGroupImage("test_filename"));
     }
 
 }

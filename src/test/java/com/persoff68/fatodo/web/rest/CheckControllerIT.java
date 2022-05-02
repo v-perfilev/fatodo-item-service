@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 @AutoConfigureMockMvc
-public class CheckControllerIT {
+class CheckControllerIT {
     private static final String ENDPOINT = "/api/check";
 
     private static final UUID GROUP_ID = UUID.randomUUID();
@@ -42,7 +42,7 @@ public class CheckControllerIT {
     ObjectMapper objectMapper;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 

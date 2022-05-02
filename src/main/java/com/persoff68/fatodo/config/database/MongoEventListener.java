@@ -54,7 +54,7 @@ public class MongoEventListener<E> extends AbstractMongoEventListener<E> {
     private AbstractAuditingModel getDbModel(E source) {
         AbstractAuditingModel sourceModel = (AbstractAuditingModel) source;
         UUID id = sourceModel.getId();
-        return (AbstractAuditingModel) mongoTemplate.findById(id, source.getClass());
+        return id != null ? (AbstractAuditingModel) mongoTemplate.findById(id, source.getClass()) : null;
     }
 
 }

@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 @AutoConfigureMockMvc
-public class PermissionControllerIT {
+class PermissionControllerIT {
     private static final String ENDPOINT = "/api/permissions";
 
     private static final UUID USER_ID = UUID.fromString("d2eb0f4f-1736-4361-889b-b6d833dd9815");
@@ -51,7 +51,7 @@ public class PermissionControllerIT {
     ObjectMapper objectMapper;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 

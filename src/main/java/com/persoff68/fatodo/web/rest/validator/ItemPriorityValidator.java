@@ -9,6 +9,7 @@ public class ItemPriorityValidator implements ConstraintValidator<ItemPriorityCo
 
     @Override
     public void initialize(ItemPriorityConstraint itemPriority) {
+        // unimportant required method
     }
 
     @Override

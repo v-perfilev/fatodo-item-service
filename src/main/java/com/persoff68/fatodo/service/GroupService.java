@@ -39,7 +39,7 @@ public class GroupService {
         List<Group> groupList = groupRepository.findAllByUserId(userId);
         return groupList.stream()
                 .sorted(Comparator.comparingInt(g -> orderMap.getOrDefault(g.getId(), Integer.MAX_VALUE)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Group getByIdWithoutPermissionCheck(UUID id) {

@@ -17,7 +17,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
-public class PermissionHelperIT {
+class PermissionHelperIT {
 
     private static final UUID USER_ID = UUID.fromString("d2eb0f4f-1736-4361-889b-b6d833dd9815");
 

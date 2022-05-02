@@ -26,7 +26,6 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(GroupResource.ENDPOINT)
@@ -44,7 +43,7 @@ public class GroupResource {
         List<Group> groupList = groupService.getAllByUserId(userId);
         List<GroupDTO> groupDTOList = groupList.stream()
                 .map(groupMapper::pojoToDTO)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(groupDTOList);
     }
 

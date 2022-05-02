@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 @AutoConfigureMockMvc
-public class ConfigurationControllerIT {
+class ConfigurationControllerIT {
     private static final String ENDPOINT = "/api/configuration";
 
     private static final String USER_ID = "d2eb0f4f-1736-4361-889b-b6d833dd9815";
@@ -51,7 +51,7 @@ public class ConfigurationControllerIT {
     ObjectMapper objectMapper;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Member member = TestMember.defaultBuilder()
                 .id(UUID.fromString(USER_ID)).permission(Permission.ADMIN).build();
         Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).members(List.of(member)).build();
@@ -82,13 +82,13 @@ public class ConfigurationControllerIT {
         CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, GroupDTO.class);
         List<GroupDTO> resultDTOList = objectMapper.readValue(resultString, listType);
 
-        assertThat(resultDTOList.size()).isEqualTo(3);
+        assertThat(resultDTOList).hasSize(3);
         assertThat(resultDTOList.get(0).getId()).isEqualTo(GROUP_3_ID);
         assertThat(resultDTOList.get(1).getId()).isEqualTo(GROUP_1_ID);
         assertThat(resultDTOList.get(2).getId()).isEqualTo(GROUP_2_ID);
 
         List<Configuration> configurationList = configurationRepository.findAll();
-        assertThat(configurationList.size()).isEqualTo(1);
+        assertThat(configurationList).hasSize(1);
         assertThat(configurationList.get(0).getUserId()).isEqualTo(UUID.fromString(USER_ID));
     }
 
@@ -109,7 +109,7 @@ public class ConfigurationControllerIT {
         CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, GroupDTO.class);
         List<GroupDTO> resultDTOList = objectMapper.readValue(resultString, listType);
 
-        assertThat(resultDTOList.size()).isEqualTo(3);
+        assertThat(resultDTOList).hasSize(3);
         assertThat(resultDTOList.get(0).getId()).isEqualTo(GROUP_3_ID);
         assertThat(resultDTOList.get(1).getId()).isEqualTo(GROUP_2_ID);
         assertThat(resultDTOList.get(2).getId()).isEqualTo(GROUP_1_ID);

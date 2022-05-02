@@ -9,6 +9,7 @@ public class ItemTypeValidator implements ConstraintValidator<ItemTypeConstraint
 
     @Override
     public void initialize(ItemTypeConstraint itemType) {
+        // unimportant required method
     }
 
     @Override

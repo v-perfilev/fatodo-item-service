@@ -55,7 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 @AutoConfigureMockMvc
-public class ItemResourceIT {
+class ItemResourceIT {
     private static final String ENDPOINT = "/api/items";
 
     private static final UUID GROUP_1_ID = UUID.randomUUID();
@@ -127,10 +127,10 @@ public class ItemResourceIT {
         assertThat(pageableList1.getData()).hasSize(2);
         ItemDTO itemDTO1 = pageableList1.getData().get(0);
         ItemDTO itemDTO2 = pageableList1.getData().get(1);
-        assertThat(itemDTO1.getCreatedAt().compareTo(itemDTO2.getCreatedAt())).isGreaterThan(0);
+        assertThat(itemDTO1.getCreatedAt()).isAfter(itemDTO2.getCreatedAt());
         PageableList<ItemDTO> pageableList2 = resultMap.get(GROUP_2_ID);
-        assertThat(pageableList2.getCount()).isEqualTo(0);
-        assertThat(pageableList2.getData()).hasSize(0);
+        assertThat(pageableList2.getCount()).isZero();
+        assertThat(pageableList2.getData()).isEmpty();
     }
 
     @Test
@@ -183,7 +183,7 @@ public class ItemResourceIT {
         assertThat(resultPageableList.getData()).hasSize(2);
         ItemDTO itemDTO1 = resultPageableList.getData().get(0);
         ItemDTO itemDTO2 = resultPageableList.getData().get(1);
-        assertThat(itemDTO1.getCreatedAt().compareTo(itemDTO2.getCreatedAt())).isGreaterThan(0);
+        assertThat(itemDTO1.getCreatedAt()).isAfter(itemDTO2.getCreatedAt());
     }
 
     @Test
@@ -232,7 +232,7 @@ public class ItemResourceIT {
         assertThat(resultPageableList.getData()).hasSize(2);
         ItemDTO itemDTO1 = resultPageableList.getData().get(0);
         ItemDTO itemDTO2 = resultPageableList.getData().get(1);
-        assertThat(itemDTO1.getCreatedAt().compareTo(itemDTO2.getCreatedAt())).isGreaterThan(0);
+        assertThat(itemDTO1.getCreatedAt()).isAfter(itemDTO2.getCreatedAt());
     }
 
     @Test
@@ -310,7 +310,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testCreate_created() throws Exception {
+    void testCreate_created() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -327,7 +327,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testCreate_badRequest_invalidModel() throws Exception {
+    void testCreate_badRequest_invalidModel() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -338,7 +338,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testCreate_badRequest_invalid() throws Exception {
+    void testCreate_badRequest_invalid() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).title(null).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -349,7 +349,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testCreate_forbidden() throws Exception {
+    void testCreate_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -360,7 +360,7 @@ public class ItemResourceIT {
 
     @Test
     @WithAnonymousUser
-    public void testCreate_unauthorized() throws Exception {
+    void testCreate_unauthorized() throws Exception {
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
@@ -371,7 +371,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdate_ok() throws Exception {
+    void testUpdate_ok() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -388,7 +388,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdate_notFound() throws Exception {
+    void testUpdate_notFound() throws Exception {
         ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
@@ -398,7 +398,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdate_forbidden() throws Exception {
+    void testUpdate_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -409,7 +409,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdate_badRequest_invalid() throws Exception {
+    void testUpdate_badRequest_invalid() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).title(null).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -420,7 +420,7 @@ public class ItemResourceIT {
 
     @Test
     @WithAnonymousUser
-    public void testUpdate_unauthorized() throws Exception {
+    void testUpdate_unauthorized() throws Exception {
         ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
@@ -431,7 +431,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdateStatus_ok() throws Exception {
+    void testUpdateStatus_ok() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/status";
         ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(ITEM_ID).status("COMPLETED").build();
@@ -447,7 +447,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdateStatus_notFound() throws Exception {
+    void testUpdateStatus_notFound() throws Exception {
         String url = ENDPOINT + "/status";
         ItemStatusVM vm = TestItemStatusVM.defaultBuilder().status("COMPLETED").build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -458,7 +458,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdateStatus_forbidden() throws Exception {
+    void testUpdateStatus_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/status";
         ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(ITEM_ID).status("COMPLETED").build();
@@ -470,7 +470,7 @@ public class ItemResourceIT {
 
     @Test
     @WithAnonymousUser
-    public void testUpdateStatus_unauthorized() throws Exception {
+    void testUpdateStatus_unauthorized() throws Exception {
         String url = ENDPOINT + "/status";
         ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(ITEM_ID).status("COMPLETED").build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -482,7 +482,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdateArchived_ok() throws Exception {
+    void testUpdateArchived_ok() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/archived";
         ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(ITEM_ID).archived(true).build();
@@ -498,7 +498,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdateArchived_notFound() throws Exception {
+    void testUpdateArchived_notFound() throws Exception {
         String url = ENDPOINT + "/archived";
         ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().archived(true).build();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -509,7 +509,7 @@ public class ItemResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdateArchived_forbidden() throws Exception {
+    void testUpdateArchived_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/archived";
         ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(ITEM_ID).archived(true).build();
@@ -521,7 +521,7 @@ public class ItemResourceIT {
 
     @Test
     @WithAnonymousUser
-    public void testUpdateArchived_unauthorized() throws Exception {
+    void testUpdateArchived_unauthorized() throws Exception {
         String url = ENDPOINT + "/archived";
         ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(ITEM_ID).archived(true).build();
         String requestBody = objectMapper.writeValueAsString(vm);

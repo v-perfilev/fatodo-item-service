@@ -138,7 +138,7 @@ public class ItemResource {
         long count = pageableList.getCount();
         List<ItemDTO> dtoList = pageableList.getData().stream()
                 .map(itemMapper::pojoToDTO)
-                .collect(Collectors.toList());
+                .toList();
         return PageableList.of(dtoList, count);
     }
 

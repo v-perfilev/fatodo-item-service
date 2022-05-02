@@ -12,12 +12,12 @@ import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties
 import java.util.Collections;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest
 @AutoConfigureStubRunner(ids = {"com.persoff68.fatodo:notificationservice:+:stubs"},
         stubsMode = StubRunnerProperties.StubsMode.REMOTE)
-public class NotificationServiceCT {
+class NotificationServiceCT {
 
     @Autowired
     NotificationServiceClient notificationServiceClient;
@@ -26,15 +26,13 @@ public class NotificationServiceCT {
     void testSetReminders() {
         UUID id = UUID.randomUUID();
         Reminder reminder = TestReminder.defaultBuilder().build();
-        notificationServiceClient.setReminders(id, Collections.singletonList(reminder));
-        assertThat(true).isTrue();
+        assertDoesNotThrow(() -> notificationServiceClient.setReminders(id, Collections.singletonList(reminder)));
     }
 
     @Test
     void testDeleteReminders() {
         UUID id = UUID.randomUUID();
-        notificationServiceClient.deleteReminders(id);
-        assertThat(true).isTrue();
+        assertDoesNotThrow(() -> notificationServiceClient.deleteReminders(id));
     }
 
 }

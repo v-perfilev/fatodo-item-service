@@ -9,6 +9,7 @@ public class ItemStatusValidator implements ConstraintValidator<ItemStatusConstr
 
     @Override
     public void initialize(ItemStatusConstraint itemArchived) {
+        // unimportant required method
     }
 
     @Override

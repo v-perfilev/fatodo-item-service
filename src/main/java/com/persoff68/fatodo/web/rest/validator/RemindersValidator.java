@@ -13,6 +13,7 @@ public class RemindersValidator implements ConstraintValidator<RemindersConstrai
 
     @Override
     public void initialize(RemindersConstraint reminders) {
+        // unimportant required method
     }
 
     @Override

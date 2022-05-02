@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 @AutoConfigureMockMvc
-public class MemberControllerIT {
+class MemberControllerIT {
     private static final String ENDPOINT = "/api/members";
 
     private static final String ADMIN_ID = "3c300277-b5ea-48d1-80db-ead620cf5846";
@@ -71,7 +71,7 @@ public class MemberControllerIT {
 
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 
@@ -105,19 +105,19 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsByGroupId_ok() throws Exception {
+    void testGetUserIdsByGroupId_ok() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/ids";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
         List<UUID> userIdList = objectMapper.readValue(resultString, listType);
-        assertThat(userIdList.size()).isEqualTo(2);
+        assertThat(userIdList).hasSize(2);
     }
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsByGroupId_notFound() throws Exception {
+    void testGetUserIdsByGroupId_notFound() throws Exception {
         String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/ids";
         mvc.perform(get(url))
                 .andExpect(status().isNotFound());
@@ -125,7 +125,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetUserIdsByGroupId_forbidden() throws Exception {
+    void testGetUserIdsByGroupId_forbidden() throws Exception {
         String url = ENDPOINT + "/group/" + WRONG_GROUP_ID + "/ids";
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
@@ -149,7 +149,7 @@ public class MemberControllerIT {
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
         List<UUID> memberList = objectMapper.readValue(resultString, listType);
-        assertThat(memberList.size()).isEqualTo(2);
+        assertThat(memberList).hasSize(2);
     }
 
     @Test
@@ -179,7 +179,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testAddMembersToGroup_ok() throws Exception {
+    void testAddMembersToGroup_ok() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/add";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(NEW_USER_ID)));
         mvc.perform(post(url)
@@ -195,7 +195,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = READ_USER_ID)
-    public void testAddMembersToGroup_forbidden() throws Exception {
+    void testAddMembersToGroup_forbidden() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/add";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(NEW_USER_ID)));
         mvc.perform(post(url)
@@ -205,7 +205,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testAddMembersToGroup_notFound_groupNotFound() throws Exception {
+    void testAddMembersToGroup_notFound_groupNotFound() throws Exception {
         String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/add";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(NEW_USER_ID)));
         mvc.perform(post(url)
@@ -215,7 +215,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testAddMembersToGroup_usersNotAllowed() throws Exception {
+    void testAddMembersToGroup_usersNotAllowed() throws Exception {
         when(contactServiceClient.areUsersInContactList(any())).thenReturn(false);
         String url = ENDPOINT + "/group/" + GROUP_ID + "/add";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(NEW_USER_ID)));
@@ -226,7 +226,7 @@ public class MemberControllerIT {
 
     @Test
     @WithAnonymousUser
-    public void testAddMembersToGroup_unauthorized() throws Exception {
+    void testAddMembersToGroup_unauthorized() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/add";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(NEW_USER_ID)));
         mvc.perform(post(url)
@@ -237,7 +237,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testRemoveMembersToGroup_ok() throws Exception {
+    void testRemoveMembersToGroup_ok() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/remove";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(READ_USER_ID)));
         mvc.perform(post(url)
@@ -253,7 +253,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = READ_USER_ID)
-    public void testRemoveMembersToGroup_forbidden() throws Exception {
+    void testRemoveMembersToGroup_forbidden() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/remove";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.randomUUID()));
         mvc.perform(post(url)
@@ -263,7 +263,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testRemoveMembersToGroup_badRequest_invalidGroup() throws Exception {
+    void testRemoveMembersToGroup_badRequest_invalidGroup() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/remove";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(ADMIN_ID)));
         mvc.perform(post(url)
@@ -273,7 +273,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testRemoveMembersToGroup_notFound_groupNotFound() throws Exception {
+    void testRemoveMembersToGroup_notFound_groupNotFound() throws Exception {
         String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/remove";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(READ_USER_ID)));
         mvc.perform(post(url)
@@ -283,7 +283,7 @@ public class MemberControllerIT {
 
     @Test
     @WithAnonymousUser
-    public void testRemoveMembersToGroup_unauthorized() throws Exception {
+    void testRemoveMembersToGroup_unauthorized() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/remove";
         String requestBody = objectMapper.writeValueAsString(Collections.singletonList(UUID.fromString(READ_USER_ID)));
         mvc.perform(post(url)
@@ -293,7 +293,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testEditGroupMember_ok() throws Exception {
+    void testEditGroupMember_ok() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/edit";
         MemberVM memberVM = TestMemberVM.defaultBuilder()
                 .id(UUID.fromString(READ_USER_ID)).permission(Permission.EDIT).build();
@@ -311,7 +311,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = READ_USER_ID)
-    public void testEditGroupMember_forbidden() throws Exception {
+    void testEditGroupMember_forbidden() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/edit";
         MemberVM memberVM = TestMemberVM.defaultBuilder()
                 .id(UUID.fromString(ADMIN_ID)).permission(Permission.EDIT).build();
@@ -323,7 +323,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testEditGroupMember_notFound_groupNotFound() throws Exception {
+    void testEditGroupMember_notFound_groupNotFound() throws Exception {
         String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/edit";
         MemberVM memberVM = TestMemberVM.defaultBuilder()
                 .id(UUID.fromString(READ_USER_ID)).permission(Permission.EDIT).build();
@@ -335,7 +335,7 @@ public class MemberControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testEditGroupMember_notFound_userNotFound() throws Exception {
+    void testEditGroupMember_notFound_userNotFound() throws Exception {
         String url = ENDPOINT + "/group/" + GROUP_ID + "/edit";
         MemberVM memberVM = TestMemberVM.defaultBuilder()
                 .id(UUID.randomUUID()).permission(Permission.EDIT).build();
@@ -347,7 +347,7 @@ public class MemberControllerIT {
 
     @Test
     @WithAnonymousUser
-    public void testEditGroupMember_unauthorized() throws Exception {
+    void testEditGroupMember_unauthorized() throws Exception {
         String url = ENDPOINT + "/group/" + UUID.randomUUID() + "/edit";
         MemberVM memberVM = TestMemberVM.defaultBuilder()
                 .id(UUID.fromString(READ_USER_ID)).permission(Permission.EDIT).build();

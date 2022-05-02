@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 @AutoConfigureMockMvc
-public class GroupResourceIT {
+class GroupResourceIT {
     private static final String ENDPOINT = "/api/groups";
 
     private static final String ADMIN_ID = "3c300277-b5ea-48d1-80db-ead620cf5846";
@@ -72,7 +72,7 @@ public class GroupResourceIT {
     MockMvc mvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         groupRepository.deleteAll();
 
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
@@ -112,7 +112,7 @@ public class GroupResourceIT {
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, GroupDTO.class);
         List<GroupDTO> resultDTOList = objectMapper.readValue(resultString, listType);
-        assertThat(resultDTOList.size()).isEqualTo(2);
+        assertThat(resultDTOList).hasSize(2);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetById_ok() throws Exception {
+    void testGetById_ok() throws Exception {
         UUID id = UUID.fromString(GROUP_ID);
         String url = ENDPOINT + "/" + id;
         ResultActions resultActions = mvc.perform(get(url))
@@ -137,7 +137,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetById_forbidden_wrongUser() throws Exception {
+    void testGetById_forbidden_wrongUser() throws Exception {
         String url = ENDPOINT + "/" + WRONG_GROUP_ID;
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
@@ -145,7 +145,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testGetById_notFound() throws Exception {
+    void testGetById_notFound() throws Exception {
         UUID id = UUID.randomUUID();
         String url = ENDPOINT + "/" + id;
         mvc.perform(get(url))
@@ -163,7 +163,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testCreate_created() throws Exception {
+    void testCreate_created() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(null).build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         ResultActions resultActions = mvc.perform(post(ENDPOINT)
@@ -179,7 +179,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testCreate_badRequest_alreadyExists() throws Exception {
+    void testCreate_badRequest_alreadyExists() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
@@ -189,7 +189,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testCreate_badRequest_invalid() throws Exception {
+    void testCreate_badRequest_invalid() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(null).title(null).build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
@@ -200,7 +200,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testCreate_badRequest_idSet() throws Exception {
+    void testCreate_badRequest_idSet() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
@@ -210,7 +210,7 @@ public class GroupResourceIT {
 
     @Test
     @WithAnonymousUser
-    public void testCreate_unauthorized() throws Exception {
+    void testCreate_unauthorized() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(null).build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
@@ -221,7 +221,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testUpdate_ok() throws Exception {
+    void testUpdate_ok() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
@@ -236,7 +236,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext
-    public void testUpdate_forbidden_wrongUser() throws Exception {
+    void testUpdate_forbidden_wrongUser() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
@@ -246,7 +246,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = READ_ID)
-    public void testUpdate_forbidden_wrongPermission() throws Exception {
+    void testUpdate_forbidden_wrongPermission() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
@@ -256,7 +256,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testUpdate_badRequest_notExists() throws Exception {
+    void testUpdate_badRequest_notExists() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.randomUUID()).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
@@ -266,7 +266,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testUpdate_badRequest_invalidId() throws Exception {
+    void testUpdate_badRequest_invalidId() throws Exception {
         GroupVM vm = new GroupVM();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
@@ -276,7 +276,7 @@ public class GroupResourceIT {
 
     @Test
     @WithAnonymousUser
-    public void testUpdate_unauthorized() throws Exception {
+    void testUpdate_unauthorized() throws Exception {
         GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
@@ -287,7 +287,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testDelete_ok() throws Exception {
+    void testDelete_ok() throws Exception {
         String url = ENDPOINT + "/" + GROUP_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
@@ -295,7 +295,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
-    public void testDelete_notFound() throws Exception {
+    void testDelete_notFound() throws Exception {
         UUID id = UUID.randomUUID();
         String url = ENDPOINT + "/" + id;
         mvc.perform(delete(url))
@@ -304,7 +304,7 @@ public class GroupResourceIT {
 
     @Test
     @WithCustomSecurityContext(id = "3c300277-b5ea-48d1-80db-ead620cf5846")
-    public void testDelete_forbidden_wrongUser() throws Exception {
+    void testDelete_forbidden_wrongUser() throws Exception {
         String url = ENDPOINT + "/" + WRONG_GROUP_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isForbidden());
@@ -312,7 +312,7 @@ public class GroupResourceIT {
 
     @Test
     @WithAnonymousUser
-    public void testDelete_unauthorized() throws Exception {
+    void testDelete_unauthorized() throws Exception {
         String url = ENDPOINT + "/" + GROUP_ID;
         mvc.perform(delete(url))
                 .andExpect(status().isUnauthorized());

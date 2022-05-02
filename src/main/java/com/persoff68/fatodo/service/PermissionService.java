@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,7 +100,9 @@ public class PermissionService {
     }
 
     private boolean checkMultiplePermission(List<UUID> groupIdList, Predicate<Group> checkGroup) {
-        groupIdList = groupIdList.stream().distinct().collect(Collectors.toList());
+        groupIdList = groupIdList.stream()
+                .distinct()
+                .toList();
         List<Group> groupList = groupRepository.findAllById(groupIdList);
         if (groupList.size() != groupIdList.size()) {
             throw new ModelNotFoundException();
@@ -120,7 +121,9 @@ public class PermissionService {
     }
 
     private boolean checkMultipleItemPermission(List<UUID> itemIdList, Predicate<Group> checkGroup) {
-        itemIdList = itemIdList.stream().distinct().collect(Collectors.toList());
+        itemIdList = itemIdList.stream()
+                .distinct()
+                .toList();
         List<Item> itemList = itemRepository.findAllByIds(itemIdList);
         if (itemList.size() != itemIdList.size()) {
             throw new ModelNotFoundException();
@@ -128,7 +131,7 @@ public class PermissionService {
         List<UUID> groupIdList = itemList.stream()
                 .map(Item::getGroupId)
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
         List<Group> groupList = groupRepository.findAllById(groupIdList);
         return groupList.stream()
                 .map(checkGroup::test)

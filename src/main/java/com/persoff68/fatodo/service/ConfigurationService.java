@@ -38,11 +38,14 @@ public class ConfigurationService {
     }
 
     public void addGroup(Group group) {
-        List<UUID> userIdList = group.getMembers().stream().map(Member::getId).collect(Collectors.toList());
+        List<UUID> userIdList = group.getMembers().stream()
+                .map(Member::getId)
+                .toList();
         List<Configuration> configurationList = configurationRepository.findAllByUserIdIn(userIdList);
 
         List<UUID> existingUserIdList = configurationList.stream()
-                .map(Configuration::getUserId).collect(Collectors.toList());
+                .map(Configuration::getUserId)
+                .toList();
         userIdList.stream().filter(userId -> !existingUserIdList.contains(userId))
                 .forEach(userId -> configurationList.add(new Configuration(userId)));
         configurationList.forEach(c -> addGroupToConfiguration(c, group.getId()));
@@ -51,7 +54,9 @@ public class ConfigurationService {
     }
 
     public void deleteGroup(Group group) {
-        List<UUID> userIdList = group.getMembers().stream().map(Member::getId).collect(Collectors.toList());
+        List<UUID> userIdList = group.getMembers().stream()
+                .map(Member::getId)
+                .toList();
         List<Configuration> configurationList = configurationRepository.findAllByUserIdIn(userIdList);
 
         configurationList.forEach(c -> removeGroupFromConfiguration(c, group.getId()));
@@ -81,7 +86,8 @@ public class ConfigurationService {
     private void removeGroupFromConfiguration(Configuration configuration, UUID groupId) {
         List<Configuration.Group> groupList = configuration.getGroups();
         groupList = groupList.stream()
-                .filter(g -> !g.getId().equals(groupId)).collect(Collectors.toList());
+                .filter(g -> !g.getId().equals(groupId))
+                .toList();
         List<Configuration.Group> orderedGroupList = reorderGroupList(groupList);
         configuration.setGroups(orderedGroupList);
     }
@@ -90,19 +96,21 @@ public class ConfigurationService {
         AtomicInteger counter = new AtomicInteger(0);
         return groupList.stream()
                 .sorted(Comparator.comparingInt(Configuration.Group::getOrder))
-                .peek(g -> g.setOrder(counter.getAndIncrement())).collect(Collectors.toList());
+                .peek(g -> g.setOrder(counter.getAndIncrement()))
+                .toList();
     }
 
     private List<Configuration.Group> buildConfigurationGroupList(List<Group> groupList,
                                                                   List<UUID> orderList) {
         List<UUID> groupIdList = groupList.stream()
-                .map(Group::getId).collect(Collectors.toList());
+                .map(Group::getId)
+                .toList();
         AtomicInteger counter = new AtomicInteger(0);
         Map<UUID, Integer> orderMap = orderList.stream()
                 .collect(Collectors.toMap(o -> o, o -> counter.getAndIncrement()));
         return groupIdList.stream()
                 .map(groupId -> new Configuration.Group(groupId, orderMap.getOrDefault(groupId, Integer.MAX_VALUE)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

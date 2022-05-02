@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @SpringBootTest
 @AutoConfigureStubRunner(ids = {"com.persoff68.fatodo:commentservice:+:stubs"},
         stubsMode = StubRunnerProperties.StubsMode.REMOTE)
-public class CommentServiceCT {
+class CommentServiceCT {
 
     @Autowired
     CommentServiceClient commentServiceClient;

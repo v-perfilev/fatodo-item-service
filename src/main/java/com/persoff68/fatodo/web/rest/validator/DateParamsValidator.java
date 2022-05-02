@@ -10,6 +10,7 @@ public class DateParamsValidator implements ConstraintValidator<DateParamsConstr
 
     @Override
     public void initialize(DateParamsConstraint dateParams) {
+        // unimportant required method
     }
 
     @Override

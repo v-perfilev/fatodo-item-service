@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -32,7 +31,7 @@ public class MemberService {
                 .orElseThrow(ModelNotFoundException::new);
         return group.getMembers().stream()
                 .map(Member::getId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<UUID> getUserIdsByItemId(UUID itemId) {
@@ -51,15 +50,15 @@ public class MemberService {
         List<Member> oldMemberList = group.getMembers();
         List<UUID> oldUserIdList = oldMemberList.stream()
                 .map(Member::getId)
-                .collect(Collectors.toList());
+                .toList();
         List<UUID> newUserIdList = userIdList.stream()
                 .filter(userId -> !oldUserIdList.contains(userId))
-                .collect(Collectors.toList());
+                .toList();
         List<Member> newMemberList = newUserIdList.stream()
                 .map(Member::readMember)
-                .collect(Collectors.toList());
+                .toList();
         List<Member> updatedMemberList = Stream.concat(oldMemberList.stream(), newMemberList.stream())
-                .collect(Collectors.toList());
+                .toList();
 
         group.setMembers(updatedMemberList);
         groupValidator.validateUpdate(group);
@@ -74,7 +73,7 @@ public class MemberService {
         List<Member> memberList = group.getMembers();
         List<Member> updatedMemberList = memberList.stream()
                 .filter(member -> !userIdList.contains(member.getId()))
-                .collect(Collectors.toList());
+                .toList();
 
         group.setMembers(updatedMemberList);
         groupValidator.validateUpdate(group);
@@ -105,7 +104,7 @@ public class MemberService {
         List<Member> memberList = group.getMembers();
         List<Member> updatedMemberList = memberList.stream()
                 .filter(member -> !member.getId().equals(userId))
-                .collect(Collectors.toList());
+                .toList();
 
         group.setMembers(updatedMemberList);
         groupValidator.validateUpdate(group);

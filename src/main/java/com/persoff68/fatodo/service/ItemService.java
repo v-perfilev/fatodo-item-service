@@ -36,7 +36,7 @@ public class ItemService {
         permissionService.checkMultipleReadPermission(groupIdList);
         return groupIdList.stream()
                 .distinct()
-                .collect(Collectors.toMap(Function.identity(), (groupId) -> getPageableListForMap(groupId, size)));
+                .collect(Collectors.toMap(Function.identity(), groupId -> getPageableListForMap(groupId, size)));
     }
 
     public PageableList<Item> getAllByGroupId(UUID groupId, Pageable pageable) {
@@ -79,10 +79,11 @@ public class ItemService {
     }
 
     public Item update(Item newItem, List<Reminder> reminderList, boolean deleteReminders) {
-        if (newItem.getId() == null) {
+        UUID id = newItem.getId();
+        if (id == null) {
             throw new ModelInvalidException();
         }
-        Item item = itemRepository.findById(newItem.getId())
+        Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
         permissionService.checkEditPermission(item.getGroupId());
 
@@ -134,7 +135,8 @@ public class ItemService {
     public void deleteAllByGroupId(UUID groupId) {
         permissionService.checkAdminPermission(groupId);
         List<UUID> itemIdList = itemRepository.findAllByGroupId(groupId)
-                .stream().map(Item::getId).collect(Collectors.toList());
+                .stream().map(Item::getId)
+                .toList();
         commentServiceClient.deleteAllThreadsByTargetIds(itemIdList);
         itemIdList.forEach(notificationServiceClient::deleteReminders);
         itemRepository.deleteAllByIdInAndGroupId(itemIdList, groupId);
