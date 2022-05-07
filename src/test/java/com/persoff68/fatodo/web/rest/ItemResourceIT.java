@@ -127,7 +127,7 @@ class ItemResourceIT {
         assertThat(pageableList1.getData()).hasSize(2);
         ItemDTO itemDTO1 = pageableList1.getData().get(0);
         ItemDTO itemDTO2 = pageableList1.getData().get(1);
-        assertThat(itemDTO1.getCreatedAt()).isAfter(itemDTO2.getCreatedAt());
+        assertThat(itemDTO1.getCreatedAt()).isAfterOrEqualTo(itemDTO2.getCreatedAt());
         PageableList<ItemDTO> pageableList2 = resultMap.get(GROUP_2_ID);
         assertThat(pageableList2.getCount()).isZero();
         assertThat(pageableList2.getData()).isEmpty();
@@ -183,7 +183,7 @@ class ItemResourceIT {
         assertThat(resultPageableList.getData()).hasSize(2);
         ItemDTO itemDTO1 = resultPageableList.getData().get(0);
         ItemDTO itemDTO2 = resultPageableList.getData().get(1);
-        assertThat(itemDTO1.getCreatedAt()).isAfter(itemDTO2.getCreatedAt());
+        assertThat(itemDTO1.getCreatedAt()).isAfterOrEqualTo(itemDTO2.getCreatedAt());
     }
 
     @Test
@@ -232,7 +232,7 @@ class ItemResourceIT {
         assertThat(resultPageableList.getData()).hasSize(2);
         ItemDTO itemDTO1 = resultPageableList.getData().get(0);
         ItemDTO itemDTO2 = resultPageableList.getData().get(1);
-        assertThat(itemDTO1.getCreatedAt()).isAfter(itemDTO2.getCreatedAt());
+        assertThat(itemDTO1.getCreatedAt()).isAfterOrEqualTo(itemDTO2.getCreatedAt());
     }
 
     @Test

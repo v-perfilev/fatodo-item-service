@@ -59,12 +59,12 @@ public class GroupService {
         }
 
         groupToCreate.setMembers(createInitMemberList());
+        groupToCreate.setImageFilename(null);
         groupValidator.validateCreate(groupToCreate);
         Group group = groupRepository.save(groupToCreate);
         configurationService.addGroup(group);
 
         if (image != null && image.length > 0) {
-            group.setImageFilename(null);
             String imageFilename = imageService.createGroup(image);
             group.setImageFilename(imageFilename);
             group = groupRepository.save(group);
@@ -85,16 +85,11 @@ public class GroupService {
         group.setTitle(groupToUpdate.getTitle());
         group.setColor(groupToUpdate.getColor());
         groupValidator.validateUpdate(group);
-        group = groupRepository.save(group);
 
-        if (image != null && image.length > 0) {
-            group.setImageFilename(null);
-            String imageFilename = imageService.updateGroup(group, groupToUpdate, image);
-            group.setImageFilename(imageFilename);
-            group = groupRepository.save(group);
-        }
+        String imageFilename = imageService.updateGroup(group, groupToUpdate, image);
+        group.setImageFilename(imageFilename);
 
-        return group;
+        return groupRepository.save(group);
     }
 
     public void delete(UUID groupId) {
