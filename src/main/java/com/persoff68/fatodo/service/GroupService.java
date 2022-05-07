@@ -64,6 +64,7 @@ public class GroupService {
         configurationService.addGroup(group);
 
         if (image != null && image.length > 0) {
+            group.setImageFilename(null);
             String imageFilename = imageService.createGroup(image);
             group.setImageFilename(imageFilename);
             group = groupRepository.save(group);
@@ -87,6 +88,7 @@ public class GroupService {
         group = groupRepository.save(group);
 
         if (image != null && image.length > 0) {
+            group.setImageFilename(null);
             String imageFilename = imageService.updateGroup(group, groupToUpdate, image);
             group.setImageFilename(imageFilename);
             group = groupRepository.save(group);
