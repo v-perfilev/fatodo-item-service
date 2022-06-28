@@ -3,11 +3,14 @@ package contracts.groupresource
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get all groups for user'
+    name 'get all common groups with member'
     description 'should return status 200 and list of GroupDTOs'
     request {
         method GET()
-        url("/api/groups")
+        url($(
+                consumer(regex("/api/groups/" + uuid().toString() + "/member")),
+                producer("/api/groups/4329f19c-deb7-4eaa-a841-bb46bd78f793/member")
+        ))
         headers {
             header 'Authorization': $(
                     consumer(containing("Bearer")),

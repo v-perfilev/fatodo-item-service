@@ -42,6 +42,22 @@ public class GroupService {
                 .toList();
     }
 
+    public List<Group> getAllCommonByUserIds(UUID firstUserId, UUID secondUserId) {
+        Map<UUID, Integer> orderMap = configurationService.getByUserId(firstUserId).getGroups()
+                .stream().collect(Collectors.toMap(Configuration.Group::getId, Configuration.Group::getOrder));
+        List<Group> firstUserGroupList = groupRepository.findAllByUserId(firstUserId);
+        List<Group> secondUserGroupList = groupRepository.findAllByUserId(secondUserId);
+        List<UUID> secondUserGroupIdList = secondUserGroupList.stream()
+                .map(Group::getId)
+                .toList();
+        List<Group> commonGroupList = firstUserGroupList.stream()
+                .filter(g -> secondUserGroupIdList.contains(g.getId()))
+                .toList();
+        return commonGroupList.stream()
+                .sorted(Comparator.comparingInt(g -> orderMap.getOrDefault(g.getId(), Integer.MAX_VALUE)))
+                .toList();
+    }
+
     public Group getByIdWithoutPermissionCheck(UUID id) {
         return groupRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);

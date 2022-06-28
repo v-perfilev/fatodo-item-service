@@ -122,6 +122,25 @@ class GroupResourceIT {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    @WithCustomSecurityContext(id = ADMIN_ID)
+    void testGetAllCommonWithMember_ok() throws Exception {
+        String url = ENDPOINT + "/" + READ_ID + "/member";
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, GroupDTO.class);
+        List<GroupDTO> resultDTOList = objectMapper.readValue(resultString, listType);
+        assertThat(resultDTOList).hasSize(1);
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testGetAllCommonWithMember_unauthorized() throws Exception {
+        String url = ENDPOINT + "/" + READ_ID + "/member";
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)

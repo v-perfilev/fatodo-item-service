@@ -47,6 +47,16 @@ public class GroupResource {
         return ResponseEntity.ok(groupDTOList);
     }
 
+    @GetMapping(value = "/{memberId}/member", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<GroupDTO>> getAllCommonWithMember(@PathVariable UUID memberId) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        List<Group> groupList = groupService.getAllCommonByUserIds(userId, memberId);
+        List<GroupDTO> groupDTOList = groupList.stream()
+                .map(groupMapper::pojoToDTO)
+                .toList();
+        return ResponseEntity.ok(groupDTOList);
+    }
+
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GroupDTO> getById(@PathVariable UUID id) {
         Group group = groupService.getById(id);
