@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
-@FeignClient(name = "image-service", primary = false)
+@FeignClient(name = "image-service", primary = false, qualifiers = {"feignImageServiceClient"})
 public interface ImageServiceClient {
 
     @PostMapping(value = "/api/group-images",

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 import java.util.UUID;
 
-@FeignClient(name = "notification-service", primary = false)
+@FeignClient(name = "notification-service", primary = false, qualifiers = {"feignNotificationServiceClient"})
 public interface NotificationServiceClient {
 
     @PutMapping(value = "/api/reminders/{targetId}")

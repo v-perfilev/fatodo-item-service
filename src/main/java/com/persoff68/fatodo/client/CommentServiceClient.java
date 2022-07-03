@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.util.List;
 import java.util.UUID;
 
-@FeignClient(name = "comment-service", primary = false)
+@FeignClient(name = "comment-service", primary = false, qualifiers = {"feignCommentServiceClient"})
 public interface CommentServiceClient {
 
     @PostMapping(value = "/api/threads/delete",

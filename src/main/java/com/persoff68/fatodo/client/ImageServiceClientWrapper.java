@@ -5,15 +5,13 @@ import com.persoff68.fatodo.model.dto.ImageDTO;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 @Component
-@Primary
 @RequiredArgsConstructor
 public class ImageServiceClientWrapper implements ImageServiceClient {
 
-    @Qualifier("imageServiceClient")
+    @Qualifier("feignImageServiceClient")
     private final ImageServiceClient imageServiceClient;
 
     @Override

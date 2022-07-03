@@ -5,18 +5,16 @@ import com.persoff68.fatodo.model.Reminder;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
 
 @Component
-@Primary
 @RequiredArgsConstructor
 public class NotificationServiceClientWrapper implements NotificationServiceClient {
 
-    @Qualifier("notificationServiceClient")
+    @Qualifier("feignNotificationServiceClient")
     private final NotificationServiceClient notificationServiceClient;
 
     @Override
