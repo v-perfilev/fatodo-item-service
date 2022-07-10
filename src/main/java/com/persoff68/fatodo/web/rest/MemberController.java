@@ -56,7 +56,7 @@ public class MemberController {
     @PostMapping(value = "/group/{groupId}/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> editGroupMember(@PathVariable UUID groupId,
                                                 @RequestBody @Valid MemberVM memberVM) {
-        memberService.editGroupMember(groupId, memberVM.getId(), memberVM.getPermission());
+        memberService.editGroupMember(groupId, memberVM.getUserId(), memberVM.getPermission());
         return ResponseEntity.ok().build();
     }
 

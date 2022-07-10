@@ -18,11 +18,19 @@ public class TestReminder extends Reminder {
     }
 
     public static TestReminderBuilder defaultBuilder() {
-        DateParams dateParams = TestDateParams.defaultBuilder().build();
+        DateParams dateParams = TestDateParams.defaultBuilder().build().toParent();
         return TestReminder.builder()
                 .periodicity(Periodicity.ONCE)
                 .date(dateParams);
     }
 
+    public Reminder toParent() {
+        Reminder reminder = new Reminder();
+        reminder.setPeriodicity(getPeriodicity());
+        reminder.setDate(getDate());
+        reminder.setWeekDays(getWeekDays());
+        reminder.setMonthDays(getMonthDays());
+        return reminder;
+    }
 
 }

@@ -8,8 +8,7 @@ import java.util.UUID;
 public class TestItemArchivedVM extends ItemArchivedVM {
 
     @Builder
-    public TestItemArchivedVM(UUID id,
-                              boolean archived) {
+    public TestItemArchivedVM(UUID id, boolean archived) {
         super(id, archived);
     }
 
@@ -17,6 +16,13 @@ public class TestItemArchivedVM extends ItemArchivedVM {
         return TestItemArchivedVM.builder()
                 .id(UUID.randomUUID())
                 .archived(true);
+    }
+
+    public ItemArchivedVM toParent() {
+        ItemArchivedVM vm = new ItemArchivedVM();
+        vm.setId(getId());
+        vm.setArchived(isArchived());
+        return vm;
     }
 
 }

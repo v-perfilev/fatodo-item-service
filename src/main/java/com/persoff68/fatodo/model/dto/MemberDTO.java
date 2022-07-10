@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 public class MemberDTO implements Serializable {
-    private UUID id;
+    private UUID userId;
     private Permission permission;
 }
 

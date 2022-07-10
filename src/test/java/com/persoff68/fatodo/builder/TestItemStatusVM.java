@@ -8,8 +8,7 @@ import java.util.UUID;
 public class TestItemStatusVM extends ItemStatusVM {
 
     @Builder
-    public TestItemStatusVM(UUID id,
-                            String status) {
+    public TestItemStatusVM(UUID id, String status) {
         super(id, status);
     }
 
@@ -17,6 +16,13 @@ public class TestItemStatusVM extends ItemStatusVM {
         return TestItemStatusVM.builder()
                 .id(UUID.randomUUID())
                 .status("CREATED");
+    }
+
+    public ItemStatusVM toParent() {
+        ItemStatusVM vm = new ItemStatusVM();
+        vm.setId(getId());
+        vm.setStatus(getStatus());
+        return vm;
     }
 
 }

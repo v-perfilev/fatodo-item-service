@@ -13,6 +13,6 @@ public class ItemArchivedVM {
 
     private UUID id;
 
-    private boolean archived;
+    private boolean isArchived;
 
 }

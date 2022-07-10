@@ -1,43 +1,34 @@
 package com.persoff68.fatodo.model;
 
+import com.persoff68.fatodo.model.converter.HashMapConverter;
+import liquibase.repackaged.org.apache.commons.collections4.map.HashedMap;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.Map;
 import java.util.UUID;
 
-@Document(collection = "ftd_configuration")
+@Entity
+@Table(name = "ftd_item_configuration")
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class Configuration extends AbstractModel {
+@AllArgsConstructor
+public class Configuration {
 
-    @NotNull
+    @Id
     private UUID userId;
 
-    private List<Group> groups;
+    @Convert(converter = HashMapConverter.class)
+    private Map<UUID, Integer> orderMap;
 
     public Configuration(UUID userId) {
         this.userId = userId;
-        groups = new ArrayList<>();
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Group {
-        private UUID id;
-        private int order;
-
-        public Group(UUID id) {
-            this.id = id;
-            this.order = Integer.MAX_VALUE;
-        }
+        orderMap = new HashedMap<>();
     }
 
 }

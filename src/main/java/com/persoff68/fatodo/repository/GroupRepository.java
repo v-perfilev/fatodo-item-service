@@ -1,43 +1,37 @@
 package com.persoff68.fatodo.repository;
 
-import com.mongodb.lang.NonNull;
-import com.persoff68.fatodo.config.aop.cache.annotation.CacheEvictMethod;
-import com.persoff68.fatodo.config.aop.cache.annotation.CacheableMethod;
 import com.persoff68.fatodo.model.Group;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface GroupRepository extends MongoRepository<Group, UUID> {
+public interface GroupRepository extends JpaRepository<Group, UUID> {
 
-    @Query(value = "{ 'members.id': ?0 }")
-    @CacheableMethod(cacheName = "groups-by-user-id", key = "#userId")
-    List<Group> findAllByUserId(UUID userId);
+    @Query("""
+            select g from Group g
+            join Member m on g.id = m.group.id
+            where m.userId = :userId and g.isDeleted = false
+            """)
+    List<Group> findAllByUserId(@Param("userId") UUID userId);
 
-    @Query(value = "{'id' : {'$in' : ?0}}")
-    List<Group> findAllById(List<UUID> groupIdList);
-
-    @Override
-    @Query(value = "{ 'id': ?0 }")
-    @CacheableMethod(cacheName = "group-by-id", key = "#id")
-    @NonNull
-    Optional<Group> findById(@NonNull UUID id);
-
-    @Override
-    @CacheEvictMethod(cacheName = "group-by-id", key = "#group.id")
-    @CacheEvictMethod(cacheName = "groups-by-user-id", key = "#group.members.id")
-    @NonNull
-    <S extends Group> S save(@NonNull S group);
+    @Query("""
+            select g from Group g
+            where g.id in :groupIds and g.isDeleted = false
+            """)
+    List<Group> findAllById(@Param("groupIds") List<UUID> groupIds);
 
     @Override
-    @CacheEvictMethod(cacheName = "group-by-id", key = "#group.id")
-    @CacheEvictMethod(cacheName = "groups-by-user-id", key = "#group.members.id")
-    void delete(@Nonnull Group group);
+    @Query("""
+            select g from Group g
+            where g.id = :groupId and g.isDeleted = false
+            """)
+    Optional<Group> findById(@Param("groupId") UUID groupId);
+
 
 }

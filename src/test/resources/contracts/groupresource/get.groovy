@@ -28,7 +28,7 @@ Contract.make {
                 "title": "test_value",
                 "members": [
                         [
-                                "id"        : "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e",
+                                "userId"    : "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e",
                                 "permission": "ADMIN"
                         ]
                 ]

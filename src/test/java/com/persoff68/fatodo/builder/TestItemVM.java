@@ -24,13 +24,12 @@ public class TestItemVM extends ItemVM {
                       DateParams date,
                       String description,
                       List<Reminder> reminders,
-                      List<String> tags,
                       boolean deleteReminders) {
-        super(id, groupId, title, type, priority, date, description, reminders, tags, deleteReminders);
+        super(id, groupId, title, type, priority, date, description, reminders, deleteReminders);
     }
 
     public static TestItemVMBuilder defaultBuilder() {
-        Reminder reminder = TestReminder.defaultBuilder().build();
+        Reminder reminder = TestReminder.defaultBuilder().build().toParent();
         return TestItemVM.builder()
                 .id(UUID.randomUUID())
                 .groupId(UUID.randomUUID())
@@ -39,6 +38,19 @@ public class TestItemVM extends ItemVM {
                 .priority(ItemPriority.NORMAL.toString())
                 .description(DEFAULT_VALUE)
                 .reminders(Collections.singletonList(reminder));
+    }
+
+    public ItemVM toParent() {
+        ItemVM vm = new ItemVM();
+        vm.setId(getId());
+        vm.setGroupId(getGroupId());
+        vm.setTitle(getTitle());
+        vm.setType(getType());
+        vm.setPriority(getPriority());
+        vm.setDate(getDate());
+        vm.setDescription(getDescription());
+        vm.setReminders(getReminders());
+        return vm;
     }
 
 }

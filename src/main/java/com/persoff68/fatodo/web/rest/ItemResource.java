@@ -86,7 +86,7 @@ public class ItemResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> create(@RequestBody @Valid ItemVM itemVM) {
         Item item = itemMapper.vmToPojo(itemVM);
-        item = itemService.create(item, itemVM.getReminders());
+        item = itemService.create(item, itemVM.getGroupId(), itemVM.getReminders());
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.status(HttpStatus.CREATED).body(itemDTO);
     }
@@ -125,12 +125,6 @@ public class ItemResource {
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
         itemService.delete(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping(value = "/{groupId}/group-id", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> deleteAllByGroupId(@PathVariable UUID groupId) {
-        itemService.deleteAllByGroupId(groupId);
         return ResponseEntity.ok().build();
     }
 

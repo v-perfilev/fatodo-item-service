@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,9 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ReminderControllerIT {
     private static final String ENDPOINT = "/api/reminders";
 
-    private static final UUID ITEM_ID = UUID.randomUUID();
-    private static final UUID GROUP_ID = UUID.randomUUID();
-
     @Autowired
     MockMvc mvc;
     @Autowired
@@ -46,14 +44,19 @@ class ReminderControllerIT {
     @Autowired
     ObjectMapper objectMapper;
 
+    Item item;
+
     @BeforeEach
+    @Transactional
     void setup() {
-        Member member1 = TestMember.defaultBuilder().build();
-        Member member2 = TestMember.defaultBuilder().build();
-        Group group = TestGroup.defaultBuilder().id(GROUP_ID).members(List.of(member1, member2)).build();
-        groupRepository.save(group);
-        Item item = TestItem.defaultBuilder().id(ITEM_ID).groupId(GROUP_ID).build();
-        itemRepository.save(item);
+        Group group = TestGroup.defaultBuilder().build().toParent();
+        Member member1 = TestMember.defaultBuilder().group(group).build().toParent();
+        Member member2 = TestMember.defaultBuilder().group(group).build().toParent();
+        item = TestItem.defaultBuilder().group(group).build().toParent();
+        group.setMembers(List.of(member1, member2));
+        group.setItems(List.of(item));
+        group = groupRepository.save(group);
+        item = group.getItems().get(0);
     }
 
     @AfterEach
@@ -65,7 +68,7 @@ class ReminderControllerIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_SYSTEM")
     void testGetReminderForItem_ok() throws Exception {
-        String url = ENDPOINT + "/item/" + ITEM_ID;
+        String url = ENDPOINT + "/item/" + item.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -85,7 +88,7 @@ class ReminderControllerIT {
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
     void testGetReminderForItem_forbidden() throws Exception {
-        String url = ENDPOINT + "/item/" + ITEM_ID;
+        String url = ENDPOINT + "/item/" + item.getId();
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
     }
@@ -93,7 +96,7 @@ class ReminderControllerIT {
     @Test
     @WithAnonymousUser
     void testGetReminderForItem_unauthorized() throws Exception {
-        String url = ENDPOINT + "/item/" + ITEM_ID;
+        String url = ENDPOINT + "/item/" + item.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }

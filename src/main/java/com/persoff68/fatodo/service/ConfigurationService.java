@@ -7,8 +7,8 @@ import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,19 +27,20 @@ public class ConfigurationService {
                 .orElse(new Configuration(userId));
     }
 
+    @Transactional
     public void setOrder(List<UUID> groupIdList, UUID userId) {
         Configuration configuration = configurationRepository.findByUserId(userId)
                 .orElse(new Configuration(userId));
         List<Group> groupList = groupRepository.findAllByUserId(userId);
-        List<Configuration.Group> configurationGroupList = buildConfigurationGroupList(groupList, groupIdList);
-        List<Configuration.Group> orderedGroupList = reorderGroupList(configurationGroupList);
-        configuration.setGroups(orderedGroupList);
+        Map<UUID, Integer> orderMap = buildOrderMap(groupList, groupIdList);
+        configuration.setOrderMap(orderMap);
         configurationRepository.save(configuration);
     }
 
+    @Transactional
     public void addGroup(Group group) {
         List<UUID> userIdList = group.getMembers().stream()
-                .map(Member::getId)
+                .map(Member::getUserId)
                 .toList();
         List<Configuration> configurationList = configurationRepository.findAllByUserIdIn(userIdList);
 
@@ -50,67 +51,47 @@ public class ConfigurationService {
                 .forEach(userId -> configurationList.add(new Configuration(userId)));
         configurationList.forEach(c -> addGroupToConfiguration(c, group.getId()));
 
-        dbOperation(configurationList, null);
+        configurationRepository.saveAll(configurationList);
     }
 
+    @Transactional
     public void deleteGroup(Group group) {
         List<UUID> userIdList = group.getMembers().stream()
-                .map(Member::getId)
+                .map(Member::getUserId)
                 .toList();
         List<Configuration> configurationList = configurationRepository.findAllByUserIdIn(userIdList);
-
         configurationList.forEach(c -> removeGroupFromConfiguration(c, group.getId()));
-
-        Map<Boolean, List<Configuration>> configurationListMap = configurationList.stream()
-                .collect(Collectors.groupingBy(c -> c.getGroups().isEmpty()));
-        dbOperation(configurationListMap.get(false), configurationListMap.get(true));
+        configurationRepository.saveAll(configurationList);
     }
 
-    private void dbOperation(List<Configuration> toSaveList, List<Configuration> toDeleteList) {
-        if (toSaveList != null && !toSaveList.isEmpty()) {
-            configurationRepository.saveAll(toSaveList);
-        }
-        if (toDeleteList != null && !toDeleteList.isEmpty()) {
-            configurationRepository.deleteAll(toDeleteList);
-        }
-    }
 
     private void addGroupToConfiguration(Configuration configuration, UUID groupId) {
-        List<Configuration.Group> groupList = configuration.getGroups();
-        Configuration.Group newGroup = new Configuration.Group(groupId);
-        groupList.add(newGroup);
-        List<Configuration.Group> orderedGroupList = reorderGroupList(groupList);
-        configuration.setGroups(orderedGroupList);
+        Map<UUID, Integer> orderMap = configuration.getOrderMap();
+        orderMap.put(groupId, orderMap.size());
     }
 
     private void removeGroupFromConfiguration(Configuration configuration, UUID groupId) {
-        List<Configuration.Group> groupList = configuration.getGroups();
-        groupList = groupList.stream()
-                .filter(g -> !g.getId().equals(groupId))
-                .toList();
-        List<Configuration.Group> orderedGroupList = reorderGroupList(groupList);
-        configuration.setGroups(orderedGroupList);
+        Map<UUID, Integer> orderMap = configuration.getOrderMap();
+        Integer groupIndex = orderMap.get(groupId);
+        if (groupIndex != null) {
+            orderMap.remove(groupId);
+            orderMap.forEach((key, value) -> {
+                if (value > groupIndex) {
+                    orderMap.put(key, value - 1);
+                }
+            });
+        }
     }
 
-    private List<Configuration.Group> reorderGroupList(List<Configuration.Group> groupList) {
-        AtomicInteger counter = new AtomicInteger(0);
-        return groupList.stream()
-                .sorted(Comparator.comparingInt(Configuration.Group::getOrder))
-                .peek(g -> g.setOrder(counter.getAndIncrement()))
-                .toList();
-    }
-
-    private List<Configuration.Group> buildConfigurationGroupList(List<Group> groupList,
-                                                                  List<UUID> orderList) {
-        List<UUID> groupIdList = groupList.stream()
-                .map(Group::getId)
-                .toList();
+    private Map<UUID, Integer> buildOrderMap(List<Group> groupList,
+                                             List<UUID> orderList) {
+        List<UUID> groupIdList = groupList.stream().map(Group::getId).toList();
         AtomicInteger counter = new AtomicInteger(0);
         Map<UUID, Integer> orderMap = orderList.stream()
                 .collect(Collectors.toMap(o -> o, o -> counter.getAndIncrement()));
-        return groupIdList.stream()
-                .map(groupId -> new Configuration.Group(groupId, orderMap.getOrDefault(groupId, Integer.MAX_VALUE)))
-                .toList();
+        groupIdList.stream().filter(id -> !orderMap.containsKey(id))
+                .forEach(id -> orderMap.put(id, counter.getAndIncrement()));
+        return orderMap;
     }
 
 }

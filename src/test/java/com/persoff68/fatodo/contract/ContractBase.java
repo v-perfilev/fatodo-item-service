@@ -19,8 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.verifier.messaging.boot.AutoConfigureMessageVerifier;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMessageVerifier
+@Transactional
 public abstract class ContractBase {
     private static final UUID USER_1_ID = UUID.fromString("8f9a7cae-73c8-4ad6-b135-5bd109b51d2e");
     private static final UUID USER_2_ID = UUID.fromString("4329f19c-deb7-4eaa-a841-bb46bd78f793");
@@ -43,6 +46,8 @@ public abstract class ContractBase {
     GroupRepository groupRepository;
     @Autowired
     ItemRepository itemRepository;
+    @Autowired
+    EntityManager entityManager;
 
     @MockBean
     ImageServiceClient imageServiceClient;
@@ -59,20 +64,27 @@ public abstract class ContractBase {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 
-        Member member1 = TestMember.defaultBuilder().id(USER_1_ID).permission(Permission.ADMIN).build();
-        Member member2 = TestMember.defaultBuilder().id(USER_2_ID).permission(Permission.READ).build();
+        Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).build().toParent();
+        Group group2 = TestGroup.defaultBuilder().id(GROUP_2_ID).build().toParent();
 
-        Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).members(List.of(member1, member2)).build();
-        Group group2 = TestGroup.defaultBuilder().id(GROUP_2_ID).members(List.of(member1, member2)).build();
+        Member member1 = TestMember.defaultBuilder()
+                .group(group1).userId(USER_1_ID).permission(Permission.ADMIN).build().toParent();
+        Member member2 = TestMember.defaultBuilder()
+                .group(group1).userId(USER_2_ID).permission(Permission.READ).build().toParent();
+        Member member3 = TestMember.defaultBuilder()
+                .group(group2).userId(USER_1_ID).permission(Permission.ADMIN).build().toParent();
+        Member member4 = TestMember.defaultBuilder()
+                .group(group2).userId(USER_2_ID).permission(Permission.READ).build().toParent();
 
-        groupRepository.save(group1);
-        groupRepository.save(group2);
+        Item item1 = TestItem.defaultBuilder().group(group1).id(ITEM_ID).build().toParent();
+        Item item2 = TestItem.defaultBuilder().group(group1).isArchived(true).build().toParent();
 
-        Item item1 = TestItem.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
-        Item item2 = TestItem.defaultBuilder().groupId(GROUP_1_ID).archived(true).build();
+        group1.setMembers(List.of(member1, member2));
+        group1.setItems(List.of(item1, item2));
+        group2.setMembers(List.of(member3, member4));
 
-        itemRepository.save(item1);
-        itemRepository.save(item2);
+        entityManager.merge(group1);
+        entityManager.merge(group2);
 
         when(contactServiceClient.areUsersInContactList(any())).thenReturn(true);
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");

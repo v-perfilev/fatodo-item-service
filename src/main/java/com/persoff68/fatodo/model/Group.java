@@ -4,12 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@Document(collection = "ftd_group")
+@Entity
+@Table(name = "ftd_item_group")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,21 +29,13 @@ public class Group extends AbstractAuditingModel {
 
     private String imageFilename;
 
-    @NotNull
+    private boolean isDeleted;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Member> members;
 
-    public Group(Group group) {
-        this.title = group.title;
-        this.color = group.color;
-        this.imageFilename = group.imageFilename;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true)
+    private List<Item> items;
 
-        this.members = List.copyOf(group.members);
-
-        this.id = group.id;
-        this.createdBy = group.createdBy;
-        this.createdAt = group.createdAt;
-        this.lastModifiedBy = group.lastModifiedBy;
-        this.lastModifiedAt = group.lastModifiedAt;
-    }
 
 }

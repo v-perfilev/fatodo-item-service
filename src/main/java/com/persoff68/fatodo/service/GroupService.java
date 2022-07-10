@@ -1,7 +1,6 @@
 package com.persoff68.fatodo.service;
 
 import com.persoff68.fatodo.client.CommentServiceClient;
-import com.persoff68.fatodo.model.Configuration;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.repository.GroupRepository;
@@ -13,13 +12,13 @@ import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import com.persoff68.fatodo.service.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +33,7 @@ public class GroupService {
     private final CommentServiceClient commentServiceClient;
 
     public List<Group> getAllByUserId(UUID userId) {
-        Map<UUID, Integer> orderMap = configurationService.getByUserId(userId).getGroups()
-                .stream().collect(Collectors.toMap(Configuration.Group::getId, Configuration.Group::getOrder));
+        Map<UUID, Integer> orderMap = configurationService.getByUserId(userId).getOrderMap();
         List<Group> groupList = groupRepository.findAllByUserId(userId);
         return groupList.stream()
                 .sorted(Comparator.comparingInt(g -> orderMap.getOrDefault(g.getId(), Integer.MAX_VALUE)))
@@ -43,8 +41,7 @@ public class GroupService {
     }
 
     public List<Group> getAllCommonByUserIds(UUID firstUserId, UUID secondUserId) {
-        Map<UUID, Integer> orderMap = configurationService.getByUserId(firstUserId).getGroups()
-                .stream().collect(Collectors.toMap(Configuration.Group::getId, Configuration.Group::getOrder));
+        Map<UUID, Integer> orderMap = configurationService.getByUserId(firstUserId).getOrderMap();
         List<Group> firstUserGroupList = groupRepository.findAllByUserId(firstUserId);
         List<Group> secondUserGroupList = groupRepository.findAllByUserId(secondUserId);
         List<UUID> secondUserGroupIdList = secondUserGroupList.stream()
@@ -69,12 +66,13 @@ public class GroupService {
                 .orElseThrow(ModelNotFoundException::new);
     }
 
+    @Transactional
     public Group create(Group groupToCreate, byte[] image) {
         if (groupToCreate.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
 
-        groupToCreate.setMembers(createInitMemberList());
+        groupToCreate.setMembers(createInitMemberList(groupToCreate));
         groupToCreate.setImageFilename(null);
         groupValidator.validateCreate(groupToCreate);
         Group group = groupRepository.save(groupToCreate);
@@ -89,6 +87,7 @@ public class GroupService {
         return group;
     }
 
+    @Transactional
     public Group update(Group groupToUpdate, byte[] image) {
         UUID id = groupToUpdate.getId();
         if (id == null) {
@@ -108,25 +107,27 @@ public class GroupService {
         return groupRepository.save(group);
     }
 
+    @Transactional
     public void delete(UUID groupId) {
         permissionService.checkAdminPermission(groupId);
-
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
+        group.setDeleted(true);
+        group.getItems().forEach(item -> item.setDeleted(true));
+        groupRepository.save(group);
 
+        // TODO check and optimize
         List<UUID> idList = Collections.singletonList(groupId);
         commentServiceClient.deleteAllThreadsByTargetIds(idList);
-        itemService.deleteAllByGroupId(group.getId());
         imageService.deleteGroup(group);
         configurationService.deleteGroup(group);
-        groupRepository.delete(group);
     }
 
 
-    private List<Member> createInitMemberList() {
+    private List<Member> createInitMemberList(Group group) {
         UUID userId = SecurityUtils.getCurrentId()
                 .orElseThrow(UnauthorizedException::new);
-        Member member = Member.adminMember(userId);
+        Member member = Member.adminMember(group, userId);
         return Collections.singletonList(member);
     }
 

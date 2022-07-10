@@ -27,9 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -52,11 +49,9 @@ class GroupResourceIT {
 
     private static final String ADMIN_ID = "3c300277-b5ea-48d1-80db-ead620cf5846";
     private static final String READ_ID = "357a2a99-7b7e-4336-9cd7-18f2cf73fab9";
-    private static final String GROUP_ID = "35e7896d-5967-4917-abad-f8a5dc01f1ca";
-    private static final String WRONG_GROUP_ID = "009cc132-8454-44ee-8ece-2498c4579dd2";
 
     @Autowired
-    WebApplicationContext context;
+    MockMvc mvc;
     @Autowired
     GroupRepository groupRepository;
     @Autowired
@@ -69,39 +64,39 @@ class GroupResourceIT {
     @MockBean
     CommentServiceClient commentServiceClient;
 
-    MockMvc mvc;
+    Group group1;
+    Group group2;
+    Group group3;
 
     @BeforeEach
     void setup() {
         groupRepository.deleteAll();
 
-        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+        group1 = TestGroup.defaultBuilder().build().toParent();
+        group2 = TestGroup.defaultBuilder().build().toParent();
+        group3 = TestGroup.defaultBuilder().build().toParent();
 
         Member member1 = TestMember.defaultBuilder()
-                .id(UUID.fromString(ADMIN_ID)).permission(Permission.ADMIN).build();
+                .group(group1).userId(UUID.fromString(ADMIN_ID)).permission(Permission.ADMIN).build().toParent();
         Member member2 = TestMember.defaultBuilder()
-                .permission(Permission.ADMIN).build();
+                .group(group2).userId(UUID.fromString(ADMIN_ID)).permission(Permission.ADMIN).build().toParent();
         Member member3 = TestMember.defaultBuilder()
-                .id(UUID.fromString(READ_ID)).permission(Permission.READ).build();
+                .group(group2).userId(UUID.fromString(READ_ID)).permission(Permission.READ).build().toParent();
+        Member member4 = TestMember.defaultBuilder()
+                .group(group3).permission(Permission.ADMIN).build().toParent();
 
-        Group group1 = TestGroup.defaultBuilder()
-                .members(List.of(member1)).build();
-        Group group2 = TestGroup.defaultBuilder()
-                .id(UUID.fromString(GROUP_ID))
-                .members(List.of(member1, member3)).build();
-        Group group3 = TestGroup.defaultBuilder()
-                .id(UUID.fromString(WRONG_GROUP_ID))
-                .members(List.of(member2)).build();
+        group1.setMembers(List.of(member1));
+        group2.setMembers(List.of(member2, member3));
+        group3.setMembers(List.of(member4));
 
-        groupRepository.save(group1);
-        groupRepository.save(group2);
-        groupRepository.save(group3);
+        group1 = groupRepository.save(group1);
+        group2 = groupRepository.save(group2);
+        group3 = groupRepository.save(group3);
 
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");
         when(imageServiceClient.updateGroupImage(any())).thenReturn("filename");
         doNothing().when(commentServiceClient).deleteAllThreadsByTargetIds(any());
         doNothing().when(imageServiceClient).deleteGroupImage(any());
-        doNothing().when(itemService).deleteAllByGroupId(any());
     }
 
     @Test
@@ -145,19 +140,18 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     void testGetById_ok() throws Exception {
-        UUID id = UUID.fromString(GROUP_ID);
-        String url = ENDPOINT + "/" + id;
+        String url = ENDPOINT + "/" + group2.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         GroupDTO resultDTO = objectMapper.readValue(resultString, GroupDTO.class);
-        assertThat(resultDTO.getId()).isEqualTo(id);
+        assertThat(resultDTO.getId()).isEqualTo(group2.getId());
     }
 
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     void testGetById_forbidden_wrongUser() throws Exception {
-        String url = ENDPOINT + "/" + WRONG_GROUP_ID;
+        String url = ENDPOINT + "/" + group3.getId();
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
     }
@@ -174,7 +168,7 @@ class GroupResourceIT {
     @Test
     @WithAnonymousUser
     void testGetById_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_ID;
+        String url = ENDPOINT + "/" + group2.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -183,7 +177,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     void testCreate_created() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(null).build();
+        GroupVM vm = TestGroupVM.defaultBuilder().id(null).build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         ResultActions resultActions = mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -199,7 +193,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     void testCreate_badRequest_alreadyExists() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).build();
+        GroupVM vm = TestGroupVM.defaultBuilder().id(group2.getId()).build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -209,7 +203,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     void testCreate_badRequest_invalid() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(null).title(null).build();
+        GroupVM vm = TestGroupVM.defaultBuilder().id(null).title(null).build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -220,7 +214,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     void testCreate_badRequest_idSet() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().build();
+        GroupVM vm = TestGroupVM.defaultBuilder().build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -230,7 +224,7 @@ class GroupResourceIT {
     @Test
     @WithAnonymousUser
     void testCreate_unauthorized() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(null).build();
+        GroupVM vm = TestGroupVM.defaultBuilder().id(null).build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -241,7 +235,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     void testUpdate_ok() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
+        GroupVM vm = TestGroupVM.defaultBuilder().id(group2.getId()).title("test").build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -256,7 +250,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext
     void testUpdate_forbidden_wrongUser() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
+        GroupVM vm = TestGroupVM.defaultBuilder().id(group2.getId()).title("test").build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -266,7 +260,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = READ_ID)
     void testUpdate_forbidden_wrongPermission() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
+        GroupVM vm = TestGroupVM.defaultBuilder().id(group2.getId()).title("test").build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -276,7 +270,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     void testUpdate_badRequest_notExists() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.randomUUID()).title("test").build();
+        GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.randomUUID()).title("test").build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -296,7 +290,7 @@ class GroupResourceIT {
     @Test
     @WithAnonymousUser
     void testUpdate_unauthorized() throws Exception {
-        GroupVM vm = TestGroupVM.defaultBuilder().id(UUID.fromString(GROUP_ID)).title("test").build();
+        GroupVM vm = TestGroupVM.defaultBuilder().id(group2.getId()).title("test").build().toParent();
         MultiValueMap<String, String> multiValueMap = TestUtils.objectToMap(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.MULTIPART_FORM_DATA).params(multiValueMap))
@@ -307,7 +301,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = ADMIN_ID)
     void testDelete_ok() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_ID;
+        String url = ENDPOINT + "/" + group2.getId();
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
     }
@@ -324,7 +318,7 @@ class GroupResourceIT {
     @Test
     @WithCustomSecurityContext(id = "3c300277-b5ea-48d1-80db-ead620cf5846")
     void testDelete_forbidden_wrongUser() throws Exception {
-        String url = ENDPOINT + "/" + WRONG_GROUP_ID;
+        String url = ENDPOINT + "/" + group3.getId();
         mvc.perform(delete(url))
                 .andExpect(status().isForbidden());
     }
@@ -332,7 +326,7 @@ class GroupResourceIT {
     @Test
     @WithAnonymousUser
     void testDelete_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_ID;
+        String url = ENDPOINT + "/" + group2.getId();
         mvc.perform(delete(url))
                 .andExpect(status().isUnauthorized());
     }

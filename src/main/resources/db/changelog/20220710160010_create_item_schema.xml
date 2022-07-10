@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet id="00000000000002" author="persoff68">
+
+        <createTable tableName="ftd_item">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="group_id" type="binary(16)">
+                <constraints foreignKeyName="fk_item_group" references="ftd_item_group(id)" deleteCascade="true"
+                             nullable="false"/>
+            </column>
+
+            <column name="title" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="type" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="priority" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="date" type="varchar(128)"/>
+
+            <column name="description" type="clob"/>
+
+            <column name="is_archived" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by" type="binary(16)"/>
+            <column name="created_at" type="timestamp"/>
+            <column name="last_modified_by" type="binary(16)"/>
+            <column name="last_modified_at" type="timestamp"/>
+        </createTable>
+
+        <createIndex indexName="index_item_group" tableName="ftd_item">
+            <column name="group_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

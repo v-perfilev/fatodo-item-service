@@ -37,6 +37,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -58,10 +59,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ItemResourceIT {
     private static final String ENDPOINT = "/api/items";
 
-    private static final UUID GROUP_1_ID = UUID.randomUUID();
-    private static final UUID GROUP_2_ID = UUID.randomUUID();
-    private static final UUID ITEM_ID = UUID.randomUUID();
-
     @Autowired
     MockMvc mvc;
     @Autowired
@@ -79,28 +76,34 @@ class ItemResourceIT {
     @MockBean
     NotificationServiceClient notificationServiceClient;
 
+    Group group1;
+    Group group2;
+    Item item1;
+
     @BeforeEach
+    @Transactional
     void setup() {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 
-        Member member1 = TestMember.defaultBuilder().build();
-        Member member2 = TestMember.defaultBuilder().build();
-        Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).members(List.of(member1, member2)).build();
-        Group group2 = TestGroup.defaultBuilder().id(GROUP_2_ID).members(List.of(member1, member2)).build();
+        group1 = TestGroup.defaultBuilder().build().toParent();
+        Member member1 = TestMember.defaultBuilder().group(group1).build().toParent();
+        Member member2 = TestMember.defaultBuilder().group(group1).build().toParent();
+        item1 = TestItem.defaultBuilder().group(group1).build().toParent();
+        Item item2 = TestItem.defaultBuilder().group(group1).build().toParent();
+        Item item3 = TestItem.defaultBuilder().group(group1).isArchived(true).build().toParent();
+        Item item4 = TestItem.defaultBuilder().group(group1).isArchived(true).build().toParent();
+        Item item5 = TestItem.defaultBuilder().group(group1).isDeleted(true).build().toParent();
+        group1.setMembers(List.of(member1, member2));
+        group1.setItems(List.of(item1, item2, item3, item4, item5));
+        group1 = groupRepository.save(group1);
+        item1 = group1.getItems().get(0);
 
-        groupRepository.save(group1);
-        groupRepository.save(group2);
-
-        Item item1 = TestItem.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
-        Item item2 = TestItem.defaultBuilder().groupId(GROUP_1_ID).build();
-        Item item3 = TestItem.defaultBuilder().groupId(GROUP_1_ID).archived(true).build();
-        Item item4 = TestItem.defaultBuilder().groupId(GROUP_1_ID).archived(true).build();
-
-        itemRepository.save(item1);
-        itemRepository.save(item2);
-        itemRepository.save(item3);
-        itemRepository.save(item4);
+        group2 = TestGroup.defaultBuilder().build().toParent();
+        Member member3 = TestMember.defaultBuilder().group(group2).build().toParent();
+        Member member4 = TestMember.defaultBuilder().group(group2).build().toParent();
+        group2.setMembers(List.of(member3, member4));
+        group2 = groupRepository.save(group2);
 
         doNothing().when(commentServiceClient).deleteAllThreadsByTargetIds(any());
         doNothing().when(notificationServiceClient).setReminders(any(), any());
@@ -112,7 +115,7 @@ class ItemResourceIT {
     void testGetMapByGroupIds_ok() throws Exception {
         doReturn(true).when(permissionService).hasMultipleReadPermission(any());
         String url = ENDPOINT + "/preview/group-ids";
-        List<UUID> groupIdList = List.of(GROUP_1_ID, GROUP_2_ID);
+        List<UUID> groupIdList = List.of(group1.getId(), group2.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         ResultActions resultActions = mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -122,13 +125,13 @@ class ItemResourceIT {
         };
         Map<UUID, PageableList<ItemDTO>> resultMap = objectMapper.readValue(resultString, typeRef);
         assertThat(resultMap).hasSize(2);
-        PageableList<ItemDTO> pageableList1 = resultMap.get(GROUP_1_ID);
+        PageableList<ItemDTO> pageableList1 = resultMap.get(group1.getId());
         assertThat(pageableList1.getCount()).isEqualTo(2);
         assertThat(pageableList1.getData()).hasSize(2);
         ItemDTO itemDTO1 = pageableList1.getData().get(0);
         ItemDTO itemDTO2 = pageableList1.getData().get(1);
         assertThat(itemDTO1.getCreatedAt()).isAfterOrEqualTo(itemDTO2.getCreatedAt());
-        PageableList<ItemDTO> pageableList2 = resultMap.get(GROUP_2_ID);
+        PageableList<ItemDTO> pageableList2 = resultMap.get(group2.getId());
         assertThat(pageableList2.getCount()).isZero();
         assertThat(pageableList2.getData()).isEmpty();
     }
@@ -138,7 +141,7 @@ class ItemResourceIT {
     void testGetMapByGroupIds_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasMultipleReadPermission(any());
         String url = ENDPOINT + "/preview/group-ids";
-        List<UUID> groupIdList = List.of(GROUP_1_ID, GROUP_2_ID);
+        List<UUID> groupIdList = List.of(group1.getId(), group2.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -150,7 +153,7 @@ class ItemResourceIT {
     void testGetMapByGroupIds_notFound() throws Exception {
         doThrow(new ModelNotFoundException()).when(permissionService).hasMultipleReadPermission(any());
         String url = ENDPOINT + "/preview/group-ids";
-        List<UUID> groupIdList = List.of(GROUP_1_ID, UUID.randomUUID());
+        List<UUID> groupIdList = List.of(group1.getId(), UUID.randomUUID());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -161,7 +164,7 @@ class ItemResourceIT {
     @WithAnonymousUser
     void testGetMapByGroupIds_unauthorized() throws Exception {
         String url = ENDPOINT + "/preview/group-ids";
-        List<UUID> groupIdList = List.of(GROUP_1_ID, GROUP_2_ID);
+        List<UUID> groupIdList = List.of(group1.getId(), group2.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -173,7 +176,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllByGroupId_ok() throws Exception {
         doReturn(true).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/" + group1.getId() + "/group-id";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -190,7 +193,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllByGroupId_ok_pageable() throws Exception {
         doReturn(true).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id?offset=1&size=10";
+        String url = ENDPOINT + "/" + group1.getId() + "/group-id?offset=1&size=10";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -204,7 +207,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllByGroupId_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/" + group1.getId() + "/group-id";
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
     }
@@ -212,7 +215,7 @@ class ItemResourceIT {
     @Test
     @WithAnonymousUser
     void testGetAllByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/" + group1.getId() + "/group-id";
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -222,7 +225,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllArchivedByGroupId_ok() throws Exception {
         doReturn(true).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/archived/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -239,7 +242,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllArchivedByGroupId_ok_pageable() throws Exception {
         doReturn(true).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/archived/" + GROUP_1_ID + "/group-id?offset=1&size=10";
+        String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id?offset=1&size=10";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -253,7 +256,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllArchivedByGroupId_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/archived/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id";
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
     }
@@ -261,7 +264,7 @@ class ItemResourceIT {
     @Test
     @WithAnonymousUser
     void testGetAllArchivedByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/archived/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id";
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -271,13 +274,12 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetById_ok() throws Exception {
         doReturn(true).when(permissionService).hasReadPermission(any());
-        UUID id = ITEM_ID;
-        String url = ENDPOINT + "/" + id;
+        String url = ENDPOINT + "/" + item1.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
-        assertThat(resultDTO.getId()).isEqualTo(id);
+        assertThat(resultDTO.getId()).isEqualTo(item1.getId());
     }
 
     @Test
@@ -294,7 +296,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetById_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasReadPermission(any());
-        String url = ENDPOINT + "/" + ITEM_ID;
+        String url = ENDPOINT + "/" + item1.getId();
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
     }
@@ -302,7 +304,7 @@ class ItemResourceIT {
     @Test
     @WithAnonymousUser
     void testGetById_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + ITEM_ID;
+        String url = ENDPOINT + "/" + item1.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -312,7 +314,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testCreate_created() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -329,7 +331,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testCreate_badRequest_invalidModel() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -340,7 +342,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testCreate_badRequest_invalid() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(null).title(null).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(null).title(null).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -351,7 +353,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testCreate_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -361,7 +363,7 @@ class ItemResourceIT {
     @Test
     @WithAnonymousUser
     void testCreate_unauthorized() throws Exception {
-        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -373,7 +375,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testUpdate_ok() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(item1.getId()).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -389,7 +391,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testUpdate_notFound() throws Exception {
-        ItemVM vm = TestItemVM.defaultBuilder().groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -400,7 +402,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testUpdate_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(item1.getId()).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -411,7 +413,8 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testUpdate_badRequest_invalid() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).title(null).groupId(GROUP_1_ID).build();
+        ItemVM vm =
+                TestItemVM.defaultBuilder().id(item1.getId()).title(null).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -421,7 +424,7 @@ class ItemResourceIT {
     @Test
     @WithAnonymousUser
     void testUpdate_unauthorized() throws Exception {
-        ItemVM vm = TestItemVM.defaultBuilder().id(ITEM_ID).groupId(GROUP_1_ID).build();
+        ItemVM vm = TestItemVM.defaultBuilder().id(item1.getId()).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -434,14 +437,14 @@ class ItemResourceIT {
     void testUpdateStatus_ok() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/status";
-        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(ITEM_ID).status("COMPLETED").build();
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(item1.getId()).status("COMPLETED").build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
-        assertThat(resultDTO.getId()).isEqualTo(ITEM_ID);
+        assertThat(resultDTO.getId()).isEqualTo(item1.getId());
         assertThat(resultDTO.getStatus()).isEqualTo(ItemStatus.COMPLETED);
     }
 
@@ -449,7 +452,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testUpdateStatus_notFound() throws Exception {
         String url = ENDPOINT + "/status";
-        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().status("COMPLETED").build();
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().status("COMPLETED").build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -461,7 +464,7 @@ class ItemResourceIT {
     void testUpdateStatus_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/status";
-        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(ITEM_ID).status("COMPLETED").build();
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(item1.getId()).status("COMPLETED").build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -472,7 +475,7 @@ class ItemResourceIT {
     @WithAnonymousUser
     void testUpdateStatus_unauthorized() throws Exception {
         String url = ENDPOINT + "/status";
-        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(ITEM_ID).status("COMPLETED").build();
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(item1.getId()).status("COMPLETED").build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -485,14 +488,14 @@ class ItemResourceIT {
     void testUpdateArchived_ok() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/archived";
-        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(ITEM_ID).archived(true).build();
+        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(item1.getId()).archived(true).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
-        assertThat(resultDTO.getId()).isEqualTo(ITEM_ID);
+        assertThat(resultDTO.getId()).isEqualTo(item1.getId());
         assertThat(resultDTO.isArchived()).isTrue();
     }
 
@@ -500,7 +503,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testUpdateArchived_notFound() throws Exception {
         String url = ENDPOINT + "/archived";
-        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().archived(true).build();
+        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().archived(true).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -512,7 +515,7 @@ class ItemResourceIT {
     void testUpdateArchived_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
         String url = ENDPOINT + "/archived";
-        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(ITEM_ID).archived(true).build();
+        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(item1.getId()).archived(true).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -523,7 +526,7 @@ class ItemResourceIT {
     @WithAnonymousUser
     void testUpdateArchived_unauthorized() throws Exception {
         String url = ENDPOINT + "/archived";
-        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(ITEM_ID).archived(true).build();
+        ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(item1.getId()).archived(true).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -535,7 +538,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testDelete_ok() throws Exception {
         doReturn(true).when(permissionService).hasEditPermission(any());
-        String url = ENDPOINT + "/" + ITEM_ID;
+        String url = ENDPOINT + "/" + item1.getId();
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
     }
@@ -553,7 +556,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testDelete_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasEditPermission(any());
-        String url = ENDPOINT + "/" + ITEM_ID;
+        String url = ENDPOINT + "/" + item1.getId();
         mvc.perform(delete(url))
                 .andExpect(status().isForbidden());
     }
@@ -561,34 +564,7 @@ class ItemResourceIT {
     @Test
     @WithAnonymousUser
     void testDelete_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + ITEM_ID;
-        mvc.perform(delete(url))
-                .andExpect(status().isUnauthorized());
-    }
-
-
-    @Test
-    @WithCustomSecurityContext
-    void testDeleteAllByGroupId_ok() throws Exception {
-        doReturn(true).when(permissionService).hasAdminPermission(any());
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
-        mvc.perform(delete(url))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithCustomSecurityContext
-    void testDeleteAllByGroupId_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasAdminPermission(any());
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
-        mvc.perform(delete(url))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithAnonymousUser
-    void testDeleteAllByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + GROUP_1_ID + "/group-id";
+        String url = ENDPOINT + "/" + item1.getId();
         mvc.perform(delete(url))
                 .andExpect(status().isUnauthorized());
     }

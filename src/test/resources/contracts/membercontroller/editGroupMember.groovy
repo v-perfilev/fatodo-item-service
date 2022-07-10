@@ -19,7 +19,7 @@ Contract.make {
             )
         }
         body(
-                "id": $(
+                "userId": $(
                         consumer(any()),
                         producer("4329f19c-deb7-4eaa-a841-bb46bd78f793")
                 ),

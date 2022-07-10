@@ -20,7 +20,7 @@ public class ReminderService {
 
     public ReminderMessage generateByItemId(UUID itemId) {
         Item item = itemService.getByIdWithoutPermissionCheck(itemId);
-        Group group = groupService.getByIdWithoutPermissionCheck(item.getGroupId());
+        Group group = groupService.getByIdWithoutPermissionCheck(item.getGroup().getId());
         List<UUID> userIdList = getUserIdsFromGroup(group);
         String message = createItemMessage(item);
         String url = createItemUrl(item);
@@ -37,7 +37,7 @@ public class ReminderService {
 
     private List<UUID> getUserIdsFromGroup(Group group) {
         return group.getMembers().stream()
-                .map(Member::getId)
+                .map(Member::getUserId)
                 .toList();
     }
 

@@ -19,4 +19,14 @@ public class TestDateParams extends DateParams {
                 .timezone("Europe/Berlin");
     }
 
+    public DateParams toParent() {
+        DateParams dateParams = new DateParams();
+        dateParams.setTime(getTime());
+        dateParams.setDate(getDate());
+        dateParams.setMonth(getMonth());
+        dateParams.setYear(getYear());
+        dateParams.setTimezone(getTimezone());
+        return dateParams;
+    }
+
 }

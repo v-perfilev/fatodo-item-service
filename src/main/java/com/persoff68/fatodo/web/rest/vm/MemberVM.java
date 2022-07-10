@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class MemberVM {
     @NotNull
-    private UUID id;
+    private UUID userId;
     @NotNull
     private Permission permission;
 }

@@ -25,7 +25,7 @@ class NotificationServiceCT {
     @Test
     void testSetReminders() {
         UUID id = UUID.randomUUID();
-        Reminder reminder = TestReminder.defaultBuilder().build();
+        Reminder reminder = TestReminder.defaultBuilder().build().toParent();
         assertDoesNotThrow(() -> notificationServiceClient.setReminders(id, Collections.singletonList(reminder)));
     }
 

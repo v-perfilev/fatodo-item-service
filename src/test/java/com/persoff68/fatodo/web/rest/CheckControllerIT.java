@@ -17,8 +17,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,9 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CheckControllerIT {
     private static final String ENDPOINT = "/api/check";
 
-    private static final UUID GROUP_ID = UUID.randomUUID();
-    private static final UUID ITEM_ID = UUID.randomUUID();
-
     @Autowired
     MockMvc mvc;
     @Autowired
@@ -41,22 +39,26 @@ class CheckControllerIT {
     @Autowired
     ObjectMapper objectMapper;
 
+    Group group;
+    Item item;
+
     @BeforeEach
+    @Transactional
     void setup() {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 
-        Group group = TestGroup.defaultBuilder().id(GROUP_ID).build();
-        groupRepository.save(group);
-
-        Item item = TestItem.defaultBuilder().id(ITEM_ID).build();
-        itemRepository.save(item);
+        group = TestGroup.defaultBuilder().build().toParent();
+        item = TestItem.defaultBuilder().group(group).build().toParent();
+        group.setItems(List.of(item));
+        group = groupRepository.save(group);
+        item = group.getItems().get(0);
     }
 
     @Test
     @WithCustomSecurityContext
     void testIsGroup_true() throws Exception {
-        String url = ENDPOINT + "/is-group/" + GROUP_ID;
+        String url = ENDPOINT + "/is-group/" + group.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -67,7 +69,7 @@ class CheckControllerIT {
     @Test
     @WithCustomSecurityContext
     void testIsGroup_false() throws Exception {
-        String url = ENDPOINT + "/is-group/" + ITEM_ID;
+        String url = ENDPOINT + "/is-group/" + item.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -78,7 +80,7 @@ class CheckControllerIT {
     @Test
     @WithAnonymousUser
     void testIsGroup_unauthorized() throws Exception {
-        String url = ENDPOINT + "/is-group/" + GROUP_ID;
+        String url = ENDPOINT + "/is-group/" + group.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -87,7 +89,7 @@ class CheckControllerIT {
     @Test
     @WithCustomSecurityContext
     void testIsItem_true() throws Exception {
-        String url = ENDPOINT + "/is-item/" + ITEM_ID;
+        String url = ENDPOINT + "/is-item/" + item.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -98,7 +100,7 @@ class CheckControllerIT {
     @Test
     @WithCustomSecurityContext
     void testIsItem_false() throws Exception {
-        String url = ENDPOINT + "/is-item/" + GROUP_ID;
+        String url = ENDPOINT + "/is-item/" + group.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -109,7 +111,7 @@ class CheckControllerIT {
     @Test
     @WithAnonymousUser
     void testIsItem_unauthorized() throws Exception {
-        String url = ENDPOINT + "/is-item/" + ITEM_ID;
+        String url = ENDPOINT + "/is-item/" + item.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }

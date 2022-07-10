@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,10 +37,10 @@ class PermissionControllerIT {
     private static final String ENDPOINT = "/api/permissions";
 
     private static final UUID USER_ID = UUID.fromString("d2eb0f4f-1736-4361-889b-b6d833dd9815");
-    private static final UUID GROUP_CAN_ADMIN_ID = UUID.randomUUID();
-    private static final UUID GROUP_CAN_NOTHING_ID = UUID.randomUUID();
-    private static final UUID ITEM_CAN_ADMIN_ID = UUID.randomUUID();
-    private static final UUID ITEM_CAN_NOTHING_ID = UUID.randomUUID();
+//    private static final UUID GROUP_CAN_ADMIN_ID = UUID.randomUUID();
+//    private static final UUID GROUP_CAN_NOTHING_ID = UUID.randomUUID();
+//    private static final UUID ITEM_CAN_ADMIN_ID = UUID.randomUUID();
+//    private static final UUID ITEM_CAN_NOTHING_ID = UUID.randomUUID();
 
     @Autowired
     MockMvc mvc;
@@ -50,31 +51,39 @@ class PermissionControllerIT {
     @Autowired
     ObjectMapper objectMapper;
 
+    Group group1;
+    Group group2;
+    Item item1;
+    Item item2;
+
     @BeforeEach
+    @Transactional
     void setup() {
         groupRepository.deleteAll();
         itemRepository.deleteAll();
 
-        Member member1 = TestMember.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
-        Group group1 = TestGroup.defaultBuilder().id(GROUP_CAN_ADMIN_ID).members(List.of(member1)).build();
-        groupRepository.save(group1);
+        group1 = TestGroup.defaultBuilder().build().toParent();
+        Member member1 = TestMember.defaultBuilder()
+                .group(group1).userId(USER_ID).permission(Permission.ADMIN).build().toParent();
+        item1 = TestItem.defaultBuilder().group(group1).build().toParent();
+        group1.setMembers(List.of(member1));
+        group1.setItems(List.of(item1));
+        group1 = groupRepository.save(group1);
+        item1 = group1.getItems().get(0);
 
-        Member member2 = TestMember.defaultBuilder().build();
-        Group group2 = TestGroup.defaultBuilder().id(GROUP_CAN_NOTHING_ID).members(List.of(member2)).build();
-        groupRepository.save(group2);
-
-        Item item1 = TestItem.defaultBuilder().id(ITEM_CAN_ADMIN_ID).groupId(GROUP_CAN_ADMIN_ID).build();
-        itemRepository.save(item1);
-
-        Item item2 = TestItem.defaultBuilder().id(ITEM_CAN_NOTHING_ID).groupId(GROUP_CAN_NOTHING_ID).build();
-        itemRepository.save(item2);
-
+        group2 = TestGroup.defaultBuilder().build().toParent();
+        Member member2 = TestMember.defaultBuilder().group(group2).build().toParent();
+        item2 = TestItem.defaultBuilder().group(group2).build().toParent();
+        group2.setMembers(List.of(member2));
+        group2.setItems(List.of(item2));
+        group2 = groupRepository.save(group2);
+        item2 = group2.getItems().get(0);
     }
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanReadGroup_true() throws Exception {
-        String url = ENDPOINT + "/group/read/" + GROUP_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/group/read/" + group1.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -85,7 +94,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanReadGroup_false() throws Exception {
-        String url = ENDPOINT + "/group/read/" + GROUP_CAN_NOTHING_ID;
+        String url = ENDPOINT + "/group/read/" + group2.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -104,7 +113,7 @@ class PermissionControllerIT {
     @Test
     @WithAnonymousUser
     void testCanReadGroup_unauthorized() throws Exception {
-        String url = ENDPOINT + "/group/read/" + GROUP_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/group/read/" + group1.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -112,7 +121,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanEditGroup_true() throws Exception {
-        String url = ENDPOINT + "/group/edit/" + GROUP_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/group/edit/" + group1.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -123,7 +132,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanEditGroup_false() throws Exception {
-        String url = ENDPOINT + "/group/edit/" + GROUP_CAN_NOTHING_ID;
+        String url = ENDPOINT + "/group/edit/" + group2.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -142,7 +151,7 @@ class PermissionControllerIT {
     @Test
     @WithAnonymousUser
     void testCanEditGroup_unauthorized() throws Exception {
-        String url = ENDPOINT + "/group/edit/" + GROUP_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/group/edit/" + group1.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -150,7 +159,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanAdminGroup_true() throws Exception {
-        String url = ENDPOINT + "/group/admin/" + GROUP_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/group/admin/" + group1.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -161,7 +170,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanAdminGroup_false() throws Exception {
-        String url = ENDPOINT + "/group/admin/" + GROUP_CAN_NOTHING_ID;
+        String url = ENDPOINT + "/group/admin/" + group2.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -180,7 +189,7 @@ class PermissionControllerIT {
     @Test
     @WithAnonymousUser
     void testCanAdminGroup_unauthorized() throws Exception {
-        String url = ENDPOINT + "/group/admin/" + GROUP_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/group/admin/" + group1.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -188,7 +197,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanReadItem_true() throws Exception {
-        String url = ENDPOINT + "/item/read/" + ITEM_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/item/read/" + item1.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -199,7 +208,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanReadItem_false() throws Exception {
-        String url = ENDPOINT + "/item/read/" + ITEM_CAN_NOTHING_ID;
+        String url = ENDPOINT + "/item/read/" + item2.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -218,7 +227,7 @@ class PermissionControllerIT {
     @Test
     @WithAnonymousUser
     void testCanReadItem_unauthorized() throws Exception {
-        String url = ENDPOINT + "/item/read/" + ITEM_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/item/read/" + item1.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -226,7 +235,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanEditItem_true() throws Exception {
-        String url = ENDPOINT + "/item/edit/" + ITEM_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/item/edit/" + item1.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -237,7 +246,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanEditItem_false() throws Exception {
-        String url = ENDPOINT + "/item/edit/" + ITEM_CAN_NOTHING_ID;
+        String url = ENDPOINT + "/item/edit/" + item2.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -256,7 +265,7 @@ class PermissionControllerIT {
     @Test
     @WithAnonymousUser
     void testCanEditItem_unauthorized() throws Exception {
-        String url = ENDPOINT + "/item/edit/" + ITEM_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/item/edit/" + item1.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -264,7 +273,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanAdminItem_true() throws Exception {
-        String url = ENDPOINT + "/item/admin/" + ITEM_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/item/admin/" + item1.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -275,7 +284,7 @@ class PermissionControllerIT {
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanAdminItem_false() throws Exception {
-        String url = ENDPOINT + "/item/admin/" + ITEM_CAN_NOTHING_ID;
+        String url = ENDPOINT + "/item/admin/" + item2.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -294,7 +303,7 @@ class PermissionControllerIT {
     @Test
     @WithAnonymousUser
     void testCanAdminItem_unauthorized() throws Exception {
-        String url = ENDPOINT + "/item/admin/" + ITEM_CAN_ADMIN_ID;
+        String url = ENDPOINT + "/item/admin/" + item1.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -303,7 +312,7 @@ class PermissionControllerIT {
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanAdminGroups_true() throws Exception {
         String url = ENDPOINT + "/groups/admin";
-        List<UUID> groupIdList = List.of(GROUP_CAN_ADMIN_ID);
+        List<UUID> groupIdList = List.of(group1.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         ResultActions resultActions = mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -317,7 +326,7 @@ class PermissionControllerIT {
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanAdminGroups_false() throws Exception {
         String url = ENDPOINT + "/groups/admin";
-        List<UUID> groupIdList = List.of(GROUP_CAN_NOTHING_ID);
+        List<UUID> groupIdList = List.of(group2.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         ResultActions resultActions = mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -342,7 +351,7 @@ class PermissionControllerIT {
     @WithAnonymousUser
     void testCanAdminGroups_unauthorized() throws Exception {
         String url = ENDPOINT + "/groups/admin";
-        List<UUID> groupIdList = List.of(GROUP_CAN_ADMIN_ID);
+        List<UUID> groupIdList = List.of(group1.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -353,7 +362,7 @@ class PermissionControllerIT {
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanAdminItems_true() throws Exception {
         String url = ENDPOINT + "/items/admin";
-        List<UUID> itemIdList = List.of(ITEM_CAN_ADMIN_ID);
+        List<UUID> itemIdList = List.of(item1.getId());
         String requestBody = objectMapper.writeValueAsString(itemIdList);
         ResultActions resultActions = mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -367,7 +376,7 @@ class PermissionControllerIT {
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testCanAdminItems_false() throws Exception {
         String url = ENDPOINT + "/items/admin";
-        List<UUID> itemIdList = List.of(ITEM_CAN_NOTHING_ID);
+        List<UUID> itemIdList = List.of(item2.getId());
         String requestBody = objectMapper.writeValueAsString(itemIdList);
         ResultActions resultActions = mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -392,7 +401,7 @@ class PermissionControllerIT {
     @WithAnonymousUser
     void testCanAdminItems_unauthorized() throws Exception {
         String url = ENDPOINT + "/items/admin";
-        List<UUID> itemIdList = List.of(ITEM_CAN_ADMIN_ID);
+        List<UUID> itemIdList = List.of(item1.getId());
         String requestBody = objectMapper.writeValueAsString(itemIdList);
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))

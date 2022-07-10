@@ -41,8 +41,6 @@ public class ItemVM {
     @RemindersConstraint
     private List<Reminder> reminders;
 
-    private List<String> tags;
-
     private boolean deleteReminders;
 
 }

@@ -34,28 +34,28 @@ class GroupValidatorTest {
 
     @Test
     void testValidateCreate_emptyUserList() {
-        Group group = TestGroup.defaultBuilder().members(Collections.emptyList()).build();
+        Group group = TestGroup.defaultBuilder().members(Collections.emptyList()).build().toParent();
         assertThatThrownBy(() -> groupValidator.validateCreate(group)).isInstanceOf(GroupInvalidException.class);
     }
 
     @Test
     void testValidateCreate_moreThanOneUser() {
-        Member member1 = TestMember.defaultBuilder().id(USER_ID).permission(Permission.ADMIN).build();
-        Member member2 = TestMember.defaultBuilder().build();
-        Group group = TestGroup.defaultBuilder().members(List.of(member1, member2)).build();
+        Member member1 = TestMember.defaultBuilder().userId(USER_ID).permission(Permission.ADMIN).build().toParent();
+        Member member2 = TestMember.defaultBuilder().build().toParent();
+        Group group = TestGroup.defaultBuilder().members(List.of(member1, member2)).build().toParent();
         assertThatThrownBy(() -> groupValidator.validateCreate(group)).isInstanceOf(GroupInvalidException.class);
     }
 
     @Test
     void testValidateUpdate_emptyUserList() {
-        Group group = TestGroup.defaultBuilder().members(Collections.emptyList()).build();
+        Group group = TestGroup.defaultBuilder().members(Collections.emptyList()).build().toParent();
         assertThatThrownBy(() -> groupValidator.validateUpdate(group)).isInstanceOf(GroupInvalidException.class);
     }
 
     @Test
     void testValidateUpdate_listHasNoAdmins() {
-        Member member = TestMember.defaultBuilder().id(USER_ID).permission(Permission.READ).build();
-        Group group = TestGroup.defaultBuilder().members(List.of(member)).build();
+        Member member = TestMember.defaultBuilder().userId(USER_ID).permission(Permission.READ).build().toParent();
+        Group group = TestGroup.defaultBuilder().members(List.of(member)).build().toParent();
         assertThatThrownBy(() -> groupValidator.validateUpdate(group)).isInstanceOf(GroupInvalidException.class);
     }
 

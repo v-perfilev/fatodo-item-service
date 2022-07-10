@@ -2,10 +2,12 @@ package com.persoff68.fatodo.service;
 
 import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
+import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.model.constant.ItemStatus;
+import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +29,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemService {
+
+    private final GroupRepository groupRepository;
 
     private final ItemRepository itemRepository;
     private final PermissionService permissionService;
@@ -41,13 +46,13 @@ public class ItemService {
 
     public PageableList<Item> getAllByGroupId(UUID groupId, Pageable pageable) {
         permissionService.checkReadPermission(groupId);
-        Page<Item> itemPage = itemRepository.findByGroupIdPageable(groupId, pageable);
+        Page<Item> itemPage = itemRepository.findAllByGroupIdPageable(groupId, pageable);
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
 
     public PageableList<Item> getAllArchivedByGroupId(UUID groupId, Pageable pageable) {
         permissionService.checkReadPermission(groupId);
-        Page<Item> itemPage = itemRepository.findArchivedByGroupIdPageable(groupId, pageable);
+        Page<Item> itemPage = itemRepository.findAllArchivedByGroupIdPageable(groupId, pageable);
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
 
@@ -59,17 +64,22 @@ public class ItemService {
     public Item getById(UUID id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkReadPermission(item.getGroupId());
+        permissionService.checkReadPermission(item.getGroup().getId());
         return item;
     }
 
-    public Item create(Item newItem, List<Reminder> reminderList) {
+    @Transactional
+    public Item create(Item newItem, UUID groupId, List<Reminder> reminderList) {
         if (newItem.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
-        permissionService.checkEditPermission(newItem.getGroupId());
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(ModelNotFoundException::new);
+
+        permissionService.checkEditPermission(group.getId());
 
         newItem.setStatus(ItemStatus.CREATED);
+        newItem.setGroup(group);
 
         Item item = itemRepository.save(newItem);
         if (reminderList != null) {
@@ -78,6 +88,7 @@ public class ItemService {
         return item;
     }
 
+    @Transactional
     public Item update(Item newItem, List<Reminder> reminderList, boolean deleteReminders) {
         UUID id = newItem.getId();
         if (id == null) {
@@ -85,14 +96,13 @@ public class ItemService {
         }
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkEditPermission(item.getGroupId());
+        permissionService.checkEditPermission(item.getGroup().getId());
 
         item.setTitle(newItem.getTitle());
         item.setType(newItem.getType());
         item.setPriority(newItem.getPriority());
         item.setDate(newItem.getDate());
         item.setDescription(newItem.getDescription());
-        item.setTags(newItem.getTags());
 
         itemRepository.save(item);
         if (reminderList != null) {
@@ -103,18 +113,20 @@ public class ItemService {
         return item;
     }
 
+    @Transactional
     public Item updateStatus(UUID itemId, ItemStatus status) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkEditPermission(item.getGroupId());
+        permissionService.checkEditPermission(item.getGroup().getId());
         item.setStatus(status);
         return itemRepository.save(item);
     }
 
+    @Transactional
     public Item updateArchived(UUID id, boolean archived) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkEditPermission(item.getGroupId());
+        permissionService.checkEditPermission(item.getGroup().getId());
         item.setArchived(archived);
         if (archived) {
             notificationServiceClient.deleteReminders(id);
@@ -122,29 +134,23 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
+    @Transactional
     public void delete(UUID id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkEditPermission(item.getGroupId());
+        permissionService.checkEditPermission(item.getGroup().getId());
+        item.setDeleted(true);
+        itemRepository.save(item);
+
+        // TODO check and optimize
         List<UUID> idList = Collections.singletonList(item.getId());
         commentServiceClient.deleteAllThreadsByTargetIds(idList);
         notificationServiceClient.deleteReminders(id);
-        itemRepository.delete(item);
-    }
-
-    public void deleteAllByGroupId(UUID groupId) {
-        permissionService.checkAdminPermission(groupId);
-        List<UUID> itemIdList = itemRepository.findAllByGroupId(groupId)
-                .stream().map(Item::getId)
-                .toList();
-        commentServiceClient.deleteAllThreadsByTargetIds(itemIdList);
-        itemIdList.forEach(notificationServiceClient::deleteReminders);
-        itemRepository.deleteAllByIdInAndGroupId(itemIdList, groupId);
     }
 
     private PageableList<Item> getPageableListForMap(UUID groupId, int size) {
         Pageable requestPage = OffsetPageRequest.of(0, size);
-        Page<Item> itemPage = itemRepository.findByGroupIdPageable(groupId, requestPage);
+        Page<Item> itemPage = itemRepository.findAllByGroupIdPageable(groupId, requestPage);
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
 

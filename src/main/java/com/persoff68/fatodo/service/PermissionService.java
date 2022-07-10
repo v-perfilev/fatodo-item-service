@@ -9,6 +9,7 @@ import com.persoff68.fatodo.service.exception.PermissionException;
 import com.persoff68.fatodo.service.helper.PermissionHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PermissionService {
 
     private final GroupRepository groupRepository;
@@ -115,8 +117,7 @@ public class PermissionService {
     private boolean checkItemPermission(UUID itemId, Predicate<Group> checkGroup) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(ModelNotFoundException::new);
-        Group group = groupRepository.findById(item.getGroupId())
-                .orElseThrow(ModelNotFoundException::new);
+        Group group = item.getGroup();
         return checkGroup.test(group);
     }
 
@@ -129,7 +130,8 @@ public class PermissionService {
             throw new ModelNotFoundException();
         }
         List<UUID> groupIdList = itemList.stream()
-                .map(Item::getGroupId)
+                .map(Item::getGroup)
+                .map(Group::getId)
                 .distinct()
                 .toList();
         List<Group> groupList = groupRepository.findAllById(groupIdList);

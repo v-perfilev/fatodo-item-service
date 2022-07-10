@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet id="00000000000003" author="persoff68">
+
+        <createTable tableName="ftd_item_group_member">
+            <column name="group_id" type="binary(16)">
+                <constraints primaryKey="true" foreignKeyName="fk_member_group" references="ftd_item_group(id)"
+                             deleteCascade="true" nullable="false"/>
+            </column>
+
+            <column name="user_id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="permission" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <createIndex indexName="index_item_group_member_group_id" tableName="ftd_item_group_member">
+            <column name="group_id"/>
+        </createIndex>
+
+        <createIndex indexName="index_item_group_member_user_id" tableName="ftd_item_group_member">
+            <column name="user_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
