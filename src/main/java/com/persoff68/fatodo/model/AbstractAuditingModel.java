@@ -7,27 +7,34 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
-import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
+import javax.persistence.EntityListeners;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
 import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 public abstract class AbstractAuditingModel extends AbstractModel implements Persistable<UUID> {
 
     @CreatedBy
     protected UUID createdBy;
 
     @CreatedDate
-    @Indexed
-    protected Instant createdAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Date createdAt;
 
     @LastModifiedBy
     protected UUID lastModifiedBy;
 
     @LastModifiedDate
-    protected Instant lastModifiedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Date lastModifiedAt;
 
     @Override
     public boolean isNew() {
@@ -35,4 +42,3 @@ public abstract class AbstractAuditingModel extends AbstractModel implements Per
     }
 
 }
-

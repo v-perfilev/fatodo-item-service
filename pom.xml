@@ -26,11 +26,15 @@
         <contract.package>com.persoff68.fatodo.contract</contract.package>
         <!-- Dependency versions -->
         <java.version>17</java.version>
+        <spring-boot.version>2.6.7</spring-boot.version>
         <spring-cloud.version>2021.0.2</spring-cloud.version>
         <caffeine.version>3.1.0</caffeine.version>
         <jackson.version>2.13.2.2</jackson.version>
         <jackson-guava.version>2.13.2</jackson-guava.version>
-        <mongock.version>4.1.17</mongock.version>
+        <hikari.version>5.0.1</hikari.version>
+        <h2.version>2.1.212</h2.version>
+        <liquibase.version>4.9.1</liquibase.version>
+        <liquibase-hibernate5.version>4.9.1</liquibase-hibernate5.version>
         <jaxb.version>2.3.1</jaxb.version>
         <jwt.version>0.9.1</jwt.version>
         <guava.version>31.1-jre</guava.version>
@@ -39,8 +43,8 @@
         <logback-kafka-appender.version>0.2.0-RC2</logback-kafka-appender.version>
         <micrometer-registry-influx.version>1.8.5</micrometer-registry-influx.version>
         <swagger.version>1.6.8</swagger.version>
-        <embedded-mongo.version>3.2.8</embedded-mongo.version>
         <!-- Plugin versions -->
+        <liquibase-maven-plugin.version>4.1.1</liquibase-maven-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M6</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M6</maven-failsafe-plugin.version>
         <properties-maven-plugin.version>1.1.0</properties-maven-plugin.version>
@@ -74,13 +78,23 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Mongock management -->
+            <!-- Hikari management -->
             <dependency>
-                <groupId>com.github.cloudyrock.mongock</groupId>
-                <artifactId>mongock-bom</artifactId>
-                <version>${mongock.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${hikari.version}</version>
+            </dependency>
+            <!-- H2 management -->
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+            </dependency>
+            <!-- Liquibase management -->
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>${liquibase.version}</version>
             </dependency>
             <!-- Caffeine management -->
             <dependency>
@@ -156,12 +170,6 @@
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
-            <!-- Embedded mongo management -->
-            <dependency>
-                <groupId>de.flapdoodle.embed</groupId>
-                <artifactId>de.flapdoodle.embed.mongo</artifactId>
-                <version>${embedded-mongo.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -223,19 +231,29 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Spring Boot Data MongoDB -->
+        <!-- Spring Boot Data Jpa -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
-        <!-- Mongock -->
-        <dependency>
-            <groupId>com.github.cloudyrock.mongock</groupId>
-            <artifactId>mongock-spring-v5</artifactId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cloudyrock.mongock</groupId>
-            <artifactId>mongodb-springdata-v3-driver</artifactId>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+        <!-- MySQL -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <!-- H2 -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+        <!-- Liquibase -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
         </dependency>
 
         <!-- Caffeine management -->
@@ -331,12 +349,6 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Embedded Mongo Test -->
-        <dependency>
-            <groupId>de.flapdoodle.embed</groupId>
-            <artifactId>de.flapdoodle.embed.mongo</artifactId>
-            <scope>test</scope>
-        </dependency>
         <!-- Spring Cloud Contract Test -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -407,6 +419,32 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+                <!-- Liquibase Maven Plugin Management -->
+                <plugin>
+                    <groupId>org.liquibase</groupId>
+                    <artifactId>liquibase-maven-plugin</artifactId>
+                    <version>${liquibase-maven-plugin.version}</version>
+                    <configuration>
+                        <changeLogFile>${project.basedir}/src/main/resources/liquibase/master.xml</changeLogFile>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.liquibase</groupId>
+                            <artifactId>liquibase-core</artifactId>
+                            <version>${liquibase.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.liquibase.ext</groupId>
+                            <artifactId>liquibase-hibernate5</artifactId>
+                            <version>${liquibase-hibernate5.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-data-jpa</artifactId>
+                            <version>${spring-boot.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <!-- Maven Surefire Plugin Management -->
                 <plugin>
@@ -549,6 +587,11 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
+            </plugin>
+            <!-- Liquibase Maven Plugin -->
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
             </plugin>
             <!-- Maven Surefire Plugin -->
             <plugin>

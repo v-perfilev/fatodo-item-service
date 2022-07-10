@@ -1,56 +1,31 @@
 package com.persoff68.fatodo.config;
 
 import com.persoff68.fatodo.config.constant.AppConstants;
+import liquibase.integration.spring.SpringLiquibase;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
-import org.springframework.data.mongodb.config.EnableMongoAuditing;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.index.IndexOperations;
-import org.springframework.data.mongodb.core.index.IndexResolver;
-import org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexResolver;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
-import org.springframework.data.mongodb.core.mapping.MongoPersistentEntity;
-import org.springframework.data.mongodb.core.mapping.event.ValidatingMongoEventListener;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.sql.DataSource;
 
 @Configuration
-@EnableMongoRepositories(basePackages = AppConstants.REPOSITORY_PATH)
-@EnableMongoAuditing(auditorAwareRef = "securityAuditorAware")
+@EnableJpaRepositories(basePackages = AppConstants.REPOSITORY_PATH)
+@EnableJpaAuditing(auditorAwareRef = "securityAuditorAware")
+@EnableTransactionManagement
 @RequiredArgsConstructor
 public class DatabaseConfiguration {
 
-    private final MongoTemplate mongoTemplate;
-    private final MongoConverter mongoConverter;
+    private final DataSource dataSource;
 
     @Bean
-    public ValidatingMongoEventListener validatingMongoEventListener() {
-        return new ValidatingMongoEventListener(validator());
-    }
-
-    @Bean
-    public LocalValidatorFactoryBean validator() {
-        return new LocalValidatorFactoryBean();
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void initIndicesAfterStartup() {
-        Object mappingContext = this.mongoConverter.getMappingContext();
-        if (mappingContext instanceof MongoMappingContext mongoMappingContext) {
-            for (MongoPersistentEntity<?> persistentEntity : mongoMappingContext.getPersistentEntities()) {
-                Class<?> clazz = persistentEntity.getType();
-                if (clazz.isAnnotationPresent(Document.class)) {
-                    IndexResolver resolver = new MongoPersistentEntityIndexResolver(mongoMappingContext);
-                    IndexOperations indexOps = mongoTemplate.indexOps(clazz);
-                    resolver.resolveIndexFor(clazz).forEach(indexOps::ensureIndex);
-                }
-            }
-        }
+    public SpringLiquibase liquibase() {
+        SpringLiquibase liquibase = new SpringLiquibase();
+        liquibase.setChangeLog("classpath:db/master.xml");
+        liquibase.setDataSource(dataSource);
+        return liquibase;
     }
 
 }
