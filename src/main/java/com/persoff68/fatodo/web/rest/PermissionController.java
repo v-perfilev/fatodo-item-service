@@ -58,9 +58,21 @@ public class PermissionController {
         return ResponseEntity.ok(hasPermission);
     }
 
+    @PostMapping(value = "/groups/edit")
+    public ResponseEntity<Boolean> canEditGroups(@RequestBody List<UUID> groupIdList) {
+        boolean hasPermission = permissionService.hasMultipleEditPermission(groupIdList);
+        return ResponseEntity.ok(hasPermission);
+    }
+
     @PostMapping(value = "/groups/admin")
     public ResponseEntity<Boolean> canAdminGroups(@RequestBody List<UUID> groupIdList) {
         boolean hasPermission = permissionService.hasMultipleAdminPermission(groupIdList);
+        return ResponseEntity.ok(hasPermission);
+    }
+
+    @PostMapping(value = "/items/edit")
+    public ResponseEntity<Boolean> canEditItems(@RequestBody List<UUID> itemIdList) {
+        boolean hasPermission = permissionService.hasMultipleEditItemPermission(itemIdList);
         return ResponseEntity.ok(hasPermission);
     }
 

@@ -106,7 +106,7 @@ class ItemResourceIT {
         group2 = groupRepository.save(group2);
 
         doNothing().when(commentServiceClient).deleteThreadByTargetId(any());
-        doNothing().when(notificationServiceClient).setReminders(any(), any(), any());
+        doNothing().when(notificationServiceClient).setReminders(any(), any());
         doNothing().when(notificationServiceClient).deleteRemindersByTargetId(any());
     }
 

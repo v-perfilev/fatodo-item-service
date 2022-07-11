@@ -13,8 +13,8 @@ import java.util.UUID;
 @FeignClient(name = "notification-service", primary = false, qualifiers = {"feignNotificationServiceClient"})
 public interface NotificationServiceClient {
 
-    @PutMapping(value = "/api/reminders/{parentId}/{targetId}")
-    void setReminders(@PathVariable UUID parentId, @PathVariable UUID targetId,
+    @PutMapping(value = "/api/reminders/{targetId}")
+    void setReminders(@PathVariable UUID targetId,
                       @RequestBody List<Reminder> reminderDTOList);
 
     @DeleteMapping(value = "/api/reminders/{parentId}/parent")

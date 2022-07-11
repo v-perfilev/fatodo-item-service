@@ -17,9 +17,9 @@ public class NotificationServiceClientWrapper implements NotificationServiceClie
     private final NotificationServiceClient notificationServiceClient;
 
     @Override
-    public void setReminders(UUID parentId, UUID targetId, List<Reminder> reminderDTOList) {
+    public void setReminders(UUID targetId, List<Reminder> reminderDTOList) {
         try {
-            notificationServiceClient.setReminders(parentId, targetId, reminderDTOList);
+            notificationServiceClient.setReminders(targetId, reminderDTOList);
         } catch (Exception e) {
             throw new ClientException();
         }

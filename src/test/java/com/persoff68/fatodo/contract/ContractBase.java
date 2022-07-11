@@ -92,7 +92,7 @@ public abstract class ContractBase {
         doNothing().when(imageServiceClient).deleteGroupImage(any());
         doNothing().when(commentServiceClient).deleteAllThreadsByParentId(any());
         doNothing().when(commentServiceClient).deleteThreadByTargetId(any());
-        doNothing().when(notificationServiceClient).setReminders(any(), any(), any());
+        doNothing().when(notificationServiceClient).setReminders(any(), any());
         doNothing().when(notificationServiceClient).deleteRemindersByParentId(any());
         doNothing().when(notificationServiceClient).deleteRemindersByTargetId(any());
     }

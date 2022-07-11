@@ -37,10 +37,6 @@ class PermissionControllerIT {
     private static final String ENDPOINT = "/api/permissions";
 
     private static final UUID USER_ID = UUID.fromString("d2eb0f4f-1736-4361-889b-b6d833dd9815");
-//    private static final UUID GROUP_CAN_ADMIN_ID = UUID.randomUUID();
-//    private static final UUID GROUP_CAN_NOTHING_ID = UUID.randomUUID();
-//    private static final UUID ITEM_CAN_ADMIN_ID = UUID.randomUUID();
-//    private static final UUID ITEM_CAN_NOTHING_ID = UUID.randomUUID();
 
     @Autowired
     MockMvc mvc;
@@ -357,6 +353,58 @@ class PermissionControllerIT {
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isUnauthorized());
     }
+    
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditGroups_true() throws Exception {
+        String url = ENDPOINT + "/groups/edit";
+        List<UUID> groupIdList = List.of(group1.getId());
+        String requestBody = objectMapper.writeValueAsString(groupIdList);
+        ResultActions resultActions = mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditGroups_false() throws Exception {
+        String url = ENDPOINT + "/groups/edit";
+        List<UUID> groupIdList = List.of(group2.getId());
+        String requestBody = objectMapper.writeValueAsString(groupIdList);
+        ResultActions resultActions = mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditGroups_notFound() throws Exception {
+        String url = ENDPOINT + "/groups/edit";
+        List<UUID> groupIdList = List.of(UUID.randomUUID());
+        String requestBody = objectMapper.writeValueAsString(groupIdList);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testCanEditGroups_unauthorized() throws Exception {
+        String url = ENDPOINT + "/groups/edit";
+        List<UUID> groupIdList = List.of(group1.getId());
+        String requestBody = objectMapper.writeValueAsString(groupIdList);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+    
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
@@ -401,6 +449,57 @@ class PermissionControllerIT {
     @WithAnonymousUser
     void testCanAdminItems_unauthorized() throws Exception {
         String url = ENDPOINT + "/items/admin";
+        List<UUID> itemIdList = List.of(item1.getId());
+        String requestBody = objectMapper.writeValueAsString(itemIdList);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditItems_true() throws Exception {
+        String url = ENDPOINT + "/items/edit";
+        List<UUID> itemIdList = List.of(item1.getId());
+        String requestBody = objectMapper.writeValueAsString(itemIdList);
+        ResultActions resultActions = mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditItems_false() throws Exception {
+        String url = ENDPOINT + "/items/edit";
+        List<UUID> itemIdList = List.of(item2.getId());
+        String requestBody = objectMapper.writeValueAsString(itemIdList);
+        ResultActions resultActions = mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        boolean result = Boolean.parseBoolean(resultString);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testCanEditItems_notFound() throws Exception {
+        String url = ENDPOINT + "/items/edit";
+        List<UUID> itemIdList = List.of(UUID.randomUUID());
+        String requestBody = objectMapper.writeValueAsString(itemIdList);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testCanEditItems_unauthorized() throws Exception {
+        String url = ENDPOINT + "/items/edit";
         List<UUID> itemIdList = List.of(item1.getId());
         String requestBody = objectMapper.writeValueAsString(itemIdList);
         mvc.perform(post(url)

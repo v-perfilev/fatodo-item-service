@@ -82,7 +82,7 @@ public class ItemService {
 
         Item item = itemRepository.save(newItem);
         if (reminderList != null) {
-            notificationServiceClient.setReminders(item.getGroup().getId(), item.getId(), reminderList);
+            notificationServiceClient.setReminders(item.getId(), reminderList);
         }
         return item;
     }
@@ -105,7 +105,7 @@ public class ItemService {
 
         itemRepository.save(item);
         if (reminderList != null) {
-            notificationServiceClient.setReminders(item.getGroup().getId(), item.getId(), reminderList);
+            notificationServiceClient.setReminders(item.getId(), reminderList);
         } else if (deleteReminders) {
             notificationServiceClient.deleteRemindersByTargetId(item.getId());
         }
