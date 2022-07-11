@@ -13,11 +13,15 @@ import java.util.UUID;
 @FeignClient(name = "notification-service", primary = false, qualifiers = {"feignNotificationServiceClient"})
 public interface NotificationServiceClient {
 
-    @PutMapping(value = "/api/reminders/{targetId}")
-    void setReminders(@PathVariable UUID targetId, @RequestBody List<Reminder> reminderDTOList);
+    @PutMapping(value = "/api/reminders/{parentId}/{targetId}")
+    void setReminders(@PathVariable UUID parentId, @PathVariable UUID targetId,
+                      @RequestBody List<Reminder> reminderDTOList);
 
-    @DeleteMapping(value = "/api/reminders/{targetId}")
-    void deleteReminders(@PathVariable UUID targetId);
+    @DeleteMapping(value = "/api/reminders/{parentId}/parent")
+    void deleteRemindersByParentId(@PathVariable UUID parentId);
+
+    @DeleteMapping(value = "/api/reminders/{targetId}/target")
+    void deleteRemindersByTargetId(@PathVariable UUID targetId);
 
 }
 

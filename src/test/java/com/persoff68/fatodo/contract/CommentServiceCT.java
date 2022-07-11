@@ -7,8 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -22,9 +20,15 @@ class CommentServiceCT {
     CommentServiceClient commentServiceClient;
 
     @Test
-    void testDeleteAllThreadsByTargetId() {
-        List<UUID> targetIdList = Collections.singletonList(UUID.randomUUID());
-        assertDoesNotThrow(() -> commentServiceClient.deleteAllThreadsByTargetIds(targetIdList));
+    void testDeleteAllThreadsByParentId() {
+        UUID parentId = UUID.randomUUID();
+        assertDoesNotThrow(() -> commentServiceClient.deleteAllThreadsByParentId(parentId));
+    }
+
+    @Test
+    void testDeleteThreadByTargetId() {
+        UUID targetId = UUID.randomUUID();
+        assertDoesNotThrow(() -> commentServiceClient.deleteThreadByTargetId(targetId));
     }
 
 }

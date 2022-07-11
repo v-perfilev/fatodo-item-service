@@ -1,6 +1,7 @@
 package com.persoff68.fatodo.service;
 
 import com.persoff68.fatodo.client.CommentServiceClient;
+import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.repository.GroupRepository;
@@ -27,10 +28,10 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final ConfigurationService configurationService;
     private final ImageService imageService;
-    private final ItemService itemService;
     private final PermissionService permissionService;
     private final GroupValidator groupValidator;
     private final CommentServiceClient commentServiceClient;
+    private final NotificationServiceClient notificationServiceClient;
 
     public List<Group> getAllByUserId(UUID userId) {
         Map<UUID, Integer> orderMap = configurationService.getByUserId(userId).getOrderMap();
@@ -112,15 +113,16 @@ public class GroupService {
         permissionService.checkAdminPermission(groupId);
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
+
+        commentServiceClient.deleteAllThreadsByParentId(groupId);
+        notificationServiceClient.deleteRemindersByParentId(groupId);
+
+        imageService.deleteGroup(group);
+        configurationService.deleteGroup(group);
+
         group.setDeleted(true);
         group.getItems().forEach(item -> item.setDeleted(true));
         groupRepository.save(group);
-
-        // TODO check and optimize
-        List<UUID> idList = Collections.singletonList(groupId);
-        commentServiceClient.deleteAllThreadsByTargetIds(idList);
-        imageService.deleteGroup(group);
-        configurationService.deleteGroup(group);
     }
 
 

@@ -2,7 +2,6 @@ package com.persoff68.fatodo.client;
 
 import com.persoff68.fatodo.exception.ClientException;
 import com.persoff68.fatodo.model.Reminder;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -18,22 +17,30 @@ public class NotificationServiceClientWrapper implements NotificationServiceClie
     private final NotificationServiceClient notificationServiceClient;
 
     @Override
-    public void setReminders(UUID targetId, List<Reminder> reminderDTOList) {
+    public void setReminders(UUID parentId, UUID targetId, List<Reminder> reminderDTOList) {
         try {
-            notificationServiceClient.setReminders(targetId, reminderDTOList);
+            notificationServiceClient.setReminders(parentId, targetId, reminderDTOList);
         } catch (Exception e) {
             throw new ClientException();
         }
     }
 
     @Override
-    public void deleteReminders(UUID targetId) {
+    public void deleteRemindersByParentId(UUID parentId) {
         try {
-            notificationServiceClient.deleteReminders(targetId);
-        } catch (FeignException.NotFound e) {
-            // skip
+            notificationServiceClient.deleteRemindersByParentId(parentId);
         } catch (Exception e) {
             throw new ClientException();
         }
     }
+
+    @Override
+    public void deleteRemindersByTargetId(UUID targetId) {
+        try {
+            notificationServiceClient.deleteRemindersByTargetId(targetId);
+        } catch (Exception e) {
+            throw new ClientException();
+        }
+    }
+
 }

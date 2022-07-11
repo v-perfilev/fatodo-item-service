@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -56,13 +55,13 @@ public class ItemService {
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
 
-    public Item getByIdWithoutPermissionCheck(UUID id) {
-        return itemRepository.findById(id)
+    public Item getByIdWithoutPermissionCheck(UUID itemId) {
+        return itemRepository.findById(itemId)
                 .orElseThrow(ModelNotFoundException::new);
     }
 
-    public Item getById(UUID id) {
-        Item item = itemRepository.findById(id)
+    public Item getById(UUID itemId) {
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(ModelNotFoundException::new);
         permissionService.checkReadPermission(item.getGroup().getId());
         return item;
@@ -83,7 +82,7 @@ public class ItemService {
 
         Item item = itemRepository.save(newItem);
         if (reminderList != null) {
-            notificationServiceClient.setReminders(item.getId(), reminderList);
+            notificationServiceClient.setReminders(item.getGroup().getId(), item.getId(), reminderList);
         }
         return item;
     }
@@ -106,9 +105,9 @@ public class ItemService {
 
         itemRepository.save(item);
         if (reminderList != null) {
-            notificationServiceClient.setReminders(item.getId(), reminderList);
+            notificationServiceClient.setReminders(item.getGroup().getId(), item.getId(), reminderList);
         } else if (deleteReminders) {
-            notificationServiceClient.deleteReminders(item.getId());
+            notificationServiceClient.deleteRemindersByTargetId(item.getId());
         }
         return item;
     }
@@ -123,29 +122,29 @@ public class ItemService {
     }
 
     @Transactional
-    public Item updateArchived(UUID id, boolean archived) {
-        Item item = itemRepository.findById(id)
+    public Item updateArchived(UUID itemId, boolean archived) {
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(ModelNotFoundException::new);
         permissionService.checkEditPermission(item.getGroup().getId());
         item.setArchived(archived);
         if (archived) {
-            notificationServiceClient.deleteReminders(id);
+            notificationServiceClient.deleteRemindersByTargetId(itemId);
         }
         return itemRepository.save(item);
     }
 
     @Transactional
-    public void delete(UUID id) {
-        Item item = itemRepository.findById(id)
+    public void delete(UUID itemId) {
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(ModelNotFoundException::new);
         permissionService.checkEditPermission(item.getGroup().getId());
-        item.setDeleted(true);
-        itemRepository.save(item);
 
         // TODO check and optimize
-        List<UUID> idList = Collections.singletonList(item.getId());
-        commentServiceClient.deleteAllThreadsByTargetIds(idList);
-        notificationServiceClient.deleteReminders(id);
+        commentServiceClient.deleteThreadByTargetId(itemId);
+        notificationServiceClient.deleteRemindersByTargetId(itemId);
+
+        item.setDeleted(true);
+        itemRepository.save(item);
     }
 
     private PageableList<Item> getPageableListForMap(UUID groupId, int size) {

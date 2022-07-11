@@ -10,6 +10,7 @@ import com.persoff68.fatodo.builder.TestGroupVM;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
+import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
@@ -63,6 +64,8 @@ class GroupResourceIT {
     ImageServiceClient imageServiceClient;
     @MockBean
     CommentServiceClient commentServiceClient;
+    @MockBean
+    NotificationServiceClient notificationServiceClient;
 
     Group group1;
     Group group2;
@@ -95,8 +98,9 @@ class GroupResourceIT {
 
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");
         when(imageServiceClient.updateGroupImage(any())).thenReturn("filename");
-        doNothing().when(commentServiceClient).deleteAllThreadsByTargetIds(any());
+        doNothing().when(commentServiceClient).deleteAllThreadsByParentId(any());
         doNothing().when(imageServiceClient).deleteGroupImage(any());
+        doNothing().when(notificationServiceClient).deleteRemindersByParentId(any());
     }
 
     @Test

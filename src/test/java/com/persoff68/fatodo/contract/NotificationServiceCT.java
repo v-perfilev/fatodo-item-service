@@ -10,6 +10,7 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -24,15 +25,23 @@ class NotificationServiceCT {
 
     @Test
     void testSetReminders() {
-        UUID id = UUID.randomUUID();
+        UUID parentId = UUID.randomUUID();
+        UUID targetId = UUID.randomUUID();
         Reminder reminder = TestReminder.defaultBuilder().build().toParent();
-        assertDoesNotThrow(() -> notificationServiceClient.setReminders(id, Collections.singletonList(reminder)));
+        List<Reminder> reminderList = Collections.singletonList(reminder);
+        assertDoesNotThrow(() -> notificationServiceClient.setReminders(parentId, targetId, reminderList));
     }
 
     @Test
-    void testDeleteReminders() {
+    void testDeleteRemindersByParentId() {
         UUID id = UUID.randomUUID();
-        assertDoesNotThrow(() -> notificationServiceClient.deleteReminders(id));
+        assertDoesNotThrow(() -> notificationServiceClient.deleteRemindersByParentId(id));
+    }
+
+    @Test
+    void testDeleteRemindersByTargetId() {
+        UUID id = UUID.randomUUID();
+        assertDoesNotThrow(() -> notificationServiceClient.deleteRemindersByTargetId(id));
     }
 
 }
