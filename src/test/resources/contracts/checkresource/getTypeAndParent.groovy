@@ -3,13 +3,13 @@ package contracts.checkresource
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'check is item'
-    description 'should return status 200 and boolean'
+    name 'get type and parent'
+    description 'should return status 200 and TypeAndParentDTO'
     request {
         method GET()
         url($(
-                consumer(regex("/api/check/is-item/" + uuid().toString())),
-                producer("/api/check/is-item/8a51fdaa-189c-4959-9016-ae79adfe0320")
+                consumer(regex("/api/check/type-and-parent/" + uuid().toString())),
+                producer("/api/check/type-and-parent/12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
         ))
         headers {
             header 'Authorization': $(
@@ -23,8 +23,9 @@ Contract.make {
         headers {
             contentType applicationJson()
         }
-        body(
-                true
-        )
+        body([
+                "type"  : "GROUP",
+                "parentId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52"
+        ])
     }
 }

@@ -7,6 +7,8 @@ import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.constant.ElementType;
+import com.persoff68.fatodo.model.dto.TypeAndParentDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -57,61 +60,40 @@ class CheckControllerIT {
 
     @Test
     @WithCustomSecurityContext
-    void testIsGroup_true() throws Exception {
-        String url = ENDPOINT + "/is-group/" + group.getId();
+    void testGetTypeAndParent_group() throws Exception {
+        String url = ENDPOINT + "/type-and-parent/" + group.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        boolean isGroup = objectMapper.readValue(resultString, Boolean.class);
-        assertThat(isGroup).isTrue();
+        TypeAndParentDTO typeAndParentDTO = objectMapper.readValue(resultString, TypeAndParentDTO.class);
+        assertThat(typeAndParentDTO.getType()).isEqualTo(ElementType.GROUP);
+        assertThat(typeAndParentDTO.getParentId()).isEqualTo(group.getId());
     }
 
     @Test
     @WithCustomSecurityContext
-    void testIsGroup_false() throws Exception {
-        String url = ENDPOINT + "/is-group/" + item.getId();
+    void testGetTypeAndParent_item() throws Exception {
+        String url = ENDPOINT + "/type-and-parent/" + item.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        boolean isGroup = objectMapper.readValue(resultString, Boolean.class);
-        assertThat(isGroup).isFalse();
+        TypeAndParentDTO typeAndParentDTO = objectMapper.readValue(resultString, TypeAndParentDTO.class);
+        assertThat(typeAndParentDTO.getType()).isEqualTo(ElementType.ITEM);
+        assertThat(typeAndParentDTO.getParentId()).isEqualTo(group.getId());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    void testGetTypeAndParent_notFound() throws Exception {
+        String url = ENDPOINT + "/type-and-parent/" + UUID.randomUUID();
+        mvc.perform(get(url))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @WithAnonymousUser
     void testIsGroup_unauthorized() throws Exception {
-        String url = ENDPOINT + "/is-group/" + group.getId();
-        mvc.perform(get(url))
-                .andExpect(status().isUnauthorized());
-    }
-
-
-    @Test
-    @WithCustomSecurityContext
-    void testIsItem_true() throws Exception {
-        String url = ENDPOINT + "/is-item/" + item.getId();
-        ResultActions resultActions = mvc.perform(get(url))
-                .andExpect(status().isOk());
-        String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        boolean isGroup = objectMapper.readValue(resultString, Boolean.class);
-        assertThat(isGroup).isTrue();
-    }
-
-    @Test
-    @WithCustomSecurityContext
-    void testIsItem_false() throws Exception {
-        String url = ENDPOINT + "/is-item/" + group.getId();
-        ResultActions resultActions = mvc.perform(get(url))
-                .andExpect(status().isOk());
-        String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        boolean isGroup = objectMapper.readValue(resultString, Boolean.class);
-        assertThat(isGroup).isFalse();
-    }
-
-    @Test
-    @WithAnonymousUser
-    void testIsItem_unauthorized() throws Exception {
-        String url = ENDPOINT + "/is-item/" + item.getId();
+        String url = ENDPOINT + "/type-and-parent/" + group.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
