@@ -41,6 +41,13 @@ public class PermissionService {
         }
     }
 
+    public void checkItemsPermission(Permission permission, List<UUID> itemIdList) {
+        boolean hasPermission = hasItemsPermission(permission, itemIdList);
+        if (!hasPermission) {
+            throw new PermissionException();
+        }
+    }
+
     public void checkItemPermission(Permission permission, UUID itemId) {
         List<UUID> itemIdList = Collections.singletonList(itemId);
         boolean hasPermission = hasItemsPermission(permission, itemIdList);

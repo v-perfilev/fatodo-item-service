@@ -128,9 +128,6 @@ class ItemResourceIT {
         PageableList<ItemDTO> pageableList1 = resultMap.get(group1.getId());
         assertThat(pageableList1.getCount()).isEqualTo(2);
         assertThat(pageableList1.getData()).hasSize(2);
-        ItemDTO itemDTO1 = pageableList1.getData().get(0);
-        ItemDTO itemDTO2 = pageableList1.getData().get(1);
-        assertThat(itemDTO1.getCreatedAt()).isAfterOrEqualTo(itemDTO2.getCreatedAt());
         PageableList<ItemDTO> pageableList2 = resultMap.get(group2.getId());
         assertThat(pageableList2.getCount()).isZero();
         assertThat(pageableList2.getData()).isEmpty();

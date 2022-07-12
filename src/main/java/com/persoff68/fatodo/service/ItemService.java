@@ -4,6 +4,7 @@ import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
+import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.model.constant.ItemStatus;
@@ -57,6 +58,19 @@ public class ItemService {
 
     public Item getByIdWithoutPermissionCheck(UUID itemId) {
         return itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
+    }
+
+    @Transactional
+    public List<Item> getAllByIds(UUID userId, List<UUID> itemIdList) {
+        List<Item> itemList = itemRepository.findAllById(itemIdList);
+        List<Group> allowedGroupList = itemList.stream()
+                .map(Item::getGroup)
+                .distinct()
+                .filter(g -> g.getMembers().stream().map(Member::getUserId).anyMatch(userId::equals))
+                .toList();
+        return itemList.stream()
+                .filter(i -> allowedGroupList.contains(i.getGroup()))
+                .toList();
     }
 
     public Item getById(UUID itemId) {

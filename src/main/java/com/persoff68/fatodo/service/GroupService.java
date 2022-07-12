@@ -57,6 +57,14 @@ public class GroupService {
                 .toList();
     }
 
+    @Transactional
+    public List<Group> getAllByIds(UUID userId, List<UUID> groupIdList) {
+        List<Group> groupList = groupRepository.findAllById(groupIdList);
+        return groupList.stream()
+                .filter(g -> g.getMembers().stream().map(Member::getUserId).anyMatch(userId::equals))
+                .toList();
+    }
+
     public Group getByIdWithoutPermissionCheck(UUID id) {
         return groupRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);

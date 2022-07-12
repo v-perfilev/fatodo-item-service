@@ -65,7 +65,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(securityLocaleFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(publicUrls).permitAll()
-                .antMatchers("/api/reminders/**").hasAuthority(AuthorityType.Constants.SYSTEM_VALUE)
+                .antMatchers("/api/info/item-reminder/**").hasAuthority(AuthorityType.Constants.SYSTEM_VALUE)
                 .anyRequest().authenticated();
     }
 
