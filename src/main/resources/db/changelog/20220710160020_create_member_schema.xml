@@ -22,11 +22,11 @@
 
         </createTable>
 
-        <createIndex indexName="index_item_group_member_group_id" tableName="ftd_item_group_member">
+        <createIndex indexName="index_item_group_member_group" tableName="ftd_item_group_member">
             <column name="group_id"/>
         </createIndex>
 
-        <createIndex indexName="index_item_group_member_user_id" tableName="ftd_item_group_member">
+        <createIndex indexName="index_item_group_member_user" tableName="ftd_item_group_member">
             <column name="user_id"/>
         </createIndex>
 
