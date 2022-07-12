@@ -9,7 +9,7 @@ Contract.make {
         method GET()
         url($(
                 consumer(regex("/api/check/type-and-parent/" + uuid().toString())),
-                producer("/api/check/type-and-parent/12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
+                producer("/api/check/type-and-parent/8a51fdaa-189c-4959-9016-ae79adfe0320")
         ))
         headers {
             header 'Authorization': $(

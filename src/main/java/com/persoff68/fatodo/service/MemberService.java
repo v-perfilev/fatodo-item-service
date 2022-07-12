@@ -28,7 +28,7 @@ public class MemberService {
 
 
     public List<UUID> getUserIdsByGroupId(UUID groupId) {
-        permissionService.checkReadPermission(groupId);
+        permissionService.checkGroupPermission(Permission.READ, groupId);
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
         return group.getMembers().stream()
@@ -38,7 +38,7 @@ public class MemberService {
 
 
     public List<UUID> getUserIdsByItemId(UUID itemId) {
-        permissionService.checkReadItemPermission(itemId);
+        permissionService.checkItemPermission(Permission.READ, itemId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(ModelNotFoundException::new);
         return getUserIdsByGroupId(item.getGroup().getId());
@@ -46,7 +46,7 @@ public class MemberService {
 
 
     public void addMembersToGroup(UUID groupId, List<UUID> userIdList) {
-        permissionService.checkAdminPermission(groupId);
+        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
         contactService.checkIfUsersInContactList(userIdList);
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
@@ -67,7 +67,7 @@ public class MemberService {
 
 
     public void removeMembersFromGroup(UUID groupId, List<UUID> userIdList) {
-        permissionService.checkAdminPermission(groupId);
+        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
 
@@ -83,7 +83,7 @@ public class MemberService {
 
 
     public void editGroupMember(UUID groupId, UUID userId, Permission permission) {
-        permissionService.checkAdminPermission(groupId);
+        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
 
@@ -100,7 +100,7 @@ public class MemberService {
 
 
     public void leaveGroup(UUID groupId, UUID userId) {
-        permissionService.checkReadPermission(groupId);
+        permissionService.checkGroupPermission(Permission.READ, groupId);
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
 

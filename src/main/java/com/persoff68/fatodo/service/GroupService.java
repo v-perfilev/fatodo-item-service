@@ -4,6 +4,7 @@ import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
+import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
@@ -62,7 +63,7 @@ public class GroupService {
     }
 
     public Group getById(UUID id) {
-        permissionService.checkReadPermission(id);
+        permissionService.checkGroupPermission(Permission.READ, id);
         return groupRepository.findById(id)
                 .orElseThrow(ModelNotFoundException::new);
     }
@@ -90,13 +91,13 @@ public class GroupService {
 
     @Transactional
     public Group update(Group groupToUpdate, byte[] image) {
-        UUID id = groupToUpdate.getId();
-        if (id == null) {
+        UUID groupId = groupToUpdate.getId();
+        if (groupId == null) {
             throw new ModelInvalidException();
         }
-        permissionService.checkAdminPermission(id);
+        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
 
-        Group group = groupRepository.findById(id)
+        Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
         group.setTitle(groupToUpdate.getTitle());
         group.setColor(groupToUpdate.getColor());
@@ -110,7 +111,7 @@ public class GroupService {
 
     @Transactional
     public void delete(UUID groupId) {
-        permissionService.checkAdminPermission(groupId);
+        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
 

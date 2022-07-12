@@ -3,11 +3,14 @@ package contracts.permissioncontroller
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'can admin items by ids'
+    name 'can admin groups by ids'
     description 'should return status 200 and boolean'
     request {
         method POST()
-        url("/api/permissions/items/admin")
+        url($(
+                consumer(regex("/api/permissions/groups/.*")),
+                producer("/api/permissions/groups/ADMIN")
+        ))
         headers {
             contentType applicationJson()
             header 'Authorization': $(
@@ -17,7 +20,7 @@ Contract.make {
         }
         body($(
                 consumer(regex(".+")),
-                producer(["8a51fdaa-189c-4959-9016-ae79adfe0320"])
+                producer(["12886ad8-f1a2-487c-a5f1-ff71d63a3b52"])
         ))
     }
     response {

@@ -7,6 +7,7 @@ import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.model.constant.ItemStatus;
+import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
@@ -37,33 +38,30 @@ public class ItemService {
     private final NotificationServiceClient notificationServiceClient;
 
     public Map<UUID, PageableList<Item>> getMapByGroupIds(List<UUID> groupIdList, int size) {
-        permissionService.checkMultipleReadPermission(groupIdList);
-        return groupIdList.stream()
-                .distinct()
-                .collect(Collectors.toMap(Function.identity(), groupId -> getPageableListForMap(groupId, size)));
+        permissionService.checkGroupsPermission(Permission.READ, groupIdList);
+        return groupIdList.stream().distinct().collect(Collectors.toMap(Function.identity(),
+                groupId -> getPageableListForMap(groupId, size)));
     }
 
     public PageableList<Item> getAllByGroupId(UUID groupId, Pageable pageable) {
-        permissionService.checkReadPermission(groupId);
+        permissionService.checkGroupPermission(Permission.READ, groupId);
         Page<Item> itemPage = itemRepository.findAllByGroupIdPageable(groupId, pageable);
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
 
     public PageableList<Item> getAllArchivedByGroupId(UUID groupId, Pageable pageable) {
-        permissionService.checkReadPermission(groupId);
+        permissionService.checkGroupPermission(Permission.READ, groupId);
         Page<Item> itemPage = itemRepository.findAllArchivedByGroupIdPageable(groupId, pageable);
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
 
     public Item getByIdWithoutPermissionCheck(UUID itemId) {
-        return itemRepository.findById(itemId)
-                .orElseThrow(ModelNotFoundException::new);
+        return itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
     }
 
     public Item getById(UUID itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkReadPermission(item.getGroup().getId());
+        Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
+        permissionService.checkItemPermission(Permission.READ, item.getId());
         return item;
     }
 
@@ -72,10 +70,9 @@ public class ItemService {
         if (newItem.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(ModelNotFoundException::new);
+        Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
 
-        permissionService.checkEditPermission(group.getId());
+        permissionService.checkGroupPermission(Permission.EDIT, group.getId());
 
         newItem.setStatus(ItemStatus.CREATED);
         newItem.setGroup(group);
@@ -93,9 +90,8 @@ public class ItemService {
         if (id == null) {
             throw new ModelInvalidException();
         }
-        Item item = itemRepository.findById(id)
-                .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkEditPermission(item.getGroup().getId());
+        Item item = itemRepository.findById(id).orElseThrow(ModelNotFoundException::new);
+        permissionService.checkItemPermission(Permission.EDIT, item.getId());
 
         item.setTitle(newItem.getTitle());
         item.setType(newItem.getType());
@@ -114,18 +110,16 @@ public class ItemService {
 
     @Transactional
     public Item updateStatus(UUID itemId, ItemStatus status) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkEditPermission(item.getGroup().getId());
+        Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
+        permissionService.checkItemPermission(Permission.EDIT, item.getId());
         item.setStatus(status);
         return itemRepository.save(item);
     }
 
     @Transactional
     public Item updateArchived(UUID itemId, boolean archived) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkEditPermission(item.getGroup().getId());
+        Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
+        permissionService.checkItemPermission(Permission.EDIT, item.getId());
         item.setArchived(archived);
         if (archived) {
             notificationServiceClient.deleteRemindersByTargetId(itemId);
@@ -135,9 +129,8 @@ public class ItemService {
 
     @Transactional
     public void delete(UUID itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(ModelNotFoundException::new);
-        permissionService.checkEditPermission(item.getGroup().getId());
+        Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
+        permissionService.checkItemPermission(Permission.EDIT, item.getId());
 
         // TODO check and optimize
         commentServiceClient.deleteThreadByTargetId(itemId);
