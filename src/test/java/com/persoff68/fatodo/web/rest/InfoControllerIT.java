@@ -9,7 +9,7 @@ import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
-import com.persoff68.fatodo.model.dto.ReminderMessageDTO;
+import com.persoff68.fatodo.model.dto.ReminderMailInfoDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -67,19 +67,19 @@ class InfoControllerIT {
 
     @Test
     @WithCustomSecurityContext(authority = "ROLE_SYSTEM")
-    void testGetReminderForItem_ok() throws Exception {
+    void testGetReminderMailInfo_ok() throws Exception {
         String url = ENDPOINT + "/item/" + item.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        ReminderMessageDTO resultDTO = objectMapper.readValue(resultString, ReminderMessageDTO.class);
+        ReminderMailInfoDTO resultDTO = objectMapper.readValue(resultString, ReminderMailInfoDTO.class);
         assertThat(resultDTO.getUserIds()).hasSize(2);
         assertThat(resultDTO.getUrl()).contains("/items/");
     }
 
     @Test
     @WithCustomSecurityContext(authority = "ROLE_SYSTEM")
-    void testGetReminderForItem_notFound() throws Exception {
+    void testGetReminderMailInfo_notFound() throws Exception {
         String url = ENDPOINT + "/item/" + UUID.randomUUID();
         mvc.perform(get(url))
                 .andExpect(status().isNotFound());
@@ -87,7 +87,7 @@ class InfoControllerIT {
 
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
-    void testGetReminderForItem_forbidden() throws Exception {
+    void testGetReminderMailInfo_forbidden() throws Exception {
         String url = ENDPOINT + "/item/" + item.getId();
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
@@ -95,7 +95,7 @@ class InfoControllerIT {
 
     @Test
     @WithAnonymousUser
-    void testGetReminderForItem_unauthorized() throws Exception {
+    void testGetReminderMailInfo_unauthorized() throws Exception {
         String url = ENDPOINT + "/item/" + item.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());

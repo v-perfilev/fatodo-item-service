@@ -3,7 +3,7 @@ package contracts.infocontroller
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get reminder message by item id'
+    name 'get reminder mail info by item id'
     description 'should return status 200 and ReminderMessageDTO'
     request {
         method GET()

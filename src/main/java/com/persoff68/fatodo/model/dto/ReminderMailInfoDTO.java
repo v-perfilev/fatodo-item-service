@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @NoArgsConstructor
-public class ReminderMessageDTO implements Serializable {
+public class ReminderMailInfoDTO implements Serializable {
     private String message;
     private String url;
     private List<UUID> userIds;
