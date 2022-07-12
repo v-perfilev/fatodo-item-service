@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(ReminderController.ENDPOINT)
+@RequestMapping(InfoController.ENDPOINT)
 @RequiredArgsConstructor
-public class ReminderController {
+public class InfoController {
     static final String ENDPOINT = "/api/reminders";
 
     private final ReminderService reminderService;

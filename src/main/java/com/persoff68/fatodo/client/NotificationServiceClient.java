@@ -17,10 +17,10 @@ public interface NotificationServiceClient {
     void setReminders(@PathVariable UUID targetId,
                       @RequestBody List<Reminder> reminderDTOList);
 
-    @DeleteMapping(value = "/api/reminders/{parentId}/parent")
+    @DeleteMapping(value = "/api/threads/{parentId}/parent")
     void deleteRemindersByParentId(@PathVariable UUID parentId);
 
-    @DeleteMapping(value = "/api/reminders/{targetId}/target")
+    @DeleteMapping(value = "/api/threads/{targetId}/target")
     void deleteRemindersByTargetId(@PathVariable UUID targetId);
 
 }

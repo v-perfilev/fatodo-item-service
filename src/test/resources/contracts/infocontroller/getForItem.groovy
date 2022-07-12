@@ -1,4 +1,4 @@
-package contracts.remindercontroller
+package contracts.infocontroller
 
 import org.springframework.cloud.contract.spec.Contract
 

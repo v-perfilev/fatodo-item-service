@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 @AutoConfigureMockMvc
-class ReminderControllerIT {
+class InfoControllerIT {
     private static final String ENDPOINT = "/api/reminders";
 
     @Autowired
