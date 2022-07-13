@@ -41,13 +41,6 @@ public class PermissionService {
         }
     }
 
-    public void checkItemsPermission(Permission permission, List<UUID> itemIdList) {
-        boolean hasPermission = hasItemsPermission(permission, itemIdList);
-        if (!hasPermission) {
-            throw new PermissionException();
-        }
-    }
-
     public void checkItemPermission(Permission permission, UUID itemId) {
         List<UUID> itemIdList = Collections.singletonList(itemId);
         boolean hasPermission = hasItemsPermission(permission, itemIdList);
@@ -57,51 +50,37 @@ public class PermissionService {
     }
 
     public boolean hasGroupsPermission(Permission permission, List<UUID> groupIdList) {
-        Predicate<Group> checkPredicate = switch (permission) {
-            case READ -> permissionHelper::canRead;
-            case EDIT -> permissionHelper::canEdit;
-            case ADMIN -> permissionHelper::canAdmin;
-        };
-        return hasMultipleGroupPermission(groupIdList, checkPredicate);
-    }
-
-    public boolean hasItemsPermission(Permission permission, List<UUID> itemIdList) {
-        Predicate<Group> checkPredicate = switch (permission) {
-            case READ -> permissionHelper::canRead;
-            case EDIT -> permissionHelper::canEdit;
-            case ADMIN -> permissionHelper::canAdmin;
-        };
-        return hasMultipleItemPermission(itemIdList, checkPredicate);
-    }
-
-    private boolean hasMultipleGroupPermission(List<UUID> groupIdList, Predicate<Group> checkGroup) {
-        groupIdList = groupIdList.stream()
-                .distinct()
-                .toList();
+        Predicate<Group> checkPredicate = getCheckPredicateByPermissionType(permission);
+        groupIdList = groupIdList.stream().distinct().toList();
         List<Group> groupList = groupRepository.findAllById(groupIdList);
         if (groupList.size() != groupIdList.size()) {
             throw new ModelNotFoundException();
         }
         return groupList.stream()
-                .map(checkGroup::test)
+                .map(checkPredicate::test)
                 .allMatch(Predicate.isEqual(true));
     }
 
-    private boolean hasMultipleItemPermission(List<UUID> itemIdList, Predicate<Group> checkGroup) {
+    public boolean hasItemsPermission(Permission permission, List<UUID> itemIdList) {
+        Predicate<Group> checkPredicate = getCheckPredicateByPermissionType(permission);
         itemIdList = itemIdList.stream().distinct().toList();
         List<Item> itemList = itemRepository.findAllByIds(itemIdList);
         if (itemList.size() != itemIdList.size()) {
             throw new ModelNotFoundException();
         }
-        List<UUID> groupIdList = itemList.stream()
-                .map(Item::getGroup)
-                .map(Group::getId)
-                .distinct()
-                .toList();
+        List<UUID> groupIdList = itemList.stream().map(Item::getGroup).map(Group::getId).distinct().toList();
         List<Group> groupList = groupRepository.findAllById(groupIdList);
         return groupList.stream()
-                .map(checkGroup::test)
+                .map(checkPredicate::test)
                 .allMatch(Predicate.isEqual(true));
+    }
+
+    private Predicate<Group> getCheckPredicateByPermissionType(Permission permission) {
+        return switch (permission) {
+            case READ -> permissionHelper::canRead;
+            case EDIT -> permissionHelper::canEdit;
+            case ADMIN -> permissionHelper::canAdmin;
+        };
     }
 
 }

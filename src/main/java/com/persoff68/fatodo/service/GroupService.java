@@ -34,6 +34,13 @@ public class GroupService {
     private final CommentServiceClient commentServiceClient;
     private final NotificationServiceClient notificationServiceClient;
 
+    public List<UUID> getAllIdsByUserId(UUID userId) {
+        List<Group> groupList = groupRepository.findAllByUserId(userId);
+        return groupList.stream()
+                .map(Group::getId)
+                .toList();
+    }
+
     public List<Group> getAllByUserId(UUID userId) {
         Map<UUID, Integer> orderMap = configurationService.getByUserId(userId).getOrderMap();
         List<Group> groupList = groupRepository.findAllByUserId(userId);

@@ -1,5 +1,6 @@
 package com.persoff68.fatodo.web.rest;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -74,6 +76,27 @@ class PermissionControllerIT {
         group2 = groupRepository.save(group2);
         item2 = group2.getItems().get(0);
     }
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testGetGroupIdsForMember_ok() throws Exception {
+        String url = ENDPOINT + "/groups";
+        ResultActions resultActions = mvc.perform(get(url))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        JavaType javaType = objectMapper.getTypeFactory().constructCollectionLikeType(List.class, UUID.class);
+        List<UUID> groupIdList = objectMapper.readValue(resultString, javaType);
+        assertThat(groupIdList).hasSize(1).contains(group1.getId());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testGetGroupIdsForMember_unauthorized() throws Exception {
+        String url = ENDPOINT + "/groups";
+        mvc.perform(get(url))
+                .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
