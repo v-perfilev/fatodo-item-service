@@ -6,14 +6,14 @@ import com.persoff68.fatodo.model.ReminderMailInfo;
 import com.persoff68.fatodo.model.dto.GroupSummaryDTO;
 import com.persoff68.fatodo.model.dto.ItemSummaryDTO;
 import com.persoff68.fatodo.model.dto.ReminderMailInfoDTO;
-import com.persoff68.fatodo.model.mapper.GroupMapper;
-import com.persoff68.fatodo.model.mapper.ItemMapper;
-import com.persoff68.fatodo.model.mapper.ReminderMapper;
+import com.persoff68.fatodo.mapper.GroupMapper;
+import com.persoff68.fatodo.mapper.ItemMapper;
+import com.persoff68.fatodo.mapper.ReminderMapper;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.GroupService;
 import com.persoff68.fatodo.service.ItemService;
-import com.persoff68.fatodo.service.ReminderService;
+import com.persoff68.fatodo.service.InfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +33,7 @@ import java.util.UUID;
 public class InfoController {
     static final String ENDPOINT = "/api/info";
 
-    private final ReminderService reminderService;
+    private final InfoService infoService;
     private final GroupService groupService;
     private final ItemService itemService;
     private final ReminderMapper reminderMapper;
@@ -62,7 +62,7 @@ public class InfoController {
 
     @GetMapping(value = "/item-reminder/{itemId}")
     public ResponseEntity<ReminderMailInfoDTO> getReminderForItem(@PathVariable UUID itemId) {
-        ReminderMailInfo message = reminderService.generateByItemId(itemId);
+        ReminderMailInfo message = infoService.generateReminderMailInfo(itemId);
         ReminderMailInfoDTO dto = reminderMapper.pojoToDTO(message);
         return ResponseEntity.ok(dto);
     }

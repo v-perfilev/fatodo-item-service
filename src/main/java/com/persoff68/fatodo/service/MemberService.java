@@ -6,6 +6,8 @@ import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
+import com.persoff68.fatodo.service.client.ContactService;
+import com.persoff68.fatodo.service.client.PermissionService;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import com.persoff68.fatodo.service.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +22,11 @@ import java.util.UUID;
 @Transactional
 public class MemberService {
 
-    private final GroupRepository groupRepository;
-    private final ItemRepository itemRepository;
     private final PermissionService permissionService;
     private final ContactService contactService;
     private final GroupValidator groupValidator;
-
+    private final GroupRepository groupRepository;
+    private final ItemRepository itemRepository;
 
     public List<UUID> getUserIdsByGroupId(UUID groupId) {
         permissionService.checkGroupPermission(Permission.READ, groupId);

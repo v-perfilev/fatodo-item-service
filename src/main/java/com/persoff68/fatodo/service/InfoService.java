@@ -12,13 +12,13 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ReminderService {
+public class InfoService {
     private static final String ITEM_URL_PREFIX = "/items/";
 
     private final ItemService itemService;
     private final GroupService groupService;
 
-    public ReminderMailInfo generateByItemId(UUID itemId) {
+    public ReminderMailInfo generateReminderMailInfo(UUID itemId) {
         Item item = itemService.getByIdWithoutPermissionCheck(itemId);
         Group group = groupService.getByIdWithoutPermissionCheck(item.getGroup().getId());
         List<UUID> userIdList = getUserIdsFromGroup(group);

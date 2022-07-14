@@ -17,7 +17,7 @@ import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.GroupDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.service.ItemService;
-import com.persoff68.fatodo.web.rest.vm.GroupVM;
+import com.persoff68.fatodo.model.vm.GroupVM;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

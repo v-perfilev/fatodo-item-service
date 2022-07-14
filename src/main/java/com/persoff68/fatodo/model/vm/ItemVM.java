@@ -1,4 +1,4 @@
-package com.persoff68.fatodo.web.rest.vm;
+package com.persoff68.fatodo.model.vm;
 
 import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Reminder;

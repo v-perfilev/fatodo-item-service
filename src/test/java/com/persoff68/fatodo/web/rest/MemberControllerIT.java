@@ -15,7 +15,7 @@ import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
-import com.persoff68.fatodo.web.rest.vm.MemberVM;
+import com.persoff68.fatodo.model.vm.MemberVM;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

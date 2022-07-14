@@ -1,4 +1,4 @@
-package com.persoff68.fatodo.service;
+package com.persoff68.fatodo.service.client;
 
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;

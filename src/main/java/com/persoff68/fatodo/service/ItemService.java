@@ -12,6 +12,7 @@ import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
+import com.persoff68.fatodo.service.client.PermissionService;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelInvalidException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
@@ -31,10 +32,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemService {
 
-    private final GroupRepository groupRepository;
-
-    private final ItemRepository itemRepository;
     private final PermissionService permissionService;
+    private final GroupRepository groupRepository;
+    private final ItemRepository itemRepository;
     private final CommentServiceClient commentServiceClient;
     private final NotificationServiceClient notificationServiceClient;
 

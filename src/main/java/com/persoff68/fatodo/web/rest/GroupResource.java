@@ -2,12 +2,12 @@ package com.persoff68.fatodo.web.rest;
 
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.dto.GroupDTO;
-import com.persoff68.fatodo.model.mapper.GroupMapper;
+import com.persoff68.fatodo.mapper.GroupMapper;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.GroupService;
 import com.persoff68.fatodo.web.rest.exception.InvalidFormException;
-import com.persoff68.fatodo.web.rest.vm.GroupVM;
+import com.persoff68.fatodo.model.vm.GroupVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

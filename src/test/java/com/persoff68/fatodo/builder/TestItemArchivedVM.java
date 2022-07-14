@@ -1,6 +1,6 @@
 package com.persoff68.fatodo.builder;
 
-import com.persoff68.fatodo.web.rest.vm.ItemArchivedVM;
+import com.persoff68.fatodo.model.vm.ItemArchivedVM;
 import lombok.Builder;
 
 import java.util.UUID;

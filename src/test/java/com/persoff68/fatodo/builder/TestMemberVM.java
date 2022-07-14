@@ -1,7 +1,7 @@
 package com.persoff68.fatodo.builder;
 
 import com.persoff68.fatodo.model.constant.Permission;
-import com.persoff68.fatodo.web.rest.vm.MemberVM;
+import com.persoff68.fatodo.model.vm.MemberVM;
 import lombok.Builder;
 
 import java.util.UUID;

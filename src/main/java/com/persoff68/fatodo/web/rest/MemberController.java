@@ -4,7 +4,7 @@ package com.persoff68.fatodo.web.rest;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.MemberService;
-import com.persoff68.fatodo.web.rest.vm.MemberVM;
+import com.persoff68.fatodo.model.vm.MemberVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

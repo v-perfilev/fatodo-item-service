@@ -1,9 +1,9 @@
-package com.persoff68.fatodo.model.mapper;
+package com.persoff68.fatodo.mapper;
 
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.dto.ItemSummaryDTO;
-import com.persoff68.fatodo.web.rest.vm.ItemVM;
+import com.persoff68.fatodo.model.vm.ItemVM;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

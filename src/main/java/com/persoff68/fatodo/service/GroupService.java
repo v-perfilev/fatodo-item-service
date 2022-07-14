@@ -8,6 +8,8 @@ import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
+import com.persoff68.fatodo.service.client.ImageService;
+import com.persoff68.fatodo.service.client.PermissionService;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelInvalidException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
@@ -26,11 +28,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GroupService {
 
-    private final GroupRepository groupRepository;
     private final ConfigurationService configurationService;
     private final ImageService imageService;
     private final PermissionService permissionService;
     private final GroupValidator groupValidator;
+    private final GroupRepository groupRepository;
     private final CommentServiceClient commentServiceClient;
     private final NotificationServiceClient notificationServiceClient;
 

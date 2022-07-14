@@ -4,7 +4,7 @@ import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.model.constant.ItemPriority;
 import com.persoff68.fatodo.model.constant.ItemType;
-import com.persoff68.fatodo.web.rest.vm.ItemVM;
+import com.persoff68.fatodo.model.vm.ItemVM;
 import lombok.Builder;
 
 import javax.validation.constraints.NotNull;
