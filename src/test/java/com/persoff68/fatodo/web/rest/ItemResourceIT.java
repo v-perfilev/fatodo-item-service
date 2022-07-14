@@ -20,12 +20,12 @@ import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.ItemDTO;
-import com.persoff68.fatodo.repository.GroupRepository;
-import com.persoff68.fatodo.repository.ItemRepository;
-import com.persoff68.fatodo.service.client.PermissionService;
 import com.persoff68.fatodo.model.vm.ItemArchivedVM;
 import com.persoff68.fatodo.model.vm.ItemStatusVM;
 import com.persoff68.fatodo.model.vm.ItemVM;
+import com.persoff68.fatodo.repository.GroupRepository;
+import com.persoff68.fatodo.repository.ItemRepository;
+import com.persoff68.fatodo.service.client.PermissionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -227,9 +227,6 @@ class ItemResourceIT {
         PageableList<ItemDTO> resultPageableList = objectMapper.readValue(resultString, type);
         assertThat(resultPageableList.getCount()).isEqualTo(2);
         assertThat(resultPageableList.getData()).hasSize(2);
-        ItemDTO itemDTO1 = resultPageableList.getData().get(0);
-        ItemDTO itemDTO2 = resultPageableList.getData().get(1);
-        assertThat(itemDTO1.getCreatedAt()).isAfterOrEqualTo(itemDTO2.getCreatedAt());
     }
 
     @Test
