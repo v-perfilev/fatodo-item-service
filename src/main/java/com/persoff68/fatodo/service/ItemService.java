@@ -146,7 +146,6 @@ public class ItemService {
         Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
         permissionService.checkItemPermission(Permission.EDIT, item.getId());
 
-        // TODO check and optimize
         commentServiceClient.deleteThreadByTargetId(itemId);
         notificationServiceClient.deleteRemindersByTargetId(itemId);
 

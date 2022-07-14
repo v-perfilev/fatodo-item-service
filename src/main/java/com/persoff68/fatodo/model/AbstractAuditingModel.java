@@ -13,6 +13,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class AbstractAuditingModel extends AbstractModel implements Persistable<UUID> {
+public abstract class AbstractAuditingModel extends AbstractModel implements Persistable<UUID>, Serializable {
 
     @CreatedBy
     protected UUID createdBy;
