@@ -25,8 +25,7 @@ public class CheckService {
     public Pair<ElementType, UUID> getTypeAndParentId(UUID id) {
         Optional<Group> groupOptional = groupRepository.findById(id);
         if (groupOptional.isPresent()) {
-            UUID parentId = groupOptional.get().getId();
-            return Pair.of(ElementType.GROUP, parentId);
+            return Pair.of(ElementType.GROUP, id);
         }
         Optional<Item> itemOptional = itemRepository.findById(id);
         if (itemOptional.isPresent()) {

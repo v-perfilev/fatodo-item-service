@@ -11,7 +11,8 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "ftd_item_group")
@@ -19,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Group extends AbstractAuditingModel {
+public class Group extends AbstractAuditingModel implements Serializable {
 
     @NotNull
     private String title;
@@ -32,10 +33,10 @@ public class Group extends AbstractAuditingModel {
     private boolean isDeleted;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Member> members;
+    private ArrayList<Member> members;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true)
-    private List<Item> items;
+    private ArrayList<Item> items;
 
 
 }
