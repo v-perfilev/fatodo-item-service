@@ -1,5 +1,6 @@
 package com.persoff68.fatodo.model;
 
+import com.persoff68.fatodo.config.constant.AppConstants;
 import com.persoff68.fatodo.model.constant.ItemPriority;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.constant.ItemType;
@@ -17,6 +18,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "ftd_item")
@@ -25,7 +28,9 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(exclude = {"group"})
-public class Item extends AbstractAuditingModel {
+public class Item extends AbstractAuditingModel implements Serializable {
+    @Serial
+    private static final long serialVersionUID = AppConstants.SERIAL_VERSION_UID;
 
     @ManyToOne
     private Group group;

@@ -4,7 +4,7 @@ import com.persoff68.fatodo.config.constant.AppConstants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serial;
@@ -28,6 +28,6 @@ public class GroupVM implements Serializable {
 
     private String imageFilename;
 
-    private MultipartFile imageContent;
+    private CommonsMultipartFile imageContent;
 
 }
