@@ -13,6 +13,7 @@ import java.util.UUID;
 public class ItemStatusVM {
 
     private UUID id;
+
     @ItemStatusConstraint
     private String status;
 
