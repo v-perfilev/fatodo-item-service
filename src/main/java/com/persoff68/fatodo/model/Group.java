@@ -37,10 +37,10 @@ public class Group extends AbstractAuditingModel implements Serializable {
     private boolean isDeleted;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true, fetch = FetchType.EAGER)
-    private transient List<Member> members;
+    private List<Member> members;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true)
-    private transient List<Item> items;
+    private List<Item> items;
 
 
 }
