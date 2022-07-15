@@ -27,7 +27,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @IdClass(Member.MemberId.class)
 @ToString(exclude = {"group"})
-public class Member {
+public class Member implements Serializable {
 
     @Id
     @ManyToOne
