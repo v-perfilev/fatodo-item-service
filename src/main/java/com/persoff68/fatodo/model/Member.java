@@ -1,6 +1,7 @@
 package com.persoff68.fatodo.model;
 
 
+import com.persoff68.fatodo.config.constant.AppConstants;
 import com.persoff68.fatodo.model.constant.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,7 @@ import javax.persistence.IdClass;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -50,6 +52,9 @@ public class Member {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MemberId implements Serializable {
+        @Serial
+        private static final long serialVersionUID = AppConstants.SERIAL_VERSION_UID;
+
         private Group group;
         private UUID userId;
     }

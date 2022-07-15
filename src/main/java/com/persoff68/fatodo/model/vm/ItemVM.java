@@ -1,5 +1,6 @@
 package com.persoff68.fatodo.model.vm;
 
+import com.persoff68.fatodo.config.constant.AppConstants;
 import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.web.rest.validator.DateParamsConstraint;
@@ -11,13 +12,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemVM {
+public class ItemVM implements Serializable {
+    @Serial
+    private static final long serialVersionUID = AppConstants.SERIAL_VERSION_UID;
 
     private UUID id;
 
