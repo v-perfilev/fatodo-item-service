@@ -1,6 +1,5 @@
 package com.persoff68.fatodo.model;
 
-import com.persoff68.fatodo.config.constant.AppConstants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,8 +11,6 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -22,9 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Group extends AbstractAuditingModel implements Serializable {
-    @Serial
-    private static final long serialVersionUID = AppConstants.SERIAL_VERSION_UID;
+public class Group extends AbstractAuditingModel {
 
     @NotNull
     private String title;
@@ -41,6 +36,5 @@ public class Group extends AbstractAuditingModel implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true)
     private List<Item> items;
-
 
 }

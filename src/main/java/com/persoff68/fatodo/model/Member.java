@@ -27,9 +27,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @IdClass(Member.MemberId.class)
 @ToString(exclude = {"group"})
-public class Member implements Serializable {
-    @Serial
-    private static final long serialVersionUID = AppConstants.SERIAL_VERSION_UID;
+public class Member {
 
     @Id
     @ManyToOne
