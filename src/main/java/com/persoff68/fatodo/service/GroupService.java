@@ -8,6 +8,7 @@ import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
+import com.persoff68.fatodo.service.client.EventService;
 import com.persoff68.fatodo.service.client.ImageService;
 import com.persoff68.fatodo.service.client.PermissionService;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
@@ -31,6 +32,7 @@ public class GroupService {
     private final ConfigurationService configurationService;
     private final ImageService imageService;
     private final PermissionService permissionService;
+    private final EventService eventService;
     private final GroupValidator groupValidator;
     private final GroupRepository groupRepository;
     private final CommentServiceClient commentServiceClient;
@@ -74,14 +76,14 @@ public class GroupService {
                 .toList();
     }
 
-    public Group getByIdWithoutPermissionCheck(UUID id) {
-        return groupRepository.findById(id)
+    public Group getByIdWithoutPermissionCheck(UUID groupId) {
+        return groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
     }
 
-    public Group getById(UUID id) {
-        permissionService.checkGroupPermission(Permission.READ, id);
-        return groupRepository.findById(id)
+    public Group getById(UUID userId, UUID groupId) {
+        permissionService.checkGroupPermission(userId, Permission.READ, groupId);
+        return groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
     }
 
@@ -103,16 +105,18 @@ public class GroupService {
             group = groupRepository.save(group);
         }
 
+        eventService.sendGroupCreateEvent(group);
+
         return group;
     }
 
     @Transactional
-    public Group update(Group groupToUpdate, byte[] image) {
+    public Group update(UUID userId, Group groupToUpdate, byte[] image) {
         UUID groupId = groupToUpdate.getId();
         if (groupId == null) {
             throw new ModelInvalidException();
         }
-        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
+        permissionService.checkGroupPermission(userId, Permission.ADMIN, groupId);
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
@@ -123,12 +127,14 @@ public class GroupService {
         String imageFilename = imageService.updateGroup(group, groupToUpdate, image);
         group.setImageFilename(imageFilename);
 
+        eventService.sendGroupUpdateEvent(group);
+
         return groupRepository.save(group);
     }
 
     @Transactional
-    public void delete(UUID groupId) {
-        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
+    public void delete(UUID userId, UUID groupId) {
+        permissionService.checkGroupPermission(userId, Permission.ADMIN, groupId);
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(ModelNotFoundException::new);
 
@@ -141,6 +147,8 @@ public class GroupService {
         group.setDeleted(true);
         group.getItems().forEach(item -> item.setDeleted(true));
         groupRepository.save(group);
+
+        eventService.deleteGroupEvents(groupId);
     }
 
 

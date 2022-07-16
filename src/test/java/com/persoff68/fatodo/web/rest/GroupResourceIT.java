@@ -9,15 +9,16 @@ import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestGroupVM;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
+import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.GroupDTO;
+import com.persoff68.fatodo.model.vm.GroupVM;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.service.ItemService;
-import com.persoff68.fatodo.model.vm.GroupVM;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,8 @@ class GroupResourceIT {
     CommentServiceClient commentServiceClient;
     @MockBean
     NotificationServiceClient notificationServiceClient;
+    @MockBean
+    EventServiceClient eventServiceClient;
 
     Group group1;
     Group group2;
@@ -101,6 +104,8 @@ class GroupResourceIT {
         doNothing().when(commentServiceClient).deleteAllThreadsByParentId(any());
         doNothing().when(imageServiceClient).deleteGroupImage(any());
         doNothing().when(notificationServiceClient).deleteRemindersByParentId(any());
+        doNothing().when(eventServiceClient).addItemEvent(any());
+        doNothing().when(eventServiceClient).deleteGroupEvents(any());
     }
 
     @Test

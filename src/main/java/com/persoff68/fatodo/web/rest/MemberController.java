@@ -29,41 +29,46 @@ public class MemberController {
 
     @GetMapping(value = "/group/{groupId}/ids", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UUID>> getUserIdsByGroupId(@PathVariable UUID groupId) {
-        List<UUID> userIdList = memberService.getUserIdsByGroupId(groupId);
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        List<UUID> userIdList = memberService.getUserIdsByGroupId(userId, groupId);
         return ResponseEntity.ok(userIdList);
     }
 
     @GetMapping(value = "/item/{itemId}/ids", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UUID>> getUserIdsByItemId(@PathVariable UUID itemId) {
-        List<UUID> userIdList = memberService.getUserIdsByItemId(itemId);
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        List<UUID> userIdList = memberService.getUserIdsByItemId(userId, itemId);
         return ResponseEntity.ok(userIdList);
     }
 
     @PostMapping(value = "/group/{groupId}/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> addMembersToGroup(@PathVariable UUID groupId,
                                                   @RequestBody List<UUID> userIdList) {
-        memberService.addMembersToGroup(groupId, userIdList);
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        memberService.addMembersToGroup(userId, groupId, userIdList);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/group/{groupId}/remove", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> removeMembersFromGroup(@PathVariable UUID groupId,
                                                        @RequestBody List<UUID> userIdList) {
-        memberService.removeMembersFromGroup(groupId, userIdList);
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        memberService.removeMembersFromGroup(userId, groupId, userIdList);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/group/{groupId}/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> editGroupMember(@PathVariable UUID groupId,
                                                 @RequestBody @Valid MemberVM memberVM) {
-        memberService.editGroupMember(groupId, memberVM.getUserId(), memberVM.getPermission());
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        memberService.editGroupMember(userId, groupId, memberVM.getUserId(), memberVM.getPermission());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/group/{groupId}/leave")
     public ResponseEntity<Void> leaveGroup(@PathVariable UUID groupId) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
-        memberService.leaveGroup(groupId, userId);
+        memberService.leaveGroup(userId, groupId);
         return ResponseEntity.ok().build();
     }
 

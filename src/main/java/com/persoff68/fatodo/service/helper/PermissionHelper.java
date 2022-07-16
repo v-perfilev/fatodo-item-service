@@ -13,25 +13,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PermissionHelper {
 
-    public boolean canRead(Group group) {
-        UUID userId = SecurityUtils.getCurrentId()
-                .orElseThrow(UnauthorizedException::new);
+    public boolean canRead(UUID userId, Group group) {
         return group.getMembers().stream()
                 .anyMatch(member -> member.getUserId().equals(userId));
     }
 
-    public boolean canEdit(Group group) {
-        UUID userId = SecurityUtils.getCurrentId()
-                .orElseThrow(UnauthorizedException::new);
+    public boolean canEdit(UUID userId, Group group) {
         return group.getMembers().stream()
                 .filter(member -> member.getUserId().equals(userId))
                 .anyMatch(member -> member.getPermission().equals(Permission.ADMIN)
                         || member.getPermission().equals(Permission.EDIT));
     }
 
-    public boolean canAdmin(Group group) {
-        UUID userId = SecurityUtils.getCurrentId()
-                .orElseThrow(UnauthorizedException::new);
+    public boolean canAdmin(UUID userId, Group group) {
         return group.getMembers().stream()
                 .filter(member -> member.getUserId().equals(userId))
                 .anyMatch(member -> member.getPermission().equals(Permission.ADMIN));

@@ -9,13 +9,14 @@ import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.builder.TestMemberVM;
 import com.persoff68.fatodo.client.ContactServiceClient;
+import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
+import com.persoff68.fatodo.model.vm.MemberVM;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
-import com.persoff68.fatodo.model.vm.MemberVM;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -60,6 +62,8 @@ class MemberControllerIT {
 
     @MockBean
     ContactServiceClient contactServiceClient;
+    @MockBean
+    EventServiceClient eventServiceClient;
 
     Group group1;
     Group group2;
@@ -99,6 +103,8 @@ class MemberControllerIT {
         item2 = group2.getItems().get(0);
 
         when(contactServiceClient.areUsersInContactList(any())).thenReturn(true);
+        doNothing().when(eventServiceClient).addItemEvent(any());
+        doNothing().when(eventServiceClient).deleteGroupEventsForUsers(any());
     }
 
     @Test

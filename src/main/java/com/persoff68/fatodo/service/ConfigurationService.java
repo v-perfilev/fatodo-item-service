@@ -28,7 +28,7 @@ public class ConfigurationService {
     }
 
     @Transactional
-    public void setOrder(List<UUID> groupIdList, UUID userId) {
+    public void setOrder(UUID userId, List<UUID> groupIdList) {
         Configuration configuration = configurationRepository.findByUserId(userId)
                 .orElse(new Configuration(userId));
         List<Group> groupList = groupRepository.findAllByUserId(userId);

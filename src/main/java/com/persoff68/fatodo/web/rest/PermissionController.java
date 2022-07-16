@@ -37,14 +37,16 @@ public class PermissionController {
     @PostMapping(value = "/groups/{permission}")
     public ResponseEntity<Boolean> hasGroupsPermission(@PathVariable Permission permission,
                                                        @RequestBody List<UUID> groupIdList) {
-        boolean hasPermission = permissionService.hasGroupsPermission(permission, groupIdList);
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        boolean hasPermission = permissionService.hasGroupsPermission(userId, permission, groupIdList);
         return ResponseEntity.ok(hasPermission);
     }
 
     @PostMapping(value = "/items/{permission}")
     public ResponseEntity<Boolean> hasItemsPermission(@PathVariable Permission permission,
                                                       @RequestBody List<UUID> itemIdList) {
-        boolean hasPermission = permissionService.hasItemsPermission(permission, itemIdList);
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        boolean hasPermission = permissionService.hasItemsPermission(userId, permission, itemIdList);
         return ResponseEntity.ok(hasPermission);
     }
 

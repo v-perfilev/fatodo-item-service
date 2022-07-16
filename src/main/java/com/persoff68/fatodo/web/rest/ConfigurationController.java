@@ -27,7 +27,7 @@ public class ConfigurationController {
     @PostMapping(value = "/order", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> setOrder(@RequestBody List<UUID> groupIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
-        configurationService.setOrder(groupIdList, userId);
+        configurationService.setOrder(userId, groupIdList);
         return ResponseEntity.ok().build();
     }
 

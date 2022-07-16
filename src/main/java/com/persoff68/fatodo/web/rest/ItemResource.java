@@ -6,6 +6,8 @@ import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.mapper.ItemMapper;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
+import com.persoff68.fatodo.security.exception.UnauthorizedException;
+import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.ItemService;
 import com.persoff68.fatodo.model.vm.ItemArchivedVM;
 import com.persoff68.fatodo.model.vm.ItemStatusVM;
@@ -45,7 +47,8 @@ public class ItemResource {
 
     @PostMapping(value = "/preview/group-ids", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<UUID, PageableList<ItemDTO>>> getMapByGroupIds(@RequestBody List<UUID> groupIdList) {
-        Map<UUID, PageableList<Item>> pairMap = itemService.getMapByGroupIds(groupIdList, DEFAULT_ITEMS_LENGTH);
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        Map<UUID, PageableList<Item>> pairMap = itemService.getMapByGroupIds(userId, groupIdList, DEFAULT_ITEMS_LENGTH);
         Map<UUID, PageableList<ItemDTO>> pageableListMap = pairMap.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> mapItemListToDTOList(entry.getValue())));
         return ResponseEntity.ok(pageableListMap);
@@ -55,10 +58,11 @@ public class ItemResource {
     public ResponseEntity<PageableList<ItemDTO>> getAllByGroupId(@PathVariable UUID groupId,
                                                                  @RequestParam(required = false) Integer offset,
                                                                  @RequestParam(required = false) Integer size) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         offset = Optional.ofNullable(offset).orElse(0);
         size = Optional.ofNullable(size).orElse(DEFAULT_ITEMS_LENGTH);
         Pageable pageRequest = OffsetPageRequest.of(offset, size);
-        PageableList<Item> pageableList = itemService.getAllByGroupId(groupId, pageRequest);
+        PageableList<Item> pageableList = itemService.getAllByGroupId(userId, groupId, pageRequest);
         PageableList<ItemDTO> dtoPageableList = mapItemListToDTOList(pageableList);
         return ResponseEntity.ok(dtoPageableList);
     }
@@ -67,17 +71,19 @@ public class ItemResource {
     public ResponseEntity<PageableList<ItemDTO>> getAllArchivedByGroupId(@PathVariable UUID groupId,
                                                                          @RequestParam(required = false) Integer offset,
                                                                          @RequestParam(required = false) Integer size) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         offset = Optional.ofNullable(offset).orElse(0);
         size = Optional.ofNullable(size).orElse(DEFAULT_ITEMS_LENGTH);
         Pageable pageRequest = OffsetPageRequest.of(offset, size);
-        PageableList<Item> pageableList = itemService.getAllArchivedByGroupId(groupId, pageRequest);
+        PageableList<Item> pageableList = itemService.getAllArchivedByGroupId(userId, groupId, pageRequest);
         PageableList<ItemDTO> dtoPageableList = mapItemListToDTOList(pageableList);
         return ResponseEntity.ok(dtoPageableList);
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemDTO> getById(@PathVariable UUID id) {
-        Item item = itemService.getById(id);
+    @GetMapping(value = "/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemDTO> getById(@PathVariable UUID itemId) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        Item item = itemService.getById(userId, itemId);
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.ok(itemDTO);
     }
@@ -85,8 +91,9 @@ public class ItemResource {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> create(@RequestBody @Valid ItemVM itemVM) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Item item = itemMapper.vmToPojo(itemVM);
-        item = itemService.create(item, itemVM.getGroupId(), itemVM.getReminders());
+        item = itemService.create(userId, item, itemVM.getGroupId(), itemVM.getReminders());
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.status(HttpStatus.CREATED).body(itemDTO);
     }
@@ -94,8 +101,9 @@ public class ItemResource {
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> update(@RequestBody @Valid ItemVM itemVM) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Item item = itemMapper.vmToPojo(itemVM);
-        item = itemService.update(item, itemVM.getReminders(), itemVM.isDeleteReminders());
+        item = itemService.update(userId, item, itemVM.getReminders(), itemVM.isDeleteReminders());
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.ok(itemDTO);
     }
@@ -104,9 +112,10 @@ public class ItemResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> updateStatus(@RequestBody @Valid ItemStatusVM itemStatusVM) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         UUID itemId = itemStatusVM.getId();
         ItemStatus status = ItemStatus.valueOf(itemStatusVM.getStatus());
-        Item item = itemService.updateStatus(itemId, status);
+        Item item = itemService.updateStatus(userId, itemId, status);
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.ok(itemDTO);
     }
@@ -115,16 +124,18 @@ public class ItemResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> updateArchived(@RequestBody @Valid ItemArchivedVM itemArchivedVM) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         UUID itemId = itemArchivedVM.getId();
         boolean archived = itemArchivedVM.isArchived();
-        Item item = itemService.updateArchived(itemId, archived);
+        Item item = itemService.updateArchived(userId, itemId, archived);
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.ok(itemDTO);
     }
 
-    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> deleteById(@PathVariable UUID id) {
-        itemService.delete(id);
+    @DeleteMapping(value = "/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deleteById(@PathVariable UUID itemId) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        itemService.delete(userId, itemId);
         return ResponseEntity.ok().build();
     }
 

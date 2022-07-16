@@ -2,6 +2,7 @@ package com.persoff68.fatodo.config;
 
 import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.ContactServiceClient;
+import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,15 @@ public class ClientConfiguration {
     @Primary
     public ContactServiceClient contactClient() {
         return (ContactServiceClient) beanFactory.getBean("contactServiceClientWrapper");
+    }
+
+    @Bean
+    @Primary
+    public EventServiceClient eventClient() {
+        boolean kafkaProducerExists = beanFactory.containsBean("eventProducer");
+        return kafkaProducerExists
+                ? (EventServiceClient) beanFactory.getBean("eventProducer")
+                : (EventServiceClient) beanFactory.getBean("eventServiceClientWrapper");
     }
 
     @Bean

@@ -12,6 +12,7 @@ import com.persoff68.fatodo.builder.TestItemStatusVM;
 import com.persoff68.fatodo.builder.TestItemVM;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
+import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
@@ -75,6 +76,8 @@ class ItemResourceIT {
     CommentServiceClient commentServiceClient;
     @MockBean
     NotificationServiceClient notificationServiceClient;
+    @MockBean
+    EventServiceClient eventServiceClient;
 
     Group group1;
     Group group2;
@@ -108,13 +111,15 @@ class ItemResourceIT {
         doNothing().when(commentServiceClient).deleteThreadByTargetId(any());
         doNothing().when(notificationServiceClient).setReminders(any(), any());
         doNothing().when(notificationServiceClient).deleteRemindersByTargetId(any());
+        doNothing().when(eventServiceClient).addItemEvent(any());
+        doNothing().when(eventServiceClient).deleteItemEvents(any());
     }
 
     @Test
     @WithCustomSecurityContext
     void testGetMapByGroupIds_ok() throws Exception {
+        doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
         List<UUID> groupIdList = List.of(group1.getId(), group2.getId());
-        doReturn(true).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
         String url = ENDPOINT + "/preview/group-ids";
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         ResultActions resultActions = mvc.perform(post(url)
@@ -136,7 +141,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetMapByGroupIds_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
+        doReturn(false).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
         String url = ENDPOINT + "/preview/group-ids";
         List<UUID> groupIdList = List.of(group1.getId(), group2.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
@@ -148,7 +153,6 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetMapByGroupIds_notFound() throws Exception {
-//        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
         String url = ENDPOINT + "/preview/group-ids";
         List<UUID> groupIdList = List.of(group1.getId(), UUID.randomUUID());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
@@ -172,7 +176,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetAllByGroupId_ok() throws Exception {
-        doReturn(true).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
+        doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
         String url = ENDPOINT + "/" + group1.getId() + "/group-id";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
@@ -186,7 +190,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetAllByGroupId_ok_pageable() throws Exception {
-        doReturn(true).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
+        doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
         String url = ENDPOINT + "/" + group1.getId() + "/group-id?offset=1&size=10";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
@@ -200,7 +204,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetAllByGroupId_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
+        doReturn(false).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
         String url = ENDPOINT + "/" + group1.getId() + "/group-id";
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
@@ -218,7 +222,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetAllArchivedByGroupId_ok() throws Exception {
-        doReturn(true).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
+        doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
         String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
@@ -232,7 +236,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetAllArchivedByGroupId_ok_pageable() throws Exception {
-        doReturn(true).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
+        doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
         String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id?offset=1&size=10";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
@@ -246,7 +250,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetAllArchivedByGroupId_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
+        doReturn(false).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
         String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id";
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
@@ -264,7 +268,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetById_ok() throws Exception {
-        doReturn(true).when(permissionService).hasItemsPermission(eq(Permission.READ), any());
+        doReturn(true).when(permissionService).hasItemsPermission(any(), eq(Permission.READ), any());
         String url = ENDPOINT + "/" + item1.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
@@ -276,7 +280,6 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetById_notFound() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
         UUID id = UUID.randomUUID();
         String url = ENDPOINT + "/" + id;
         mvc.perform(get(url))
@@ -286,7 +289,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testGetById_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.READ), any());
+        doReturn(false).when(permissionService).hasItemsPermission(any(), eq(Permission.READ), any());
         String url = ENDPOINT + "/" + item1.getId();
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
@@ -304,7 +307,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testCreate_created() throws Exception {
-        doReturn(true).when(permissionService).hasGroupsPermission(eq(Permission.EDIT), any());
+        doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.EDIT), any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(post(ENDPOINT)
@@ -321,7 +324,6 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testCreate_badRequest_invalidModel() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.EDIT), any());
         ItemVM vm = TestItemVM.defaultBuilder().groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
@@ -332,7 +334,6 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testCreate_badRequest_invalid() throws Exception {
-        doReturn(true).when(permissionService).hasGroupsPermission(eq(Permission.EDIT), any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).title(null).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
@@ -343,7 +344,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testCreate_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.EDIT), any());
+        doReturn(false).when(permissionService).hasGroupsPermission(any(), eq(Permission.EDIT), any());
         ItemVM vm = TestItemVM.defaultBuilder().id(null).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(post(ENDPOINT)
@@ -365,7 +366,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testUpdate_ok() throws Exception {
-        doReturn(true).when(permissionService).hasItemsPermission(eq(Permission.EDIT), any());
+        doReturn(true).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
         ItemVM vm = TestItemVM.defaultBuilder().id(item1.getId()).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
@@ -392,7 +393,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testUpdate_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.EDIT), any());
+        doReturn(false).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
         ItemVM vm = TestItemVM.defaultBuilder().id(item1.getId()).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
@@ -403,9 +404,8 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testUpdate_badRequest_invalid() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.EDIT), any());
-        ItemVM vm =
-                TestItemVM.defaultBuilder().id(item1.getId()).title(null).groupId(group1.getId()).build().toParent();
+        ItemVM vm = TestItemVM.defaultBuilder()
+                .id(item1.getId()).title(null).groupId(group1.getId()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -426,7 +426,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testUpdateStatus_ok() throws Exception {
-        doReturn(true).when(permissionService).hasItemsPermission(eq(Permission.EDIT), any());
+        doReturn(true).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
         String url = ENDPOINT + "/status";
         ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(item1.getId()).status("COMPLETED").build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -453,7 +453,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testUpdateStatus_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.EDIT), any());
+        doReturn(false).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
         String url = ENDPOINT + "/status";
         ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(item1.getId()).status("COMPLETED").build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -477,7 +477,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testUpdateArchived_ok() throws Exception {
-        doReturn(true).when(permissionService).hasItemsPermission(eq(Permission.EDIT), any());
+        doReturn(true).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
         String url = ENDPOINT + "/archived";
         ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(item1.getId()).archived(true).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -504,7 +504,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testUpdateArchived_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.EDIT), any());
+        doReturn(false).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
         String url = ENDPOINT + "/archived";
         ItemArchivedVM vm = TestItemArchivedVM.defaultBuilder().id(item1.getId()).archived(true).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
@@ -528,7 +528,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testDelete_ok() throws Exception {
-        doReturn(true).when(permissionService).hasItemsPermission(eq(Permission.EDIT), any());
+        doReturn(true).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
         String url = ENDPOINT + "/" + item1.getId();
         mvc.perform(delete(url))
                 .andExpect(status().isOk());
@@ -546,7 +546,7 @@ class ItemResourceIT {
     @Test
     @WithCustomSecurityContext
     void testDelete_forbidden() throws Exception {
-        doReturn(false).when(permissionService).hasGroupsPermission(eq(Permission.EDIT), any());
+        doReturn(false).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
         String url = ENDPOINT + "/" + item1.getId();
         mvc.perform(delete(url))
                 .andExpect(status().isForbidden());

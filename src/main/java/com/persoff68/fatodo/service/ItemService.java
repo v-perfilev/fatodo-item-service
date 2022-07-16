@@ -12,6 +12,7 @@ import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
+import com.persoff68.fatodo.service.client.EventService;
 import com.persoff68.fatodo.service.client.PermissionService;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelInvalidException;
@@ -33,25 +34,26 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final PermissionService permissionService;
+    private final EventService eventService;
     private final GroupRepository groupRepository;
     private final ItemRepository itemRepository;
     private final CommentServiceClient commentServiceClient;
     private final NotificationServiceClient notificationServiceClient;
 
-    public Map<UUID, PageableList<Item>> getMapByGroupIds(List<UUID> groupIdList, int size) {
-        permissionService.checkGroupsPermission(Permission.READ, groupIdList);
+    public Map<UUID, PageableList<Item>> getMapByGroupIds(UUID userId, List<UUID> groupIdList, int size) {
+        permissionService.checkGroupsPermission(userId, Permission.READ, groupIdList);
         return groupIdList.stream().distinct().collect(Collectors.toMap(Function.identity(),
                 groupId -> getPageableListForMap(groupId, size)));
     }
 
-    public PageableList<Item> getAllByGroupId(UUID groupId, Pageable pageable) {
-        permissionService.checkGroupPermission(Permission.READ, groupId);
+    public PageableList<Item> getAllByGroupId(UUID userId, UUID groupId, Pageable pageable) {
+        permissionService.checkGroupPermission(userId, Permission.READ, groupId);
         Page<Item> itemPage = itemRepository.findAllByGroupIdPageable(groupId, pageable);
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
 
-    public PageableList<Item> getAllArchivedByGroupId(UUID groupId, Pageable pageable) {
-        permissionService.checkGroupPermission(Permission.READ, groupId);
+    public PageableList<Item> getAllArchivedByGroupId(UUID userId, UUID groupId, Pageable pageable) {
+        permissionService.checkGroupPermission(userId, Permission.READ, groupId);
         Page<Item> itemPage = itemRepository.findAllArchivedByGroupIdPageable(groupId, pageable);
         return PageableList.of(itemPage.getContent(), itemPage.getTotalElements());
     }
@@ -73,20 +75,20 @@ public class ItemService {
                 .toList();
     }
 
-    public Item getById(UUID itemId) {
+    public Item getById(UUID userId, UUID itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
-        permissionService.checkItemPermission(Permission.READ, item.getId());
+        permissionService.checkItemPermission(userId, Permission.READ, item.getId());
         return item;
     }
 
     @Transactional
-    public Item create(Item newItem, UUID groupId, List<Reminder> reminderList) {
+    public Item create(UUID userId, Item newItem, UUID groupId, List<Reminder> reminderList) {
         if (newItem.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
         Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
 
-        permissionService.checkGroupPermission(Permission.EDIT, group.getId());
+        permissionService.checkGroupPermission(userId, Permission.EDIT, group.getId());
 
         newItem.setStatus(ItemStatus.CREATED);
         newItem.setGroup(group);
@@ -95,17 +97,20 @@ public class ItemService {
         if (reminderList != null) {
             notificationServiceClient.setReminders(item.getId(), reminderList);
         }
+
+        eventService.sendItemCreateEvent(item);
+
         return item;
     }
 
     @Transactional
-    public Item update(Item newItem, List<Reminder> reminderList, boolean deleteReminders) {
+    public Item update(UUID userId, Item newItem, List<Reminder> reminderList, boolean deleteReminders) {
         UUID id = newItem.getId();
         if (id == null) {
             throw new ModelInvalidException();
         }
         Item item = itemRepository.findById(id).orElseThrow(ModelNotFoundException::new);
-        permissionService.checkItemPermission(Permission.EDIT, item.getId());
+        permissionService.checkItemPermission(userId, Permission.EDIT, item.getId());
 
         item.setTitle(newItem.getTitle());
         item.setType(newItem.getType());
@@ -119,38 +124,51 @@ public class ItemService {
         } else if (deleteReminders) {
             notificationServiceClient.deleteRemindersByTargetId(item.getId());
         }
+
+        eventService.sendItemUpdateEvent(item);
+
         return item;
     }
 
     @Transactional
-    public Item updateStatus(UUID itemId, ItemStatus status) {
+    public Item updateStatus(UUID userId, UUID itemId, ItemStatus status) {
         Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
-        permissionService.checkItemPermission(Permission.EDIT, item.getId());
+        permissionService.checkItemPermission(userId, Permission.EDIT, item.getId());
         item.setStatus(status);
-        return itemRepository.save(item);
+        item = itemRepository.save(item);
+
+        eventService.sendItemUpdateEvent(item);
+
+        return item;
     }
 
     @Transactional
-    public Item updateArchived(UUID itemId, boolean archived) {
+    public Item updateArchived(UUID userId, UUID itemId, boolean archived) {
         Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
-        permissionService.checkItemPermission(Permission.EDIT, item.getId());
+        permissionService.checkItemPermission(userId, Permission.EDIT, item.getId());
         item.setArchived(archived);
         if (archived) {
             notificationServiceClient.deleteRemindersByTargetId(itemId);
         }
-        return itemRepository.save(item);
+        item = itemRepository.save(item);
+
+        eventService.sendItemUpdateEvent(item);
+
+        return item;
     }
 
     @Transactional
-    public void delete(UUID itemId) {
+    public void delete(UUID userId, UUID itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
-        permissionService.checkItemPermission(Permission.EDIT, item.getId());
+        permissionService.checkItemPermission(userId, Permission.EDIT, item.getId());
 
         commentServiceClient.deleteThreadByTargetId(itemId);
         notificationServiceClient.deleteRemindersByTargetId(itemId);
 
         item.setDeleted(true);
         itemRepository.save(item);
+
+        eventService.deleteItemEvents(itemId);
     }
 
     private PageableList<Item> getPageableListForMap(UUID groupId, int size) {

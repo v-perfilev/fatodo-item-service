@@ -57,9 +57,10 @@ public class GroupResource {
         return ResponseEntity.ok(groupDTOList);
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GroupDTO> getById(@PathVariable UUID id) {
-        Group group = groupService.getById(id);
+    @GetMapping(value = "/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GroupDTO> getById(@PathVariable UUID groupId) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        Group group = groupService.getById(userId, groupId);
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
         return ResponseEntity.ok(groupDTO);
     }
@@ -75,16 +76,18 @@ public class GroupResource {
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GroupDTO> update(@ModelAttribute @Valid GroupVM groupVM) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Group newGroup = groupMapper.vmToPojo(groupVM);
         byte[] imageContent = getBytesFromMultipartFile(groupVM.getImageContent());
-        Group group = groupService.update(newGroup, imageContent);
+        Group group = groupService.update(userId, newGroup, imageContent);
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
         return ResponseEntity.ok(groupDTO);
     }
 
-    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        groupService.delete(id);
+    @DeleteMapping(value = "/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> delete(@PathVariable UUID groupId) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        groupService.delete(userId, groupId);
         return ResponseEntity.ok().build();
     }
 

@@ -5,6 +5,7 @@ import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.ContactServiceClient;
+import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
@@ -57,6 +58,8 @@ public abstract class ContractBase {
     CommentServiceClient commentServiceClient;
     @MockBean
     NotificationServiceClient notificationServiceClient;
+    @MockBean
+    EventServiceClient eventServiceClient;
 
     @BeforeEach
     public void setup() {
@@ -95,6 +98,10 @@ public abstract class ContractBase {
         doNothing().when(notificationServiceClient).setReminders(any(), any());
         doNothing().when(notificationServiceClient).deleteRemindersByParentId(any());
         doNothing().when(notificationServiceClient).deleteRemindersByTargetId(any());
+        doNothing().when(eventServiceClient).addItemEvent(any());
+        doNothing().when(eventServiceClient).deleteGroupEventsForUsers(any());
+        doNothing().when(eventServiceClient).deleteGroupEvents(any());
+        doNothing().when(eventServiceClient).deleteItemEvents(any());
     }
 
 }

@@ -7,6 +7,7 @@ import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.client.ContactService;
+import com.persoff68.fatodo.service.client.EventService;
 import com.persoff68.fatodo.service.client.PermissionService;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import com.persoff68.fatodo.service.validator.GroupValidator;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,96 +25,91 @@ import java.util.UUID;
 public class MemberService {
 
     private final PermissionService permissionService;
+    private final EventService eventService;
     private final ContactService contactService;
     private final GroupValidator groupValidator;
     private final GroupRepository groupRepository;
     private final ItemRepository itemRepository;
 
-    public List<UUID> getUserIdsByGroupId(UUID groupId) {
-        permissionService.checkGroupPermission(Permission.READ, groupId);
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(ModelNotFoundException::new);
-        return group.getMembers().stream()
-                .map(Member::getUserId)
-                .toList();
+    public List<UUID> getUserIdsByGroupId(UUID userId, UUID groupId) {
+        permissionService.checkGroupPermission(userId, Permission.READ, groupId);
+        Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
+        return group.getMembers().stream().map(Member::getUserId).toList();
     }
 
 
-    public List<UUID> getUserIdsByItemId(UUID itemId) {
-        permissionService.checkItemPermission(Permission.READ, itemId);
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(ModelNotFoundException::new);
-        return getUserIdsByGroupId(item.getGroup().getId());
+    public List<UUID> getUserIdsByItemId(UUID userId, UUID itemId) {
+        permissionService.checkItemPermission(userId, Permission.READ, itemId);
+        Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
+        return getUserIdsByGroupId(userId, item.getGroup().getId());
     }
 
 
-    public void addMembersToGroup(UUID groupId, List<UUID> userIdList) {
-        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
+    public void addMembersToGroup(UUID userId, UUID groupId, List<UUID> userIdList) {
+        permissionService.checkGroupPermission(userId, Permission.ADMIN, groupId);
         contactService.checkIfUsersInContactList(userIdList);
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(ModelNotFoundException::new);
+        Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
 
         List<Member> memberList = group.getMembers();
-        List<UUID> memberIdList = memberList.stream()
-                .map(Member::getUserId)
-                .toList();
-        List<Member> newMemberList = userIdList.stream()
-                .filter(userId -> !memberIdList.contains(userId))
-                .map(id -> Member.readMember(group, id))
-                .toList();
+        List<UUID> memberIdList = memberList.stream().map(Member::getUserId).toList();
+        List<Member> newMemberList =
+                userIdList.stream().filter(id -> !memberIdList.contains(id)).map(id -> Member.readMember(group, id)).toList();
         memberList.addAll(newMemberList);
 
         groupValidator.validateUpdate(group);
-        groupRepository.save(group);
+        Group savedGroup = groupRepository.save(group);
+
+        eventService.sendMemberAddEvent(savedGroup, userId, newMemberList);
     }
 
 
-    public void removeMembersFromGroup(UUID groupId, List<UUID> userIdList) {
-        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(ModelNotFoundException::new);
+    public void removeMembersFromGroup(UUID userId, UUID groupId, List<UUID> userIdList) {
+        permissionService.checkGroupPermission(userId, Permission.ADMIN, groupId);
+        Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
 
         List<Member> memberList = group.getMembers();
-        List<Member> memberToDeleteList = memberList.stream()
-                .filter(member -> userIdList.contains(member.getUserId()))
-                .toList();
+        List<Member> memberToDeleteList =
+                memberList.stream().filter(member -> userIdList.contains(member.getUserId())).toList();
         memberList.removeAll(memberToDeleteList);
 
         groupValidator.validateUpdate(group);
-        groupRepository.save(group);
+        Group savedGroup = groupRepository.save(group);
+
+        eventService.sendMemberDeleteEvent(savedGroup, userId, memberToDeleteList);
+        eventService.deleteGroupEventsForUser(groupId, userIdList);
     }
 
 
-    public void editGroupMember(UUID groupId, UUID userId, Permission permission) {
-        permissionService.checkGroupPermission(Permission.ADMIN, groupId);
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(ModelNotFoundException::new);
+    public void editGroupMember(UUID userId, UUID groupId, UUID editedUserId, Permission permission) {
+        permissionService.checkGroupPermission(userId, Permission.ADMIN, groupId);
+        Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
 
         List<Member> memberList = group.getMembers();
-        Member member = memberList.stream()
-                .filter(m -> m.getUserId().equals(userId))
-                .findFirst()
-                .orElseThrow(ModelNotFoundException::new);
+        Member member =
+                memberList.stream().filter(m -> m.getUserId().equals(editedUserId)).findFirst().orElseThrow(ModelNotFoundException::new);
         member.setPermission(permission);
 
         groupValidator.validateUpdate(group);
-        groupRepository.save(group);
+        Group savedGroup = groupRepository.save(group);
+
+        eventService.sendMemberRoleEvent(savedGroup, userId, editedUserId, permission);
     }
 
 
-    public void leaveGroup(UUID groupId, UUID userId) {
-        permissionService.checkGroupPermission(Permission.READ, groupId);
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(ModelNotFoundException::new);
+    public void leaveGroup(UUID userId, UUID groupId) {
+        permissionService.checkGroupPermission(userId, Permission.READ, groupId);
+        Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
 
         List<Member> memberList = group.getMembers();
-        List<Member> memberToDeleteList = memberList.stream()
-                .filter(member -> member.getUserId().equals(userId))
-                .toList();
+        List<Member> memberToDeleteList =
+                memberList.stream().filter(member -> member.getUserId().equals(userId)).toList();
         memberList.removeAll(memberToDeleteList);
 
         groupValidator.validateUpdate(group);
-        groupRepository.save(group);
+        Group savedGroup = groupRepository.save(group);
+
+        eventService.sendMemberLeaveEvent(savedGroup, userId);
+        eventService.deleteGroupEventsForUser(groupId, Collections.singletonList(userId));
     }
 
 }
