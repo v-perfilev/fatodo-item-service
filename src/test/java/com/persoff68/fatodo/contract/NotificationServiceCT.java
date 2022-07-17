@@ -1,5 +1,6 @@
 package com.persoff68.fatodo.contract;
 
+import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestReminder;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Reminder;
@@ -24,6 +25,7 @@ class NotificationServiceCT {
     NotificationServiceClient notificationServiceClient;
 
     @Test
+    @WithCustomSecurityContext
     void testSetReminders() {
         UUID targetId = UUID.randomUUID();
         Reminder reminder = TestReminder.defaultBuilder().build().toParent();
@@ -32,12 +34,14 @@ class NotificationServiceCT {
     }
 
     @Test
+    @WithCustomSecurityContext
     void testDeleteRemindersByParentId() {
         UUID id = UUID.randomUUID();
         assertDoesNotThrow(() -> notificationServiceClient.deleteRemindersByParentId(id));
     }
 
     @Test
+    @WithCustomSecurityContext
     void testDeleteRemindersByTargetId() {
         UUID id = UUID.randomUUID();
         assertDoesNotThrow(() -> notificationServiceClient.deleteRemindersByTargetId(id));
