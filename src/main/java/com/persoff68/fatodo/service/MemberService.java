@@ -52,8 +52,9 @@ public class MemberService {
 
         List<Member> memberList = group.getMembers();
         List<UUID> memberIdList = memberList.stream().map(Member::getUserId).toList();
-        List<Member> newMemberList =
-                userIdList.stream().filter(id -> !memberIdList.contains(id)).map(id -> Member.readMember(group, id)).toList();
+        List<Member> newMemberList = userIdList.stream()
+                .filter(id -> !memberIdList.contains(id)).map(id -> Member.readMember(group, id))
+                .toList();
         memberList.addAll(newMemberList);
 
         groupValidator.validateUpdate(group);
@@ -68,8 +69,9 @@ public class MemberService {
         Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
 
         List<Member> memberList = group.getMembers();
-        List<Member> memberToDeleteList =
-                memberList.stream().filter(member -> userIdList.contains(member.getUserId())).toList();
+        List<Member> memberToDeleteList = memberList.stream()
+                .filter(member -> userIdList.contains(member.getUserId()))
+                .toList();
         memberList.removeAll(memberToDeleteList);
 
         groupValidator.validateUpdate(group);
@@ -85,8 +87,10 @@ public class MemberService {
         Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
 
         List<Member> memberList = group.getMembers();
-        Member member =
-                memberList.stream().filter(m -> m.getUserId().equals(editedUserId)).findFirst().orElseThrow(ModelNotFoundException::new);
+        Member member = memberList.stream()
+                .filter(m -> m.getUserId().equals(editedUserId))
+                .findFirst()
+                .orElseThrow(ModelNotFoundException::new);
         member.setPermission(permission);
 
         groupValidator.validateUpdate(group);
