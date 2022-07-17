@@ -1,5 +1,6 @@
 package com.persoff68.fatodo.client;
 
+import com.persoff68.fatodo.client.configuration.FeignAuthConfiguration;
 import com.persoff68.fatodo.model.dto.ImageDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -8,7 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
-@FeignClient(name = "image-service", primary = false, qualifiers = {"feignImageServiceClient"})
+@FeignClient(name = "image-service", primary = false,
+        configuration = {FeignAuthConfiguration.class},
+        qualifiers = {"feignImageServiceClient"})
 public interface ImageServiceClient {
 
     @PostMapping(value = "/api/group-images",
