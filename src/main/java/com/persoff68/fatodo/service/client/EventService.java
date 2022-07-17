@@ -30,7 +30,7 @@ public class EventService {
         UUID groupId = item.getGroup().getId();
         UUID itemId = item.getId();
         CreateItemEventDTO dto = CreateItemEventDTO.itemCreate(recipientIdList, userId, groupId, itemId);
-        addItemEvent(dto);
+        addItemEventAsync(dto);
     }
 
     public void sendItemUpdateEvent(Item item) {
@@ -39,7 +39,7 @@ public class EventService {
         UUID groupId = item.getGroup().getId();
         UUID itemId = item.getId();
         CreateItemEventDTO dto = CreateItemEventDTO.itemUpdate(recipientIdList, userId, groupId, itemId);
-        addItemEvent(dto);
+        addItemEventAsync(dto);
     }
 
     public void sendGroupCreateEvent(Group group) {
@@ -47,7 +47,7 @@ public class EventService {
         UUID userId = group.getCreatedBy();
         UUID groupId = group.getId();
         CreateItemEventDTO dto = CreateItemEventDTO.groupCreate(recipientIdList, userId, groupId);
-        addItemEvent(dto);
+        addItemEventAsync(dto);
     }
 
     public void sendGroupUpdateEvent(Group group) {
@@ -55,7 +55,7 @@ public class EventService {
         UUID userId = group.getCreatedBy();
         UUID groupId = group.getId();
         CreateItemEventDTO dto = CreateItemEventDTO.groupUpdate(recipientIdList, userId, groupId);
-        addItemEvent(dto);
+        addItemEventAsync(dto);
     }
 
     public void sendMemberAddEvent(Group group, UUID userId, List<Member> memberList) {
@@ -63,7 +63,7 @@ public class EventService {
         UUID groupId = group.getId();
         List<UUID> userIdList = memberList.stream().map(Member::getUserId).toList();
         CreateItemEventDTO dto = CreateItemEventDTO.memberAdd(recipientIdList, userId, groupId, userIdList);
-        addItemEvent(dto);
+        addItemEventAsync(dto);
     }
 
     public void sendMemberDeleteEvent(Group group, UUID userId, List<Member> memberList) {
@@ -71,14 +71,14 @@ public class EventService {
         UUID groupId = group.getId();
         List<UUID> userIdList = memberList.stream().map(Member::getUserId).toList();
         CreateItemEventDTO dto = CreateItemEventDTO.memberDelete(recipientIdList, userId, groupId, userIdList);
-        addItemEvent(dto);
+        addItemEventAsync(dto);
     }
 
     public void sendMemberLeaveEvent(Group group, UUID userId) {
         List<UUID> recipientIdList = group.getMembers().stream().map(Member::getUserId).toList();
         UUID groupId = group.getId();
         CreateItemEventDTO dto = CreateItemEventDTO.memberLeave(recipientIdList, userId, groupId);
-        addItemEvent(dto);
+        addItemEventAsync(dto);
     }
 
     public void sendMemberRoleEvent(Group group, UUID userId, UUID editedUserId, Permission permission) {
@@ -87,41 +87,41 @@ public class EventService {
         List<UUID> userIdList = Collections.singletonList(editedUserId);
         String role = permission.name();
         CreateItemEventDTO dto = CreateItemEventDTO.memberRole(recipientIdList, userId, groupId, userIdList, role);
-        addItemEvent(dto);
+        addItemEventAsync(dto);
     }
 
     public void deleteGroupEvents(UUID groupId) {
         DeleteEventsDTO dto = new DeleteEventsDTO(groupId);
-        deleteGroupEvents(dto);
+        deleteGroupEventsAsync(dto);
     }
 
     public void deleteItemEvents(UUID itemId) {
         DeleteEventsDTO dto = new DeleteEventsDTO(itemId);
-        deleteItemEvents(dto);
+        deleteItemEventsAsync(dto);
     }
 
     public void deleteGroupEventsForUser(UUID groupId, List<UUID> userIdList) {
         DeleteUserEventsDTO dto = new DeleteUserEventsDTO(groupId, userIdList);
-        deleteGroupEventsForUsers(dto);
+        deleteGroupEventsForUsersAsync(dto);
     }
 
     @Async
-    public void addItemEvent(CreateItemEventDTO createItemEventDTO) {
+    public void addItemEventAsync(CreateItemEventDTO createItemEventDTO) {
         eventServiceClient.addItemEvent(createItemEventDTO);
     }
 
     @Async
-    public void deleteGroupEventsForUsers(DeleteUserEventsDTO deleteUserEventsDTO) {
+    public void deleteGroupEventsForUsersAsync(DeleteUserEventsDTO deleteUserEventsDTO) {
         eventServiceClient.deleteGroupEventsForUsers(deleteUserEventsDTO);
     }
 
     @Async
-    public void deleteGroupEvents(DeleteEventsDTO deleteEventsDTO) {
+    public void deleteGroupEventsAsync(DeleteEventsDTO deleteEventsDTO) {
         eventServiceClient.deleteGroupEvents(deleteEventsDTO);
     }
 
     @Async
-    public void deleteItemEvents(DeleteEventsDTO deleteEventsDTO) {
+    public void deleteItemEventsAsync(DeleteEventsDTO deleteEventsDTO) {
         eventServiceClient.deleteItemEvents(deleteEventsDTO);
     }
 }
