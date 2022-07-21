@@ -10,8 +10,8 @@ import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
-import com.persoff68.fatodo.model.dto.GroupSummaryDTO;
-import com.persoff68.fatodo.model.dto.ItemSummaryDTO;
+import com.persoff68.fatodo.model.dto.GroupInfoDTO;
+import com.persoff68.fatodo.model.dto.ItemInfoDTO;
 import com.persoff68.fatodo.model.dto.ReminderMailInfoDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
@@ -80,24 +80,24 @@ class InfoControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = USER_ID)
-    void testGetAllGroupSummaryByIds_ok() throws Exception {
-        String url = ENDPOINT + "/summary/groups";
+    void testGetAllGroupInfoByIds_ok() throws Exception {
+        String url = ENDPOINT + "/groups";
         List<UUID> groupIdList = List.of(group.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         ResultActions resultActions = mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        TypeReference<List<GroupSummaryDTO>> typeRef = new TypeReference<>() {
+        TypeReference<List<GroupInfoDTO>> typeRef = new TypeReference<>() {
         };
-        List<GroupSummaryDTO> groupSummaryDTOList = objectMapper.readValue(resultString, typeRef);
-        assertThat(groupSummaryDTOList).hasSize(1);
+        List<GroupInfoDTO> groupInfoDTOList = objectMapper.readValue(resultString, typeRef);
+        assertThat(groupInfoDTOList).hasSize(1);
     }
 
     @Test
     @WithAnonymousUser
-    void testGetAllGroupSummaryByIds_unauthorized() throws Exception {
-        String url = ENDPOINT + "/summary/groups";
+    void testGetAllGroupInfoByIds_unauthorized() throws Exception {
+        String url = ENDPOINT + "/groups";
         List<UUID> groupIdList = List.of(group.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)
@@ -108,24 +108,24 @@ class InfoControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = USER_ID)
-    void testGetAllItemSummaryByIds_ok() throws Exception {
-        String url = ENDPOINT + "/summary/items";
+    void testGetAllItemInfoByIds_ok() throws Exception {
+        String url = ENDPOINT + "/items";
         List<UUID> itemIdList = List.of(item.getId());
         String requestBody = objectMapper.writeValueAsString(itemIdList);
         ResultActions resultActions = mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        TypeReference<List<ItemSummaryDTO>> typeRef = new TypeReference<>() {
+        TypeReference<List<ItemInfoDTO>> typeRef = new TypeReference<>() {
         };
-        List<ItemSummaryDTO> groupSummaryDTOList = objectMapper.readValue(resultString, typeRef);
+        List<ItemInfoDTO> groupSummaryDTOList = objectMapper.readValue(resultString, typeRef);
         assertThat(groupSummaryDTOList).hasSize(1);
     }
 
     @Test
     @WithAnonymousUser
-    void testGetAllItemSummaryByIds_unauthorized() throws Exception {
-        String url = ENDPOINT + "/summary/items";
+    void testGetAllItemInfoByIds_unauthorized() throws Exception {
+        String url = ENDPOINT + "/items";
         List<UUID> groupIdList = List.of(item.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)

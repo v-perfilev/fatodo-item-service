@@ -3,11 +3,11 @@ package contracts.infocontroller
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get group summaries by ids'
-    description 'should return status 200 and list of GroupSummaryDTO'
+    name 'get group info by ids'
+    description 'should return status 200 and list of GroupInfoDTO'
     request {
         method POST()
-        url("/api/info/summary/groups")
+        url("/api/info/groups")
         headers {
             contentType applicationJson()
             header 'Authorization': $(
@@ -26,8 +26,8 @@ Contract.make {
             contentType applicationJson()
         }
         body([[
-                "id": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
-                "title": "test_value",
-        ]])
+                      "id"   : "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
+                      "title": "test_value",
+              ]])
     }
 }

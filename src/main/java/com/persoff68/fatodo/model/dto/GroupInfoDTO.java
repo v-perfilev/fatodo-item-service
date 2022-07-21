@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class GroupSummaryDTO extends AbstractDTO {
+public class GroupInfoDTO extends AbstractDTO {
 
     private String title;
 

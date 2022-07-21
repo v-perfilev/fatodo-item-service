@@ -3,8 +3,8 @@ package com.persoff68.fatodo.web.rest;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.ReminderMailInfo;
-import com.persoff68.fatodo.model.dto.GroupSummaryDTO;
-import com.persoff68.fatodo.model.dto.ItemSummaryDTO;
+import com.persoff68.fatodo.model.dto.GroupInfoDTO;
+import com.persoff68.fatodo.model.dto.ItemInfoDTO;
 import com.persoff68.fatodo.model.dto.ReminderMailInfoDTO;
 import com.persoff68.fatodo.mapper.GroupMapper;
 import com.persoff68.fatodo.mapper.ItemMapper;
@@ -40,22 +40,22 @@ public class InfoController {
     private final GroupMapper groupMapper;
     private final ItemMapper itemMapper;
 
-    @PostMapping(value = "/summary/groups", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<GroupSummaryDTO>> getAllGroupSummaryByIds(@RequestBody List<UUID> groupIdList) {
+    @PostMapping(value = "/groups", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<GroupInfoDTO>> getAllGroupInfoByIds(@RequestBody List<UUID> groupIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Group> groupList = groupService.getAllByIds(userId, groupIdList);
-        List<GroupSummaryDTO> dtoList = groupList.stream()
-                .map(groupMapper::pojoToSummaryDTO)
+        List<GroupInfoDTO> dtoList = groupList.stream()
+                .map(groupMapper::pojoToInfoDTO)
                 .toList();
         return ResponseEntity.ok(dtoList);
     }
 
-    @PostMapping(value = "/summary/items", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemSummaryDTO>> getAllItemSummaryByIds(@RequestBody List<UUID> itemIdList) {
+    @PostMapping(value = "/items", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemInfoDTO>> getAllItemInfoByIds(@RequestBody List<UUID> itemIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Item> itemList = itemService.getAllByIds(userId, itemIdList);
-        List<ItemSummaryDTO> dtoList = itemList.stream()
-                .map(itemMapper::pojoToSummaryDTO)
+        List<ItemInfoDTO> dtoList = itemList.stream()
+                .map(itemMapper::pojoToInfoDTO)
                 .toList();
         return ResponseEntity.ok(dtoList);
     }

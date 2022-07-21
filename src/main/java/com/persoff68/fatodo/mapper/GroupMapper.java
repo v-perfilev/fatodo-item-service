@@ -2,7 +2,7 @@ package com.persoff68.fatodo.mapper;
 
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.dto.GroupDTO;
-import com.persoff68.fatodo.model.dto.GroupSummaryDTO;
+import com.persoff68.fatodo.model.dto.GroupInfoDTO;
 import com.persoff68.fatodo.model.vm.GroupVM;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -12,7 +12,7 @@ public interface GroupMapper {
 
     GroupDTO pojoToDTO(Group group);
 
-    GroupSummaryDTO pojoToSummaryDTO(Group group);
+    GroupInfoDTO pojoToInfoDTO(Group group);
 
     Group vmToPojo(GroupVM groupVM);
 

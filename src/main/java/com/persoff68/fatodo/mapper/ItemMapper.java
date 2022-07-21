@@ -2,7 +2,7 @@ package com.persoff68.fatodo.mapper;
 
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.dto.ItemDTO;
-import com.persoff68.fatodo.model.dto.ItemSummaryDTO;
+import com.persoff68.fatodo.model.dto.ItemInfoDTO;
 import com.persoff68.fatodo.model.vm.ItemVM;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,6 +17,6 @@ public interface ItemMapper {
     ItemDTO pojoToDTO(Item item);
 
     @Mapping(target = "groupId", source = "group.id")
-    ItemSummaryDTO pojoToSummaryDTO(Item item);
+    ItemInfoDTO pojoToInfoDTO(Item item);
 
 }
