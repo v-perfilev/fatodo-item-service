@@ -81,7 +81,7 @@ class InfoControllerIT {
     @Test
     @WithCustomSecurityContext(id = USER_ID)
     void testGetAllGroupInfoByIds_ok() throws Exception {
-        String url = ENDPOINT + "/groups";
+        String url = ENDPOINT + "/groups/ids";
         List<UUID> groupIdList = List.of(group.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         ResultActions resultActions = mvc.perform(post(url)
@@ -97,7 +97,7 @@ class InfoControllerIT {
     @Test
     @WithAnonymousUser
     void testGetAllGroupInfoByIds_unauthorized() throws Exception {
-        String url = ENDPOINT + "/groups";
+        String url = ENDPOINT + "/groups/ids";
         List<UUID> groupIdList = List.of(group.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)
@@ -109,7 +109,7 @@ class InfoControllerIT {
     @Test
     @WithCustomSecurityContext(id = USER_ID)
     void testGetAllItemInfoByIds_ok() throws Exception {
-        String url = ENDPOINT + "/items";
+        String url = ENDPOINT + "/items/ids";
         List<UUID> itemIdList = List.of(item.getId());
         String requestBody = objectMapper.writeValueAsString(itemIdList);
         ResultActions resultActions = mvc.perform(post(url)
@@ -125,7 +125,7 @@ class InfoControllerIT {
     @Test
     @WithAnonymousUser
     void testGetAllItemInfoByIds_unauthorized() throws Exception {
-        String url = ENDPOINT + "/items";
+        String url = ENDPOINT + "/items/ids";
         List<UUID> groupIdList = List.of(item.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)
