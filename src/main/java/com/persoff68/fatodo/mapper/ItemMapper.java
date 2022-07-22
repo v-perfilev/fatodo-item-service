@@ -16,7 +16,6 @@ public interface ItemMapper {
     @Mapping(target = "groupId", source = "group.id")
     ItemDTO pojoToDTO(Item item);
 
-    @Mapping(target = "groupId", source = "group.id")
     ItemInfoDTO pojoToInfoDTO(Item item);
 
 }

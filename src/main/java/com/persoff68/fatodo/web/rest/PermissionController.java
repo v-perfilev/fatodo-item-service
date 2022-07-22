@@ -42,12 +42,28 @@ public class PermissionController {
         return ResponseEntity.ok(hasPermission);
     }
 
+    @PostMapping(value = "/groups/{permission}/ids")
+    public ResponseEntity<List<UUID>> getAllowedGroupsIds(@PathVariable Permission permission,
+                                                          @RequestBody List<UUID> groupIdList) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        List<UUID> idList = permissionService.getAllowedGroupsIds(userId, permission, groupIdList);
+        return ResponseEntity.ok(idList);
+    }
+
     @PostMapping(value = "/items/{permission}")
     public ResponseEntity<Boolean> hasItemsPermission(@PathVariable Permission permission,
                                                       @RequestBody List<UUID> itemIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         boolean hasPermission = permissionService.hasItemsPermission(userId, permission, itemIdList);
         return ResponseEntity.ok(hasPermission);
+    }
+
+    @PostMapping(value = "/items/{permission}/ids")
+    public ResponseEntity<List<UUID>> getAllowedItemIds(@PathVariable Permission permission,
+                                                        @RequestBody List<UUID> itemIdList) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        List<UUID> idList = permissionService.getAllowedItemIds(userId, permission, itemIdList);
+        return ResponseEntity.ok(idList);
     }
 
 }

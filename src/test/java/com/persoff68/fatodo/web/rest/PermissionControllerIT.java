@@ -179,6 +179,33 @@ class PermissionControllerIT {
 
     @Test
     @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testGetAllowedGroupIds_read() throws Exception {
+        String url = ENDPOINT + "/groups/READ/ids";
+        List<UUID> groupIdList = List.of(group1.getId());
+        String requestBody = objectMapper.writeValueAsString(groupIdList);
+        ResultActions resultActions = mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(List.class, UUID.class);
+        List<UUID> resultList = objectMapper.readValue(resultString, javaType);
+        assertThat(resultList).hasSize(1);
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testGetAllowedGroupIds_unauthorized() throws Exception {
+        String url = ENDPOINT + "/groups/READ/ids";
+        List<UUID> groupIdList = List.of(group1.getId());
+        String requestBody = objectMapper.writeValueAsString(groupIdList);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
     void testHasItemsPermission_admin() throws Exception {
         String url = ENDPOINT + "/items/ADMIN";
         List<UUID> groupIdList = List.of(item1.getId());
@@ -249,6 +276,33 @@ class PermissionControllerIT {
     void testHasItemsPermission_unauthorized() throws Exception {
         String url = ENDPOINT + "/items/ADMIN";
         List<UUID> groupIdList = List.of(group1.getId(), UUID.randomUUID());
+        String requestBody = objectMapper.writeValueAsString(groupIdList);
+        mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    @WithCustomSecurityContext(id = "d2eb0f4f-1736-4361-889b-b6d833dd9815")
+    void testGetAllowedItemIds_read() throws Exception {
+        String url = ENDPOINT + "/items/READ/ids";
+        List<UUID> groupIdList = List.of(item1.getId());
+        String requestBody = objectMapper.writeValueAsString(groupIdList);
+        ResultActions resultActions = mvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        JavaType javaType = objectMapper.getTypeFactory().constructCollectionType(List.class, UUID.class);
+        List<UUID> resultList = objectMapper.readValue(resultString, javaType);
+        assertThat(resultList).hasSize(1);
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testGetAllowedItemIds_unauthorized() throws Exception {
+        String url = ENDPOINT + "/items/READ/ids";
+        List<UUID> groupIdList = List.of(item1.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
         mvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))

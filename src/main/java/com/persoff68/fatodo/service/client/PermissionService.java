@@ -51,28 +51,50 @@ public class PermissionService {
 
     public boolean hasGroupsPermission(UUID userId, Permission permission, List<UUID> groupIdList) {
         Predicate<Group> checkPredicate = getCheckPredicateByPermissionType(userId, permission);
+        List<Group> groupList = prepareGroupListForCheck(groupIdList);
+        return groupList.stream().map(checkPredicate::test).allMatch(Predicate.isEqual(true));
+    }
+
+    public List<UUID> getAllowedGroupsIds(UUID userId, Permission permission, List<UUID> groupIdList) {
+        Predicate<Group> checkPredicate = getCheckPredicateByPermissionType(userId, permission);
+        List<Group> groupList = prepareGroupListForCheck(groupIdList);
+        return groupList.stream().filter(checkPredicate).map(Group::getId).toList();
+    }
+
+    public boolean hasItemsPermission(UUID userId, Permission permission, List<UUID> itemIdList) {
+        Predicate<Group> checkPredicate = getCheckPredicateByPermissionType(userId, permission);
+        List<Item> itemList = prepareItemListForCheck(itemIdList);
+        List<Group> groupList = itemList.stream().map(Item::getGroup).distinct().toList();
+        return groupList.stream().map(checkPredicate::test).allMatch(Predicate.isEqual(true));
+    }
+
+    public List<UUID> getAllowedItemIds(UUID userId, Permission permission, List<UUID> itemIdList) {
+        Predicate<Group> checkPredicate = getCheckPredicateByPermissionType(userId, permission);
+        List<Item> itemList = prepareItemListForCheck(itemIdList);
+        List<Group> groupList = itemList.stream().map(Item::getGroup).distinct().toList();
+        List<Group> allowedGroupList = groupList.stream().filter(checkPredicate).toList();
+        return itemList.stream()
+                .filter(item -> allowedGroupList.contains(item.getGroup()))
+                .map(Item::getId)
+                .toList();
+    }
+
+    private List<Group> prepareGroupListForCheck(List<UUID> groupIdList) {
         groupIdList = groupIdList.stream().distinct().toList();
         List<Group> groupList = groupRepository.findAllById(groupIdList);
         if (groupList.size() != groupIdList.size()) {
             throw new ModelNotFoundException();
         }
-        return groupList.stream()
-                .map(checkPredicate::test)
-                .allMatch(Predicate.isEqual(true));
+        return groupList;
     }
 
-    public boolean hasItemsPermission(UUID userId, Permission permission, List<UUID> itemIdList) {
-        Predicate<Group> checkPredicate = getCheckPredicateByPermissionType(userId, permission);
+    private List<Item> prepareItemListForCheck(List<UUID> itemIdList) {
         itemIdList = itemIdList.stream().distinct().toList();
         List<Item> itemList = itemRepository.findAllByIds(itemIdList);
         if (itemList.size() != itemIdList.size()) {
             throw new ModelNotFoundException();
         }
-        List<UUID> groupIdList = itemList.stream().map(Item::getGroup).map(Group::getId).distinct().toList();
-        List<Group> groupList = groupRepository.findAllById(groupIdList);
-        return groupList.stream()
-                .map(checkPredicate::test)
-                .allMatch(Predicate.isEqual(true));
+        return itemList;
     }
 
     private Predicate<Group> getCheckPredicateByPermissionType(UUID userId, Permission permission) {
