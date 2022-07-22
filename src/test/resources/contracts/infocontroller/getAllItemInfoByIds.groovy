@@ -7,7 +7,7 @@ Contract.make {
     description 'should return status 200 and list of ItemInfoDTO'
     request {
         method POST()
-        url("/api/info/items")
+        url("/api/info/items/ids")
         headers {
             contentType applicationJson()
             header 'Authorization': $(

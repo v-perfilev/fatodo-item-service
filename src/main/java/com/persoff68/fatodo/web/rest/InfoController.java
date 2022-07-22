@@ -40,7 +40,7 @@ public class InfoController {
     private final GroupMapper groupMapper;
     private final ItemMapper itemMapper;
 
-    @PostMapping(value = "/groups", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/groups/ids", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<GroupInfoDTO>> getAllGroupInfoByIds(@RequestBody List<UUID> groupIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Group> groupList = groupService.getAllByIds(userId, groupIdList);
@@ -50,7 +50,7 @@ public class InfoController {
         return ResponseEntity.ok(dtoList);
     }
 
-    @PostMapping(value = "/items", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/items/ids", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemInfoDTO>> getAllItemInfoByIds(@RequestBody List<UUID> itemIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Item> itemList = itemService.getAllByIds(userId, itemIdList);
