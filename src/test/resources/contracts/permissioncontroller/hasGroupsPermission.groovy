@@ -8,7 +8,7 @@ Contract.make {
     request {
         method POST()
         url($(
-                consumer(regex("/api/permissions/groups/.*")),
+                consumer(regex("/api/permissions/groups/[\\S]{4,5}")),
                 producer("/api/permissions/groups/ADMIN")
         ))
         headers {
