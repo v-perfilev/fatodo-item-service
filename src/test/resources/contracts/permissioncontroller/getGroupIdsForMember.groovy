@@ -7,7 +7,7 @@ Contract.make {
     description 'should return status 200 and list of UUIDs'
     request {
         method GET()
-        url("/api/permissions/groups")
+        url("/api/permission/group")
         headers {
             header 'Authorization': $(
                     consumer(containing("Bearer")),

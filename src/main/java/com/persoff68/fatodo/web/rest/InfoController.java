@@ -1,27 +1,26 @@
 package com.persoff68.fatodo.web.rest;
 
+import com.persoff68.fatodo.mapper.GroupMapper;
+import com.persoff68.fatodo.mapper.ItemMapper;
+import com.persoff68.fatodo.mapper.ReminderMapper;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.ReminderMailInfo;
 import com.persoff68.fatodo.model.dto.GroupInfoDTO;
 import com.persoff68.fatodo.model.dto.ItemInfoDTO;
 import com.persoff68.fatodo.model.dto.ReminderMailInfoDTO;
-import com.persoff68.fatodo.mapper.GroupMapper;
-import com.persoff68.fatodo.mapper.ItemMapper;
-import com.persoff68.fatodo.mapper.ReminderMapper;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.GroupService;
-import com.persoff68.fatodo.service.ItemService;
 import com.persoff68.fatodo.service.InfoService;
+import com.persoff68.fatodo.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -40,8 +39,8 @@ public class InfoController {
     private final GroupMapper groupMapper;
     private final ItemMapper itemMapper;
 
-    @PostMapping(value = "/groups/ids", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<GroupInfoDTO>> getAllGroupInfoByIds(@RequestBody List<UUID> groupIdList) {
+    @GetMapping(value = "/group", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<GroupInfoDTO>> getAllGroupInfoByIds(@RequestParam("ids") List<UUID> groupIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Group> groupList = groupService.getAllByIds(userId, groupIdList);
         List<GroupInfoDTO> dtoList = groupList.stream()
@@ -50,8 +49,8 @@ public class InfoController {
         return ResponseEntity.ok(dtoList);
     }
 
-    @PostMapping(value = "/items/ids", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemInfoDTO>> getAllItemInfoByIds(@RequestBody List<UUID> itemIdList) {
+    @GetMapping(value = "/item", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemInfoDTO>> getAllItemInfoByIds(@RequestParam("ids") List<UUID> itemIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Item> itemList = itemService.getAllByIds(userId, itemIdList);
         List<ItemInfoDTO> dtoList = itemList.stream()

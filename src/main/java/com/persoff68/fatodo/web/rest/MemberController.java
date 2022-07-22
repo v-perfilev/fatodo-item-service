@@ -1,18 +1,21 @@
 package com.persoff68.fatodo.web.rest;
 
 
+import com.persoff68.fatodo.model.vm.MemberVM;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.MemberService;
-import com.persoff68.fatodo.model.vm.MemberVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -23,25 +26,25 @@ import java.util.UUID;
 @RequestMapping(MemberController.ENDPOINT)
 @RequiredArgsConstructor
 public class MemberController {
-    static final String ENDPOINT = "/api/members";
+    static final String ENDPOINT = "/api/member";
 
     private final MemberService memberService;
 
-    @GetMapping(value = "/group/{groupId}/ids", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UUID>> getUserIdsByGroupId(@PathVariable UUID groupId) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<UUID> userIdList = memberService.getUserIdsByGroupId(userId, groupId);
         return ResponseEntity.ok(userIdList);
     }
 
-    @GetMapping(value = "/item/{itemId}/ids", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{itemId}/item", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UUID>> getUserIdsByItemId(@PathVariable UUID itemId) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<UUID> userIdList = memberService.getUserIdsByItemId(userId, itemId);
         return ResponseEntity.ok(userIdList);
     }
 
-    @PostMapping(value = "/group/{groupId}/add", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> addMembersToGroup(@PathVariable UUID groupId,
                                                   @RequestBody List<UUID> userIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
@@ -49,15 +52,15 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/group/{groupId}/remove", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/{groupId}")
     public ResponseEntity<Void> removeMembersFromGroup(@PathVariable UUID groupId,
-                                                       @RequestBody List<UUID> userIdList) {
+                                                       @RequestParam("ids") List<UUID> userIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         memberService.removeMembersFromGroup(userId, groupId, userIdList);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/group/{groupId}/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> editGroupMember(@PathVariable UUID groupId,
                                                 @RequestBody @Valid MemberVM memberVM) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
@@ -65,7 +68,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping(value = "/group/{groupId}/leave")
+    @DeleteMapping(value = "/{groupId}/leave")
     public ResponseEntity<Void> leaveGroup(@PathVariable UUID groupId) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         memberService.leaveGroup(userId, groupId);

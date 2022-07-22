@@ -1,17 +1,17 @@
 package com.persoff68.fatodo.web.rest;
 
+import com.persoff68.fatodo.mapper.ItemMapper;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.dto.ItemDTO;
-import com.persoff68.fatodo.mapper.ItemMapper;
+import com.persoff68.fatodo.model.vm.ItemArchivedVM;
+import com.persoff68.fatodo.model.vm.ItemStatusVM;
+import com.persoff68.fatodo.model.vm.ItemVM;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.ItemService;
-import com.persoff68.fatodo.model.vm.ItemArchivedVM;
-import com.persoff68.fatodo.model.vm.ItemStatusVM;
-import com.persoff68.fatodo.model.vm.ItemVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -35,18 +35,19 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(ItemResource.ENDPOINT)
+@RequestMapping(ItemController.ENDPOINT)
 @RequiredArgsConstructor
-public class ItemResource {
-    static final String ENDPOINT = "/api/items";
+public class ItemController {
+    static final String ENDPOINT = "/api/item";
 
     public static final int DEFAULT_ITEMS_LENGTH = 10;
 
     private final ItemService itemService;
     private final ItemMapper itemMapper;
 
-    @PostMapping(value = "/preview/group-ids", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<UUID, PageableList<ItemDTO>>> getMapByGroupIds(@RequestBody List<UUID> groupIdList) {
+    @GetMapping(value = "/preview", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<UUID, PageableList<ItemDTO>>> getMapByGroupIds(
+            @RequestParam("groupIds") List<UUID> groupIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Map<UUID, PageableList<Item>> pairMap = itemService.getMapByGroupIds(userId, groupIdList, DEFAULT_ITEMS_LENGTH);
         Map<UUID, PageableList<ItemDTO>> pageableListMap = pairMap.entrySet().stream()
@@ -54,7 +55,7 @@ public class ItemResource {
         return ResponseEntity.ok(pageableListMap);
     }
 
-    @GetMapping(value = "/{groupId}/group-id", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{groupId}/group", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PageableList<ItemDTO>> getAllByGroupId(@PathVariable UUID groupId,
                                                                  @RequestParam(required = false) Integer offset,
                                                                  @RequestParam(required = false) Integer size) {
@@ -67,7 +68,7 @@ public class ItemResource {
         return ResponseEntity.ok(dtoPageableList);
     }
 
-    @GetMapping(value = "/archived/{groupId}/group-id", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{groupId}/group/archived", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PageableList<ItemDTO>> getAllArchivedByGroupId(@PathVariable UUID groupId,
                                                                          @RequestParam(required = false) Integer offset,
                                                                          @RequestParam(required = false) Integer size) {

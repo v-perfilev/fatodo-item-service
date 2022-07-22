@@ -1,4 +1,4 @@
-package contracts.checkresource
+package contracts.checkcontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
@@ -24,7 +24,7 @@ Contract.make {
             contentType applicationJson()
         }
         body([
-                "type"  : "ITEM",
+                "type"    : "ITEM",
                 "parentId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52"
         ])
     }

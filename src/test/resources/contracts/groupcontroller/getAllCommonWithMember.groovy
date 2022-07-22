@@ -1,4 +1,4 @@
-package contracts.groupresource
+package contracts.groupcontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
@@ -8,8 +8,8 @@ Contract.make {
     request {
         method GET()
         url($(
-                consumer(regex("/api/groups/" + uuid().toString() + "/member")),
-                producer("/api/groups/4329f19c-deb7-4eaa-a841-bb46bd78f793/member")
+                consumer(regex("/api/group/" + uuid().toString() + "/member")),
+                producer("/api/group/4329f19c-deb7-4eaa-a841-bb46bd78f793/member")
         ))
         headers {
             header 'Authorization': $(

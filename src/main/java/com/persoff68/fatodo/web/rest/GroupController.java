@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(GroupResource.ENDPOINT)
+@RequestMapping(GroupController.ENDPOINT)
 @RequiredArgsConstructor
-public class GroupResource {
+public class GroupController {
 
-    static final String ENDPOINT = "/api/groups";
+    static final String ENDPOINT = "/api/group";
 
     private final GroupService groupService;
     private final GroupMapper groupMapper;

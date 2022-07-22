@@ -1,4 +1,4 @@
-package contracts.groupresource
+package contracts.groupcontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
@@ -7,7 +7,7 @@ Contract.make {
     description 'should return status 200 and list of GroupDTOs'
     request {
         method GET()
-        url("/api/groups")
+        url("/api/group")
         headers {
             header 'Authorization': $(
                     consumer(containing("Bearer")),

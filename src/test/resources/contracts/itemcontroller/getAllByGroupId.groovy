@@ -1,15 +1,15 @@
-package contracts.itemresource
+package contracts.itemcontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get archived items by groupId'
+    name 'get items by groupId'
     description 'should return status 200 and list of ItemDTOs'
     request {
         method GET()
         url($(
-                consumer(regex("/api/items/archived/" + uuid().toString() + "/group-id")),
-                producer("/api/items/archived/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/group-id")
+                consumer(regex("/api/item/" + uuid().toString() + "/group")),
+                producer("/api/item/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/group")
         ))
         headers {
             header 'Authorization': $(
@@ -31,7 +31,7 @@ Contract.make {
                         "description": "test_value",
                         "status"     : "CREATED",
                         "groupId"    : "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
-                        "archived" : true
+                        "archived"   : false
                 ],
                 "count": 1
         ])

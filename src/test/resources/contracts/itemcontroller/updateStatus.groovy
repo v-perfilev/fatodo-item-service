@@ -1,13 +1,13 @@
-package contracts.itemresource
+package contracts.itemcontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'create item'
-    description 'should return status 201 and ItemDTO'
+    name 'update item status'
+    description 'should return status 200 and ItemDTO'
     request {
-        method POST()
-        url("/api/items")
+        method PUT()
+        url("/api/item/status")
         headers {
             contentType applicationJson()
             header 'Authorization': $(
@@ -16,45 +16,30 @@ Contract.make {
             )
         }
         body(
-                "title": $(
+                "id": $(
                         consumer(any()),
-                        producer("test_title")
-                ),
-                "type": $(
-                        consumer(any()),
-                        producer("TASK")
-                ),
-                "priority": $(
-                        consumer(any()),
-                        producer("NORMAL")
-                ),
-                "description": $(
-                        consumer(any()),
-                        producer("test_body")
+                        producer("8a51fdaa-189c-4959-9016-ae79adfe0320")
                 ),
                 "status": $(
                         consumer(any()),
-                        producer("CREATED")
+                        producer("COMPLETED")
                 ),
-                "groupId": $(
-                        consumer(any()),
-                        producer("12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
-                ),
-
         )
     }
     response {
-        status 201
+        status 200
         headers {
             contentType applicationJson()
         }
         body(
-                "title": "test_title",
+                "id": "8a51fdaa-189c-4959-9016-ae79adfe0320",
+                "title": "test_value",
                 "type": "TASK",
                 "priority": "NORMAL",
-                "description": "test_body",
-                "status": "CREATED",
+                "description": "test_value",
+                "status": "COMPLETED",
                 "groupId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
+                "archived": false
         )
     }
 }

@@ -6,10 +6,10 @@ Contract.make {
     name 'leave group'
     description 'should return status 200'
     request {
-        method GET()
+        method DELETE()
         url($(
-                consumer(regex("/api/members/group/" + uuid().toString() + "/leave")),
-                producer("/api/members/group/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/leave")
+                consumer(regex("/api/member/" + uuid().toString() + "/leave")),
+                producer("/api/member/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/leave")
         ))
         headers {
             header 'Authorization': $(

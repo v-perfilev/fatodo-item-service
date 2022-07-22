@@ -13,6 +13,7 @@ import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.GroupDTO;
 import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,9 +55,6 @@ class ConfigurationControllerIT {
 
     @BeforeEach
     void setup() {
-        groupRepository.deleteAll();
-        configurationRepository.deleteAll();
-
         group1 = TestGroup.defaultBuilder().build().toParent();
         Member member1 = TestMember.defaultBuilder()
                 .group(group1)
@@ -82,9 +81,15 @@ class ConfigurationControllerIT {
         group3 = groupRepository.save(group3);
     }
 
+    @AfterEach
+    void cleanup() {
+        groupRepository.deleteAll();
+        configurationRepository.deleteAll();
+    }
+
     @Test
     @WithCustomSecurityContext(id = USER_ID)
-//    @Transactional
+    @Transactional
     void testSetOrder_ok() throws Exception {
         List<UUID> groupIdList = List.of(group3.getId(), group1.getId(), group2.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
@@ -93,7 +98,7 @@ class ConfigurationControllerIT {
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isOk());
 
-        String groupUrl = "/api/groups";
+        String groupUrl = "/api/group";
         ResultActions resultActions = mvc.perform(get(groupUrl))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -120,7 +125,7 @@ class ConfigurationControllerIT {
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isOk());
 
-        String groupUrl = "/api/groups";
+        String groupUrl = "/api/group";
         ResultActions resultActions = mvc.perform(get(groupUrl))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();

@@ -1,4 +1,4 @@
-package contracts.itemresource
+package contracts.itemcontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
@@ -8,8 +8,8 @@ Contract.make {
     request {
         method GET()
         url($(
-                consumer(regex("/api/items/" + uuid().toString())),
-                producer("/api/items/8a51fdaa-189c-4959-9016-ae79adfe0320")
+                consumer(regex("/api/item/" + uuid().toString())),
+                producer("/api/item/8a51fdaa-189c-4959-9016-ae79adfe0320")
         ))
         headers {
             header 'Authorization': $(

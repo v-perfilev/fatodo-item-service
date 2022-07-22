@@ -1,13 +1,13 @@
-package contracts.groupresource
+package contracts.groupcontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'update group'
-    description 'should return status 200 and GroupDTO'
+    name 'create group'
+    description 'should return status 201 and GroupDTO'
     request {
-        method PUT()
-        url("/api/groups")
+        method POST()
+        url("/api/group")
         headers {
             contentType multipartFormData()
             header 'Authorization': $(
@@ -16,29 +16,24 @@ Contract.make {
             )
         }
         multipart(
-                "id": $(
-                        consumer(uuid()),
-                        producer("12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
-                ),
                 "title": $(
                         consumer(any()),
-                        producer("test_title_new")
+                        producer("test_title")
                 ),
                 "color": $(
                         consumer(any()),
-                        producer("test_color_new")
+                        producer("test_color")
                 ),
         )
     }
     response {
-        status 200
+        status 201
         headers {
             contentType applicationJson()
         }
         body(
-                "id": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
-                "title": "test_title_new",
-                "color": "test_color_new",
+                "title": "test_title",
+                "color": "test_color",
                 "members": [
                         [
                                 "userId"    : "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e",

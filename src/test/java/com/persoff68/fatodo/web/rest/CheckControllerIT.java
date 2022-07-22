@@ -11,6 +11,7 @@ import com.persoff68.fatodo.model.constant.ElementType;
 import com.persoff68.fatodo.model.dto.TypeAndParentDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +49,17 @@ class CheckControllerIT {
     @BeforeEach
     @Transactional
     void setup() {
-        groupRepository.deleteAll();
-        itemRepository.deleteAll();
-
         group = TestGroup.defaultBuilder().build().toParent();
         item = TestItem.defaultBuilder().group(group).build().toParent();
         group.setItems(List.of(item));
         group = groupRepository.save(group);
         item = group.getItems().get(0);
+    }
+
+    @AfterEach
+    void cleanup() {
+        groupRepository.deleteAll();
+        itemRepository.deleteAll();
     }
 
     @Test

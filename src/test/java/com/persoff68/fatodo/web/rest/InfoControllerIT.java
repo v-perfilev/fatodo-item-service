@@ -1,6 +1,6 @@
 package com.persoff68.fatodo.web.rest;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -32,7 +31,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
@@ -81,27 +79,20 @@ class InfoControllerIT {
     @Test
     @WithCustomSecurityContext(id = USER_ID)
     void testGetAllGroupInfoByIds_ok() throws Exception {
-        String url = ENDPOINT + "/groups/ids";
-        List<UUID> groupIdList = List.of(group.getId());
-        String requestBody = objectMapper.writeValueAsString(groupIdList);
-        ResultActions resultActions = mvc.perform(post(url)
-                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        String url = ENDPOINT + "/group?ids=" + group.getId();
+        ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        TypeReference<List<GroupInfoDTO>> typeRef = new TypeReference<>() {
-        };
-        List<GroupInfoDTO> groupInfoDTOList = objectMapper.readValue(resultString, typeRef);
+        JavaType javaType = objectMapper.getTypeFactory().constructCollectionType(List.class, GroupInfoDTO.class);
+        List<GroupInfoDTO> groupInfoDTOList = objectMapper.readValue(resultString, javaType);
         assertThat(groupInfoDTOList).hasSize(1);
     }
 
     @Test
     @WithAnonymousUser
     void testGetAllGroupInfoByIds_unauthorized() throws Exception {
-        String url = ENDPOINT + "/groups/ids";
-        List<UUID> groupIdList = List.of(group.getId());
-        String requestBody = objectMapper.writeValueAsString(groupIdList);
-        mvc.perform(post(url)
-                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        String url = ENDPOINT + "/group?ids=" + group.getId();
+        mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -109,27 +100,20 @@ class InfoControllerIT {
     @Test
     @WithCustomSecurityContext(id = USER_ID)
     void testGetAllItemInfoByIds_ok() throws Exception {
-        String url = ENDPOINT + "/items/ids";
-        List<UUID> itemIdList = List.of(item.getId());
-        String requestBody = objectMapper.writeValueAsString(itemIdList);
-        ResultActions resultActions = mvc.perform(post(url)
-                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        String url = ENDPOINT + "/item?ids=" + item.getId();
+        ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        TypeReference<List<ItemInfoDTO>> typeRef = new TypeReference<>() {
-        };
-        List<ItemInfoDTO> groupSummaryDTOList = objectMapper.readValue(resultString, typeRef);
+        JavaType javaType = objectMapper.getTypeFactory().constructCollectionType(List.class, ItemInfoDTO.class);
+        List<ItemInfoDTO> groupSummaryDTOList = objectMapper.readValue(resultString, javaType);
         assertThat(groupSummaryDTOList).hasSize(1);
     }
 
     @Test
     @WithAnonymousUser
     void testGetAllItemInfoByIds_unauthorized() throws Exception {
-        String url = ENDPOINT + "/items/ids";
-        List<UUID> groupIdList = List.of(item.getId());
-        String requestBody = objectMapper.writeValueAsString(groupIdList);
-        mvc.perform(post(url)
-                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        String url = ENDPOINT + "/item?ids=" + item.getId();
+        mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
 

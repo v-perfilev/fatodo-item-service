@@ -1,15 +1,15 @@
-package contracts.groupresource
+package contracts.itemcontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'delete group by id'
+    name 'delete item'
     description 'should return status 200'
     request {
         method DELETE()
         url($(
-                consumer(regex("/api/groups/" + uuid().toString())),
-                producer("/api/groups/12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
+                consumer(regex("/api/item/" + uuid().toString())),
+                producer("/api/item/8a51fdaa-189c-4959-9016-ae79adfe0320")
         ))
         headers {
             header 'Authorization': $(

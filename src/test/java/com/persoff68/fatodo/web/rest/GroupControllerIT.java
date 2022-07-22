@@ -19,6 +19,7 @@ import com.persoff68.fatodo.model.dto.GroupDTO;
 import com.persoff68.fatodo.model.vm.GroupVM;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.service.ItemService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -46,8 +46,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 @AutoConfigureMockMvc
-class GroupResourceIT {
-    private static final String ENDPOINT = "/api/groups";
+class GroupControllerIT {
+    private static final String ENDPOINT = "/api/group";
 
     private static final String ADMIN_ID = "3c300277-b5ea-48d1-80db-ead620cf5846";
     private static final String READ_ID = "357a2a99-7b7e-4336-9cd7-18f2cf73fab9";
@@ -76,8 +76,6 @@ class GroupResourceIT {
 
     @BeforeEach
     void setup() {
-        groupRepository.deleteAll();
-
         group1 = TestGroup.defaultBuilder().build().toParent();
         group2 = TestGroup.defaultBuilder().build().toParent();
         group3 = TestGroup.defaultBuilder().build().toParent();
@@ -101,11 +99,11 @@ class GroupResourceIT {
 
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");
         when(imageServiceClient.updateGroupImage(any())).thenReturn("filename");
-        doNothing().when(commentServiceClient).deleteAllThreadsByParentId(any());
-        doNothing().when(imageServiceClient).deleteGroupImage(any());
-        doNothing().when(notificationServiceClient).deleteRemindersByParentId(any());
-        doNothing().when(eventServiceClient).addItemEvent(any());
-        doNothing().when(eventServiceClient).deleteGroupEvents(any());
+    }
+
+    @AfterEach
+    void cleanup() {
+        groupRepository.deleteAll();
     }
 
     @Test

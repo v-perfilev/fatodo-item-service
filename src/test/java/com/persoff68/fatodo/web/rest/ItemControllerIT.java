@@ -27,6 +27,7 @@ import com.persoff68.fatodo.model.vm.ItemVM;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.client.PermissionService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -57,8 +57,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FatodoItemServiceApplication.class)
 @AutoConfigureMockMvc
-class ItemResourceIT {
-    private static final String ENDPOINT = "/api/items";
+class ItemControllerIT {
+    private static final String ENDPOINT = "/api/item";
 
     @Autowired
     MockMvc mvc;
@@ -86,9 +86,6 @@ class ItemResourceIT {
     @BeforeEach
     @Transactional
     void setup() {
-        groupRepository.deleteAll();
-        itemRepository.deleteAll();
-
         group1 = TestGroup.defaultBuilder().build().toParent();
         Member member1 = TestMember.defaultBuilder().group(group1).build().toParent();
         Member member2 = TestMember.defaultBuilder().group(group1).build().toParent();
@@ -107,23 +104,21 @@ class ItemResourceIT {
         Member member4 = TestMember.defaultBuilder().group(group2).build().toParent();
         group2.setMembers(List.of(member3, member4));
         group2 = groupRepository.save(group2);
+    }
 
-        doNothing().when(commentServiceClient).deleteThreadByTargetId(any());
-        doNothing().when(notificationServiceClient).setReminders(any(), any());
-        doNothing().when(notificationServiceClient).deleteRemindersByTargetId(any());
-        doNothing().when(eventServiceClient).addItemEvent(any());
-        doNothing().when(eventServiceClient).deleteItemEvents(any());
+    @AfterEach
+    void cleanup() {
+        groupRepository.deleteAll();
+        itemRepository.deleteAll();
     }
 
     @Test
     @WithCustomSecurityContext
     void testGetMapByGroupIds_ok() throws Exception {
         doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
-        List<UUID> groupIdList = List.of(group1.getId(), group2.getId());
-        String url = ENDPOINT + "/preview/group-ids";
-        String requestBody = objectMapper.writeValueAsString(groupIdList);
-        ResultActions resultActions = mvc.perform(post(url)
-                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        String params = String.join(",", group1.getId().toString(), group2.getId().toString());
+        String url = ENDPOINT + "/preview?groupIds=" + params;
+        ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         TypeReference<Map<UUID, PageableList<ItemDTO>>> typeRef = new TypeReference<>() {
@@ -142,33 +137,27 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetMapByGroupIds_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
-        String url = ENDPOINT + "/preview/group-ids";
-        List<UUID> groupIdList = List.of(group1.getId(), group2.getId());
-        String requestBody = objectMapper.writeValueAsString(groupIdList);
-        mvc.perform(post(url)
-                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        String params = String.join(",", group1.getId().toString(), group2.getId().toString());
+        String url = ENDPOINT + "/preview?groupIds=" + params;
+        mvc.perform(get(url))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithCustomSecurityContext
     void testGetMapByGroupIds_notFound() throws Exception {
-        String url = ENDPOINT + "/preview/group-ids";
-        List<UUID> groupIdList = List.of(group1.getId(), UUID.randomUUID());
-        String requestBody = objectMapper.writeValueAsString(groupIdList);
-        mvc.perform(post(url)
-                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        String params = String.join(",", group1.getId().toString(), UUID.randomUUID().toString());
+        String url = ENDPOINT + "/preview?groupIds=" + params;
+        mvc.perform(get(url))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithAnonymousUser
     void testGetMapByGroupIds_unauthorized() throws Exception {
-        String url = ENDPOINT + "/preview/group-ids";
-        List<UUID> groupIdList = List.of(group1.getId(), group2.getId());
-        String requestBody = objectMapper.writeValueAsString(groupIdList);
-        mvc.perform(post(url)
-                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        String params = String.join(",", group1.getId().toString(), group2.getId().toString());
+        String url = ENDPOINT + "/preview?groupIds=" + params;
+        mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -177,7 +166,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllByGroupId_ok() throws Exception {
         doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
-        String url = ENDPOINT + "/" + group1.getId() + "/group-id";
+        String url = ENDPOINT + "/" + group1.getId() + "/group";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -191,7 +180,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllByGroupId_ok_pageable() throws Exception {
         doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
-        String url = ENDPOINT + "/" + group1.getId() + "/group-id?offset=1&size=10";
+        String url = ENDPOINT + "/" + group1.getId() + "/group?offset=1&size=10";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -205,7 +194,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllByGroupId_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
-        String url = ENDPOINT + "/" + group1.getId() + "/group-id";
+        String url = ENDPOINT + "/" + group1.getId() + "/group";
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
     }
@@ -213,7 +202,7 @@ class ItemResourceIT {
     @Test
     @WithAnonymousUser
     void testGetAllByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/" + group1.getId() + "/group-id";
+        String url = ENDPOINT + "/" + group1.getId() + "/group";
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
@@ -223,7 +212,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllArchivedByGroupId_ok() throws Exception {
         doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
-        String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id";
+        String url = ENDPOINT + "/" + group1.getId() + "/group/archived";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -237,7 +226,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllArchivedByGroupId_ok_pageable() throws Exception {
         doReturn(true).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
-        String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id?offset=1&size=10";
+        String url = ENDPOINT + "/" + group1.getId() + "/group/archived?offset=1&size=10";
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
@@ -251,7 +240,7 @@ class ItemResourceIT {
     @WithCustomSecurityContext
     void testGetAllArchivedByGroupId_forbidden() throws Exception {
         doReturn(false).when(permissionService).hasGroupsPermission(any(), eq(Permission.READ), any());
-        String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id";
+        String url = ENDPOINT + "/" + group1.getId() + "/group/archived";
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
     }
@@ -259,7 +248,7 @@ class ItemResourceIT {
     @Test
     @WithAnonymousUser
     void testGetAllArchivedByGroupId_unauthorized() throws Exception {
-        String url = ENDPOINT + "/archived/" + group1.getId() + "/group-id";
+        String url = ENDPOINT + "/" + group1.getId() + "/group/archived";
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }

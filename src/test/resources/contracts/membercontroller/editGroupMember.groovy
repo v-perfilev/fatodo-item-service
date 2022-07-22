@@ -6,10 +6,10 @@ Contract.make {
     name 'edit group member'
     description 'should return status 200'
     request {
-        method POST()
+        method PUT()
         url($(
-                consumer(regex("/api/members/group/" + uuid().toString() + "/edit")),
-                producer("/api/members/group/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/edit")
+                consumer(regex("/api/member/" + uuid().toString())),
+                producer("/api/member/12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
         ))
         headers {
             contentType applicationJson()
