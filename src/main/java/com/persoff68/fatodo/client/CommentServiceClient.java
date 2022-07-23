@@ -12,10 +12,10 @@ import java.util.UUID;
         qualifiers = {"feignCommentServiceClient"})
 public interface CommentServiceClient {
 
-    @DeleteMapping(value = "/api/threads/{parentId}/parent")
+    @DeleteMapping(value = "/api/thread/{parentId}/parent")
     void deleteAllThreadsByParentId(@PathVariable UUID parentId);
 
-    @DeleteMapping(value = "/api/threads/{targetId}/target")
+    @DeleteMapping(value = "/api/thread/{targetId}/target")
     void deleteThreadByTargetId(@PathVariable UUID targetId);
 
 }

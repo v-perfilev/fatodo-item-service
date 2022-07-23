@@ -1,13 +1,13 @@
 package com.persoff68.fatodo.web.rest;
 
+import com.persoff68.fatodo.mapper.GroupMapper;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.dto.GroupDTO;
-import com.persoff68.fatodo.mapper.GroupMapper;
+import com.persoff68.fatodo.model.vm.GroupVM;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.GroupService;
 import com.persoff68.fatodo.web.rest.exception.InvalidFormException;
-import com.persoff68.fatodo.model.vm.GroupVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,7 +37,7 @@ public class GroupController {
     private final GroupService groupService;
     private final GroupMapper groupMapper;
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public ResponseEntity<List<GroupDTO>> getAllForMember() {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Group> groupList = groupService.getAllByUserId(userId);
@@ -47,7 +47,7 @@ public class GroupController {
         return ResponseEntity.ok(groupDTOList);
     }
 
-    @GetMapping(value = "/{memberId}/member", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{memberId}/member")
     public ResponseEntity<List<GroupDTO>> getAllCommonWithMember(@PathVariable UUID memberId) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Group> groupList = groupService.getAllCommonByUserIds(userId, memberId);
@@ -57,7 +57,7 @@ public class GroupController {
         return ResponseEntity.ok(groupDTOList);
     }
 
-    @GetMapping(value = "/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{groupId}")
     public ResponseEntity<GroupDTO> getById(@PathVariable UUID groupId) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Group group = groupService.getById(userId, groupId);
@@ -65,7 +65,7 @@ public class GroupController {
         return ResponseEntity.ok(groupDTO);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GroupDTO> create(@ModelAttribute @Valid GroupVM groupVM) {
         Group newGroup = groupMapper.vmToPojo(groupVM);
         byte[] imageContent = getBytesFromMultipartFile(groupVM.getImageContent());
@@ -74,7 +74,7 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.CREATED).body(groupDTO);
     }
 
-    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GroupDTO> update(@ModelAttribute @Valid GroupVM groupVM) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Group newGroup = groupMapper.vmToPojo(groupVM);
@@ -84,7 +84,7 @@ public class GroupController {
         return ResponseEntity.ok(groupDTO);
     }
 
-    @DeleteMapping(value = "/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/{groupId}")
     public ResponseEntity<Void> delete(@PathVariable UUID groupId) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         groupService.delete(userId, groupId);

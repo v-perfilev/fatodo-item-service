@@ -8,7 +8,7 @@ Contract.make {
     request {
         method GET()
         url($(
-                consumer(regex("/api/permission/group/\\S{4,5}/check\\?ids=.*")),
+                consumer(regex("/api/permission/group/[^\\/]+/check\\?ids=.*")),
                 producer("/api/permission/group/ADMIN/check?ids=12886ad8-f1a2-487c-a5f1-ff71d63a3b52")
         ))
         headers {

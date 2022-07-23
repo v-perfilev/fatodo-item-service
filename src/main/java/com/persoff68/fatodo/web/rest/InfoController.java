@@ -15,7 +15,6 @@ import com.persoff68.fatodo.service.GroupService;
 import com.persoff68.fatodo.service.InfoService;
 import com.persoff68.fatodo.service.ItemService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,7 +38,7 @@ public class InfoController {
     private final GroupMapper groupMapper;
     private final ItemMapper itemMapper;
 
-    @GetMapping(value = "/group", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/group")
     public ResponseEntity<List<GroupInfoDTO>> getAllGroupInfoByIds(@RequestParam("ids") List<UUID> groupIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Group> groupList = groupService.getAllByIds(userId, groupIdList);
@@ -49,7 +48,7 @@ public class InfoController {
         return ResponseEntity.ok(dtoList);
     }
 
-    @GetMapping(value = "/item", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/item")
     public ResponseEntity<List<ItemInfoDTO>> getAllItemInfoByIds(@RequestParam("ids") List<UUID> itemIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         List<Item> itemList = itemService.getAllByIds(userId, itemIdList);

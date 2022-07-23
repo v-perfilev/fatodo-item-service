@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.RequestBody;
         qualifiers = {"feignEventServiceClient"})
 public interface EventServiceClient {
 
-    @PostMapping(value = "/api/events/item")
+    @PostMapping(value = "/api/event/item")
     void addItemEvent(@RequestBody CreateItemEventDTO createItemEventDTO);
 
-    @PostMapping(value = "/api/events/group/delete-users")
+    @PostMapping(value = "/api/event/group/delete-users")
     void deleteGroupEventsForUsers(@RequestBody DeleteUserEventsDTO deleteUserEventsDTO);
 
-    @PostMapping("/api/events/group/delete")
+    @PostMapping("/api/event/group/delete")
     void deleteGroupEvents(@RequestBody DeleteEventsDTO deleteEventsDTO);
 
-    @PostMapping("/api/events/item/delete")
+    @PostMapping("/api/event/item/delete")
     void deleteItemEvents(@RequestBody DeleteEventsDTO deleteEventsDTO);
 
 }

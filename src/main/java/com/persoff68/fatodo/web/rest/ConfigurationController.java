@@ -5,7 +5,6 @@ import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.ConfigurationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +23,7 @@ public class ConfigurationController {
 
     private final ConfigurationService configurationService;
 
-    @PostMapping(value = "/order", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/order")
     public ResponseEntity<Void> setOrder(@RequestBody List<UUID> groupIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         configurationService.setOrder(userId, groupIdList);

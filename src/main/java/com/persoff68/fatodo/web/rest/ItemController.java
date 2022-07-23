@@ -15,7 +15,6 @@ import com.persoff68.fatodo.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,7 +44,7 @@ public class ItemController {
     private final ItemService itemService;
     private final ItemMapper itemMapper;
 
-    @GetMapping(value = "/preview", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/preview")
     public ResponseEntity<Map<UUID, PageableList<ItemDTO>>> getMapByGroupIds(
             @RequestParam("groupIds") List<UUID> groupIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
@@ -55,7 +54,7 @@ public class ItemController {
         return ResponseEntity.ok(pageableListMap);
     }
 
-    @GetMapping(value = "/{groupId}/group", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{groupId}/group")
     public ResponseEntity<PageableList<ItemDTO>> getAllByGroupId(@PathVariable UUID groupId,
                                                                  @RequestParam(required = false) Integer offset,
                                                                  @RequestParam(required = false) Integer size) {
@@ -68,7 +67,7 @@ public class ItemController {
         return ResponseEntity.ok(dtoPageableList);
     }
 
-    @GetMapping(value = "/{groupId}/group/archived", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{groupId}/group/archived")
     public ResponseEntity<PageableList<ItemDTO>> getAllArchivedByGroupId(@PathVariable UUID groupId,
                                                                          @RequestParam(required = false) Integer offset,
                                                                          @RequestParam(required = false) Integer size) {
@@ -81,7 +80,7 @@ public class ItemController {
         return ResponseEntity.ok(dtoPageableList);
     }
 
-    @GetMapping(value = "/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{itemId}")
     public ResponseEntity<ItemDTO> getById(@PathVariable UUID itemId) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Item item = itemService.getById(userId, itemId);
@@ -89,8 +88,7 @@ public class ItemController {
         return ResponseEntity.ok(itemDTO);
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public ResponseEntity<ItemDTO> create(@RequestBody @Valid ItemVM itemVM) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Item item = itemMapper.vmToPojo(itemVM);
@@ -99,8 +97,7 @@ public class ItemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(itemDTO);
     }
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping
     public ResponseEntity<ItemDTO> update(@RequestBody @Valid ItemVM itemVM) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Item item = itemMapper.vmToPojo(itemVM);
@@ -109,9 +106,7 @@ public class ItemController {
         return ResponseEntity.ok(itemDTO);
     }
 
-    @PutMapping(value = "/status",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/status")
     public ResponseEntity<ItemDTO> updateStatus(@RequestBody @Valid ItemStatusVM itemStatusVM) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         UUID itemId = itemStatusVM.getId();
@@ -121,9 +116,7 @@ public class ItemController {
         return ResponseEntity.ok(itemDTO);
     }
 
-    @PutMapping(value = "/archived",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/archived")
     public ResponseEntity<ItemDTO> updateArchived(@RequestBody @Valid ItemArchivedVM itemArchivedVM) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         UUID itemId = itemArchivedVM.getId();
@@ -133,7 +126,7 @@ public class ItemController {
         return ResponseEntity.ok(itemDTO);
     }
 
-    @DeleteMapping(value = "/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/{itemId}")
     public ResponseEntity<Void> deleteById(@PathVariable UUID itemId) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         itemService.delete(userId, itemId);
