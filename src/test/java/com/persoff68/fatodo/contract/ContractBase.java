@@ -29,13 +29,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMessageVerifier
-@Transactional
-public abstract class ContractBase {
+class ContractBase {
     private static final UUID USER_1_ID = UUID.fromString("8f9a7cae-73c8-4ad6-b135-5bd109b51d2e");
     private static final UUID USER_2_ID = UUID.fromString("4329f19c-deb7-4eaa-a841-bb46bd78f793");
     private static final UUID GROUP_1_ID = UUID.fromString("12886ad8-f1a2-487c-a5f1-ff71d63a3b52");
@@ -65,7 +63,8 @@ public abstract class ContractBase {
     EventServiceClient eventServiceClient;
 
     @BeforeEach
-    public void setup() {
+    @Transactional
+    void setup() {
         RestAssuredMockMvc.webAppContextSetup(context);
 
         Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).build().toParent();
@@ -93,16 +92,6 @@ public abstract class ContractBase {
         when(contactServiceClient.areUsersInContactList(any())).thenReturn(true);
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");
         when(imageServiceClient.updateGroupImage(any())).thenReturn("filename");
-        doNothing().when(imageServiceClient).deleteGroupImage(any());
-        doNothing().when(commentServiceClient).deleteAllThreadsByParentId(any());
-        doNothing().when(commentServiceClient).deleteThreadByTargetId(any());
-        doNothing().when(notificationServiceClient).setReminders(any(), any());
-        doNothing().when(notificationServiceClient).deleteRemindersByParentId(any());
-        doNothing().when(notificationServiceClient).deleteRemindersByTargetId(any());
-        doNothing().when(eventServiceClient).addItemEvent(any());
-        doNothing().when(eventServiceClient).deleteGroupEventsForUsers(any());
-        doNothing().when(eventServiceClient).deleteGroupEvents(any());
-        doNothing().when(eventServiceClient).deleteItemEvents(any());
     }
 
     @BeforeEach
