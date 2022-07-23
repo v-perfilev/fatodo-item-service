@@ -65,6 +65,10 @@ class ContractBase {
 
     @BeforeEach
     void setup() {
+        configurationRepository.deleteAll();
+        itemRepository.deleteAll();
+        groupRepository.deleteAll();
+
         RestAssuredMockMvc.webAppContextSetup(context);
 
         Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).build().toParent();
@@ -92,13 +96,6 @@ class ContractBase {
         when(contactServiceClient.areUsersInContactList(any())).thenReturn(true);
         when(imageServiceClient.createGroupImage(any())).thenReturn("filename");
         when(imageServiceClient.updateGroupImage(any())).thenReturn("filename");
-    }
-
-    @BeforeEach
-    void cleanup() {
-        configurationRepository.deleteAll();
-        itemRepository.deleteAll();
-        groupRepository.deleteAll();
     }
 
 }
