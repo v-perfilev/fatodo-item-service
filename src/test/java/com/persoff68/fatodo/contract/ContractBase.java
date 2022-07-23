@@ -12,6 +12,7 @@ import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
+import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -48,6 +49,8 @@ public abstract class ContractBase {
     @Autowired
     ItemRepository itemRepository;
     @Autowired
+    ConfigurationRepository configurationRepository;
+    @Autowired
     EntityManager entityManager;
 
     @MockBean
@@ -64,8 +67,6 @@ public abstract class ContractBase {
     @BeforeEach
     public void setup() {
         RestAssuredMockMvc.webAppContextSetup(context);
-        groupRepository.deleteAll();
-        itemRepository.deleteAll();
 
         Group group1 = TestGroup.defaultBuilder().id(GROUP_1_ID).build().toParent();
         Group group2 = TestGroup.defaultBuilder().id(GROUP_2_ID).build().toParent();
@@ -102,6 +103,13 @@ public abstract class ContractBase {
         doNothing().when(eventServiceClient).deleteGroupEventsForUsers(any());
         doNothing().when(eventServiceClient).deleteGroupEvents(any());
         doNothing().when(eventServiceClient).deleteItemEvents(any());
+    }
+
+    @BeforeEach
+    void cleanup() {
+        configurationRepository.deleteAll();
+        itemRepository.deleteAll();
+        groupRepository.deleteAll();
     }
 
 }

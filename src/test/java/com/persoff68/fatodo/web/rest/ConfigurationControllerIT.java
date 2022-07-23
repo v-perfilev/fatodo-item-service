@@ -24,7 +24,6 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,13 +82,12 @@ class ConfigurationControllerIT {
 
     @AfterEach
     void cleanup() {
-        groupRepository.deleteAll();
         configurationRepository.deleteAll();
+        groupRepository.deleteAll();
     }
 
     @Test
     @WithCustomSecurityContext(id = USER_ID)
-    @Transactional
     void testSetOrder_ok() throws Exception {
         List<UUID> groupIdList = List.of(group3.getId(), group1.getId(), group2.getId());
         String requestBody = objectMapper.writeValueAsString(groupIdList);
@@ -112,7 +110,6 @@ class ConfigurationControllerIT {
 
         List<Configuration> configurationList = configurationRepository.findAll();
         assertThat(configurationList).hasSize(1);
-        assertThat(configurationList.get(0).getUserId()).isEqualTo(UUID.fromString(USER_ID));
     }
 
     @Test
