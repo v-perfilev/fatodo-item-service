@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMessageVerifier
+@Transactional
 class ContractBase {
     private static final UUID USER_1_ID = UUID.fromString("8f9a7cae-73c8-4ad6-b135-5bd109b51d2e");
     private static final UUID USER_2_ID = UUID.fromString("4329f19c-deb7-4eaa-a841-bb46bd78f793");
@@ -63,7 +64,6 @@ class ContractBase {
     EventServiceClient eventServiceClient;
 
     @BeforeEach
-    @Transactional
     void setup() {
         RestAssuredMockMvc.webAppContextSetup(context);
 

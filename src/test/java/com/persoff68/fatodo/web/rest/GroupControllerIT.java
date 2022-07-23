@@ -17,6 +17,7 @@ import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.GroupDTO;
 import com.persoff68.fatodo.model.vm.GroupVM;
+import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.service.ItemService;
 import org.junit.jupiter.api.AfterEach;
@@ -56,6 +57,8 @@ class GroupControllerIT {
     MockMvc mvc;
     @Autowired
     GroupRepository groupRepository;
+    @Autowired
+    ConfigurationRepository configurationRepository;
     @Autowired
     ObjectMapper objectMapper;
 
@@ -103,6 +106,7 @@ class GroupControllerIT {
 
     @AfterEach
     void cleanup() {
+        configurationRepository.deleteAll();
         groupRepository.deleteAll();
     }
 

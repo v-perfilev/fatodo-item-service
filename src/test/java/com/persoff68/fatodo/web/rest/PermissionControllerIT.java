@@ -11,6 +11,7 @@ import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
+import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -45,6 +46,8 @@ class PermissionControllerIT {
     @Autowired
     ItemRepository itemRepository;
     @Autowired
+    ConfigurationRepository configurationRepository;
+    @Autowired
     ObjectMapper objectMapper;
 
     Group group1;
@@ -75,8 +78,9 @@ class PermissionControllerIT {
 
     @AfterEach
     void cleanup() {
-        groupRepository.deleteAll();
+        configurationRepository.deleteAll();
         itemRepository.deleteAll();
+        groupRepository.deleteAll();
     }
 
     @Test

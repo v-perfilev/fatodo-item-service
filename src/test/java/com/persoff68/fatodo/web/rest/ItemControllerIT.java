@@ -24,6 +24,7 @@ import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.vm.ItemArchivedVM;
 import com.persoff68.fatodo.model.vm.ItemStatusVM;
 import com.persoff68.fatodo.model.vm.ItemVM;
+import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.client.PermissionService;
@@ -67,6 +68,8 @@ class ItemControllerIT {
     @Autowired
     ItemRepository itemRepository;
     @Autowired
+    ConfigurationRepository configurationRepository;
+    @Autowired
     ObjectMapper objectMapper;
 
     @SpyBean
@@ -108,8 +111,9 @@ class ItemControllerIT {
 
     @AfterEach
     void cleanup() {
-        groupRepository.deleteAll();
+        configurationRepository.deleteAll();
         itemRepository.deleteAll();
+        groupRepository.deleteAll();
     }
 
     @Test

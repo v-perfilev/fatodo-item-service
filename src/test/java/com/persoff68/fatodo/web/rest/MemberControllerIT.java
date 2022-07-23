@@ -15,6 +15,7 @@ import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.vm.MemberVM;
+import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import org.assertj.core.api.Condition;
@@ -59,6 +60,8 @@ class MemberControllerIT {
     GroupRepository groupRepository;
     @Autowired
     ItemRepository itemRepository;
+    @Autowired
+    ConfigurationRepository configurationRepository;
     @Autowired
     ObjectMapper objectMapper;
 
@@ -105,8 +108,9 @@ class MemberControllerIT {
 
     @AfterEach
     void cleanup() {
-        groupRepository.deleteAll();
+        configurationRepository.deleteAll();
         itemRepository.deleteAll();
+        groupRepository.deleteAll();
     }
 
     @Test

@@ -9,6 +9,7 @@ import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.constant.ElementType;
 import com.persoff68.fatodo.model.dto.TypeAndParentDTO;
+import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -41,6 +42,8 @@ class CheckControllerIT {
     @Autowired
     ItemRepository itemRepository;
     @Autowired
+    ConfigurationRepository configurationRepository;
+    @Autowired
     ObjectMapper objectMapper;
 
     Group group;
@@ -58,8 +61,9 @@ class CheckControllerIT {
 
     @AfterEach
     void cleanup() {
-        groupRepository.deleteAll();
+        configurationRepository.deleteAll();
         itemRepository.deleteAll();
+        groupRepository.deleteAll();
     }
 
     @Test

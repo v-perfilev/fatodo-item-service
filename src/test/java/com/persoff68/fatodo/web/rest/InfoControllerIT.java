@@ -13,6 +13,7 @@ import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.dto.GroupInfoDTO;
 import com.persoff68.fatodo.model.dto.ItemInfoDTO;
 import com.persoff68.fatodo.model.dto.ReminderMailInfoDTO;
+import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -47,6 +48,8 @@ class InfoControllerIT {
     @Autowired
     ItemRepository itemRepository;
     @Autowired
+    ConfigurationRepository configurationRepository;
+    @Autowired
     ObjectMapper objectMapper;
 
     Group group;
@@ -72,8 +75,9 @@ class InfoControllerIT {
 
     @AfterEach
     void cleanup() {
-        groupRepository.deleteAll();
+        configurationRepository.deleteAll();
         itemRepository.deleteAll();
+        groupRepository.deleteAll();
     }
 
     @Test
