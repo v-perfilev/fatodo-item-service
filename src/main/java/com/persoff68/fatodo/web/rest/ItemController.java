@@ -50,7 +50,7 @@ public class ItemController {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Map<UUID, PageableList<Item>> pairMap = itemService.getMapByGroupIds(userId, groupIdList, DEFAULT_ITEMS_LENGTH);
         Map<UUID, PageableList<ItemDTO>> pageableListMap = pairMap.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> mapItemListToDTOList(entry.getValue())));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().convert(itemMapper::pojoToDTO)));
         return ResponseEntity.ok(pageableListMap);
     }
 
@@ -63,7 +63,7 @@ public class ItemController {
         size = Optional.ofNullable(size).orElse(DEFAULT_ITEMS_LENGTH);
         Pageable pageRequest = OffsetPageRequest.of(offset, size);
         PageableList<Item> pageableList = itemService.getAllByGroupId(userId, groupId, pageRequest);
-        PageableList<ItemDTO> dtoPageableList = mapItemListToDTOList(pageableList);
+        PageableList<ItemDTO> dtoPageableList = pageableList.convert(itemMapper::pojoToDTO);
         return ResponseEntity.ok(dtoPageableList);
     }
 
@@ -76,7 +76,7 @@ public class ItemController {
         size = Optional.ofNullable(size).orElse(DEFAULT_ITEMS_LENGTH);
         Pageable pageRequest = OffsetPageRequest.of(offset, size);
         PageableList<Item> pageableList = itemService.getAllArchivedByGroupId(userId, groupId, pageRequest);
-        PageableList<ItemDTO> dtoPageableList = mapItemListToDTOList(pageableList);
+        PageableList<ItemDTO> dtoPageableList = pageableList.convert(itemMapper::pojoToDTO);
         return ResponseEntity.ok(dtoPageableList);
     }
 
@@ -131,14 +131,6 @@ public class ItemController {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         itemService.delete(userId, itemId);
         return ResponseEntity.ok().build();
-    }
-
-    private PageableList<ItemDTO> mapItemListToDTOList(PageableList<Item> pageableList) {
-        long count = pageableList.getCount();
-        List<ItemDTO> dtoList = pageableList.getData().stream()
-                .map(itemMapper::pojoToDTO)
-                .toList();
-        return PageableList.of(dtoList, count);
     }
 
 }
