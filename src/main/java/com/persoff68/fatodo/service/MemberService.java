@@ -9,7 +9,6 @@ import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.client.ContactService;
 import com.persoff68.fatodo.service.client.EventService;
 import com.persoff68.fatodo.service.client.PermissionService;
-import com.persoff68.fatodo.service.client.WsService;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import com.persoff68.fatodo.service.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ public class MemberService {
 
     private final PermissionService permissionService;
     private final EventService eventService;
-    private final WsService wsService;
     private final ContactService contactService;
     private final GroupValidator groupValidator;
     private final GroupRepository groupRepository;
@@ -81,7 +79,6 @@ public class MemberService {
 
         eventService.sendMemberDeleteEvent(savedGroup, userId, memberToDeleteList);
         eventService.deleteGroupEventsForUser(groupId, userIdList);
-        wsService.sendClearGroupEvent(savedGroup, userIdList);
     }
 
 
@@ -116,7 +113,6 @@ public class MemberService {
 
         eventService.sendMemberLeaveEvent(savedGroup, userId);
         eventService.deleteGroupEventsForUser(groupId, Collections.singletonList(userId));
-        wsService.sendClearGroupEvent(savedGroup, Collections.singletonList(userId));
     }
 
 }

@@ -10,7 +10,6 @@ import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.builder.TestMemberVM;
 import com.persoff68.fatodo.client.ContactServiceClient;
 import com.persoff68.fatodo.client.EventServiceClient;
-import com.persoff68.fatodo.client.WsServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
@@ -70,8 +69,6 @@ class MemberControllerIT {
     ContactServiceClient contactServiceClient;
     @MockBean
     EventServiceClient eventServiceClient;
-    @MockBean
-    WsServiceClient wsServiceClient;
 
     Group group1;
     Group group2;

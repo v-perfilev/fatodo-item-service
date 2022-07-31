@@ -14,7 +14,6 @@ import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
-import com.persoff68.fatodo.client.WsServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
@@ -82,8 +81,6 @@ class ItemControllerIT {
     NotificationServiceClient notificationServiceClient;
     @MockBean
     EventServiceClient eventServiceClient;
-    @MockBean
-    WsServiceClient wsServiceClient;
 
     Group group1;
     Group group2;

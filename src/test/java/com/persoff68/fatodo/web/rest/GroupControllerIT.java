@@ -12,7 +12,6 @@ import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
-import com.persoff68.fatodo.client.WsServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
@@ -73,8 +72,6 @@ class GroupControllerIT {
     NotificationServiceClient notificationServiceClient;
     @MockBean
     EventServiceClient eventServiceClient;
-    @MockBean
-    WsServiceClient wsServiceClient;
 
     Group group1;
     Group group2;

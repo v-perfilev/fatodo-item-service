@@ -133,7 +133,7 @@ class EventProducerIT {
         Group newGroup = TestGroup.defaultBuilder().build().toParent();
         groupService.create(newGroup, null);
 
-        ConsumerRecord<String, String> record = eventAddRecords.poll(10, TimeUnit.SECONDS);
+        ConsumerRecord<String, String> record = eventAddRecords.poll(5, TimeUnit.SECONDS);
 
         assertThat(eventServiceClient).isInstanceOf(EventProducer.class);
         assertThat(record).isNotNull();
@@ -145,7 +145,7 @@ class EventProducerIT {
     void testSendDeleteGroupEvents_ok() throws Exception {
         groupService.delete(member1.getUserId(), group.getId());
 
-        ConsumerRecord<String, String> record = eventDeleteRecords.poll(10, TimeUnit.SECONDS);
+        ConsumerRecord<String, String> record = eventDeleteRecords.poll(5, TimeUnit.SECONDS);
 
         assertThat(eventServiceClient).isInstanceOf(EventProducer.class);
         assertThat(record).isNotNull();
@@ -157,7 +157,7 @@ class EventProducerIT {
     void testSendDeleteItemEvents_ok() throws Exception {
         itemService.delete(member1.getUserId(), item.getId());
 
-        ConsumerRecord<String, String> record = eventDeleteRecords.poll(10, TimeUnit.SECONDS);
+        ConsumerRecord<String, String> record = eventDeleteRecords.poll(5, TimeUnit.SECONDS);
 
         assertThat(eventServiceClient).isInstanceOf(EventProducer.class);
         assertThat(record).isNotNull();
@@ -169,7 +169,7 @@ class EventProducerIT {
     void testSendDeleteGroupEventsForUsers_ok() throws Exception {
         memberService.leaveGroup(member2.getUserId(), group.getId());
 
-        ConsumerRecord<String, String> record = eventDeleteRecords.poll(10, TimeUnit.SECONDS);
+        ConsumerRecord<String, String> record = eventDeleteRecords.poll(5, TimeUnit.SECONDS);
 
         assertThat(eventServiceClient).isInstanceOf(EventProducer.class);
         assertThat(record).isNotNull();

@@ -5,7 +5,6 @@ import com.persoff68.fatodo.client.ContactServiceClient;
 import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
-import com.persoff68.fatodo.client.WsServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.annotation.Bean;
@@ -49,15 +48,6 @@ public class ClientConfiguration {
     @Primary
     public NotificationServiceClient notificationClient() {
         return (NotificationServiceClient) beanFactory.getBean("notificationServiceClientWrapper");
-    }
-
-    @Bean
-    @Primary
-    public WsServiceClient wsClient() {
-        boolean kafkaProducerExists = beanFactory.containsBean("wsProducer");
-        return kafkaProducerExists
-                ? (WsServiceClient) beanFactory.getBean("wsProducer")
-                : (WsServiceClient) beanFactory.getBean("wsServiceClientWrapper");
     }
 
 }
