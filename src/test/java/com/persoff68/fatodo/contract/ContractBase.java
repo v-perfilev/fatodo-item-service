@@ -8,6 +8,7 @@ import com.persoff68.fatodo.client.ContactServiceClient;
 import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
+import com.persoff68.fatodo.client.WsServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
@@ -62,6 +63,8 @@ class ContractBase {
     NotificationServiceClient notificationServiceClient;
     @MockBean
     EventServiceClient eventServiceClient;
+    @MockBean
+    WsServiceClient wsServiceClient;
 
     @BeforeEach
     void setup() {
