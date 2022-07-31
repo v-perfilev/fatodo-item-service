@@ -14,6 +14,7 @@ import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
 import com.persoff68.fatodo.service.client.EventService;
 import com.persoff68.fatodo.service.client.PermissionService;
+import com.persoff68.fatodo.service.client.WsService;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelInvalidException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
@@ -35,6 +36,7 @@ public class ItemService {
 
     private final PermissionService permissionService;
     private final EventService eventService;
+    private final WsService wsService;
     private final GroupRepository groupRepository;
     private final ItemRepository itemRepository;
     private final CommentServiceClient commentServiceClient;
@@ -164,6 +166,7 @@ public class ItemService {
 
         commentServiceClient.deleteThreadByTargetId(itemId);
         notificationServiceClient.deleteRemindersByTargetId(itemId);
+        wsService.sendClearItemEvent(item);
 
         item.setDeleted(true);
         itemRepository.save(item);
