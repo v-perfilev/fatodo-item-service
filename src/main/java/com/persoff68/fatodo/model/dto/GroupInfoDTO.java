@@ -11,4 +11,6 @@ public class GroupInfoDTO extends AbstractDTO {
 
     private String title;
 
+    private String color;
+
 }
