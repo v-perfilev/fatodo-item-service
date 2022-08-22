@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -109,11 +108,6 @@ class EventProducerIT {
 
         when(permissionService.hasGroupsPermission(any(), any(), any())).thenReturn(true);
         when(permissionService.hasItemsPermission(any(), any(), any())).thenReturn(true);
-        doNothing().when(commentServiceClient).deleteThreadByTargetId(any());
-        doNothing().when(commentServiceClient).deleteAllThreadsByParentId(any());
-        doNothing().when(notificationServiceClient).deleteRemindersByParentId(any());
-        doNothing().when(notificationServiceClient).deleteRemindersByTargetId(any());
-        doNothing().when(imageServiceClient).deleteGroupImage(any());
 
         startEventAddConsumer();
         startEventDeleteConsumer();

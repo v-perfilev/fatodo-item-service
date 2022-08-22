@@ -14,6 +14,7 @@ import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
 import com.persoff68.fatodo.service.client.EventService;
 import com.persoff68.fatodo.service.client.PermissionService;
+import com.persoff68.fatodo.service.client.WsService;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelInvalidException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
@@ -35,6 +36,7 @@ public class ItemService {
 
     private final PermissionService permissionService;
     private final EventService eventService;
+    private final WsService wsService;
     private final GroupRepository groupRepository;
     private final ItemRepository itemRepository;
     private final CommentServiceClient commentServiceClient;
@@ -98,7 +100,10 @@ public class ItemService {
             notificationServiceClient.setReminders(item.getId(), reminderList);
         }
 
+        // EVENT
         eventService.sendItemCreateEvent(item);
+        // WS
+        wsService.sendItemCreateEvent(item);
 
         return item;
     }
@@ -125,7 +130,10 @@ public class ItemService {
             notificationServiceClient.deleteRemindersByTargetId(item.getId());
         }
 
+        // EVENT
         eventService.sendItemUpdateEvent(item);
+        // WS
+        wsService.sendItemUpdateEvent(item);
 
         return item;
     }
@@ -137,7 +145,10 @@ public class ItemService {
         item.setStatus(status);
         item = itemRepository.save(item);
 
+        // EVENT
         eventService.sendItemUpdateEvent(item);
+        // WS
+        wsService.sendItemUpdateEvent(item);
 
         return item;
     }
@@ -152,7 +163,10 @@ public class ItemService {
         }
         item = itemRepository.save(item);
 
+        // EVENT
         eventService.sendItemUpdateEvent(item);
+        // WS
+        wsService.sendItemUpdateEvent(item);
 
         return item;
     }
@@ -167,6 +181,9 @@ public class ItemService {
 
         item.setDeleted(true);
         itemRepository.save(item);
+
+        // WS
+        wsService.sendItemDeleteEvent(item);
 
         eventService.deleteItemEvents(itemId);
     }

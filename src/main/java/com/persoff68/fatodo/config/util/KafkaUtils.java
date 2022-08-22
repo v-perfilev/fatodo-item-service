@@ -51,8 +51,9 @@ public class KafkaUtils {
     }
 
     public static <T> ConcurrentKafkaListenerContainerFactory<String, T> buildJsonContainerFactory(
-            String bootstrapAddress, String groupId, JavaType javaType) {
-        ConsumerFactory<String, T> consumerFactory = buildJsonConsumerFactory(bootstrapAddress, groupId, javaType);
+            String bootstrapAddress, String groupId, String autoOffsetResetConfig, JavaType javaType) {
+        ConsumerFactory<String, T> consumerFactory = buildJsonConsumerFactory(bootstrapAddress, groupId,
+                autoOffsetResetConfig, javaType);
         ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         return factory;
@@ -69,20 +70,6 @@ public class KafkaUtils {
         return new DefaultKafkaProducerFactory<>(configProps, keySerializer, valueSerializer);
     }
 
-    private static <T> ConsumerFactory<String, T> buildJsonConsumerFactory(
-            String bootstrapAddress, String groupId, JavaType javaType) {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        StringDeserializer keyDeserializer = new StringDeserializer();
-        JsonDeserializer<T> valueDeserializer = new JsonDeserializer<>(javaType);
-        valueDeserializer.trustedPackages("*");
-        valueDeserializer.setUseTypeHeaders(false);
-        return new DefaultKafkaConsumerFactory<>(props, keyDeserializer, valueDeserializer);
-    }
-
     private static ConsumerFactory<String, String> buildStringConsumerFactory(String bootstrapAddress, String groupId,
                                                                               String autoOffsetResetConfig) {
         Map<String, Object> props = new HashMap<>();
@@ -92,6 +79,21 @@ public class KafkaUtils {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetResetConfig);
         return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    private static <T> ConsumerFactory<String, T> buildJsonConsumerFactory(
+            String bootstrapAddress, String groupId, String autoOffsetResetConfig, JavaType javaType) {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetResetConfig);
+        StringDeserializer keyDeserializer = new StringDeserializer();
+        JsonDeserializer<T> valueDeserializer = new JsonDeserializer<>(javaType);
+        valueDeserializer.trustedPackages("*");
+        valueDeserializer.setUseTypeHeaders(false);
+        return new DefaultKafkaConsumerFactory<>(props, keyDeserializer, valueDeserializer);
     }
 
 }

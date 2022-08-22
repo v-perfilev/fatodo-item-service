@@ -6,6 +6,7 @@ import com.persoff68.fatodo.config.util.KafkaUtils;
 import com.persoff68.fatodo.model.dto.CreateItemEventDTO;
 import com.persoff68.fatodo.model.dto.DeleteEventsDTO;
 import com.persoff68.fatodo.model.dto.DeleteUserEventsDTO;
+import com.persoff68.fatodo.model.dto.WsEventWithUsersDTO;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +42,11 @@ public class KafkaConfiguration {
     }
 
     @Bean
+    public NewTopic wsNewTopic() {
+        return KafkaUtils.buildTopic(KafkaTopics.WS.getValue(), partitions);
+    }
+
+    @Bean
     public KafkaTemplate<String, CreateItemEventDTO> eventItemKafkaTemplate() {
         return KafkaUtils.buildJsonKafkaTemplate(bootstrapAddress);
     }
@@ -57,6 +63,11 @@ public class KafkaConfiguration {
 
     @Bean
     public KafkaTemplate<String, DeleteUserEventsDTO> eventDeleteUserKafkaTemplate() {
+        return KafkaUtils.buildJsonKafkaTemplate(bootstrapAddress);
+    }
+
+    @Bean
+    public KafkaTemplate<String, WsEventWithUsersDTO> wsKafkaTemplate() {
         return KafkaUtils.buildJsonKafkaTemplate(bootstrapAddress);
     }
 

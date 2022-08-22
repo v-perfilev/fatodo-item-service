@@ -11,6 +11,7 @@ import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.client.EventService;
 import com.persoff68.fatodo.service.client.ImageService;
 import com.persoff68.fatodo.service.client.PermissionService;
+import com.persoff68.fatodo.service.client.WsService;
 import com.persoff68.fatodo.service.exception.ModelAlreadyExistsException;
 import com.persoff68.fatodo.service.exception.ModelInvalidException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
@@ -33,6 +34,7 @@ public class GroupService {
     private final ImageService imageService;
     private final PermissionService permissionService;
     private final EventService eventService;
+    private final WsService wsService;
     private final GroupValidator groupValidator;
     private final GroupRepository groupRepository;
     private final CommentServiceClient commentServiceClient;
@@ -105,7 +107,10 @@ public class GroupService {
             group = groupRepository.save(group);
         }
 
+        // EVENT
         eventService.sendGroupCreateEvent(group);
+        // WS
+        wsService.sendGroupCreateEvent(group);
 
         return group;
     }
@@ -127,7 +132,10 @@ public class GroupService {
         String imageFilename = imageService.updateGroup(group, groupToUpdate, image);
         group.setImageFilename(imageFilename);
 
+        // EVENT
         eventService.sendGroupUpdateEvent(group);
+        // WS
+        wsService.sendGroupUpdateEvent(group);
 
         return groupRepository.save(group);
     }
@@ -143,7 +151,11 @@ public class GroupService {
 
         imageService.deleteGroup(group);
         configurationService.deleteGroup(group);
+
+        // EVENT
         eventService.deleteGroupEvents(groupId);
+        // WS
+        wsService.sendGroupDeleteEvent(group);
 
         group.setDeleted(true);
         group.getItems().forEach(item -> item.setDeleted(true));

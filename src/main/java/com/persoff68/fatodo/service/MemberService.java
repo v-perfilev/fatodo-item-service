@@ -9,6 +9,7 @@ import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.client.ContactService;
 import com.persoff68.fatodo.service.client.EventService;
 import com.persoff68.fatodo.service.client.PermissionService;
+import com.persoff68.fatodo.service.client.WsService;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import com.persoff68.fatodo.service.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class MemberService {
 
     private final PermissionService permissionService;
     private final EventService eventService;
+    private final WsService wsService;
     private final ContactService contactService;
     private final GroupValidator groupValidator;
     private final GroupRepository groupRepository;
@@ -60,7 +62,10 @@ public class MemberService {
         groupValidator.validateUpdate(group);
         Group savedGroup = groupRepository.save(group);
 
+        // EVENT
         eventService.sendMemberAddEvent(savedGroup, userId, newMemberList);
+        // WS
+        wsService.sendMemberAddEvent(savedGroup, newMemberList);
     }
 
 
@@ -77,8 +82,12 @@ public class MemberService {
         groupValidator.validateUpdate(group);
         Group savedGroup = groupRepository.save(group);
 
+        // EVENT
         eventService.sendMemberDeleteEvent(savedGroup, userId, memberToDeleteList);
         eventService.deleteGroupEventsForUser(groupId, userIdList);
+        // WS
+        wsService.sendMemberDeleteEvent(savedGroup, memberToDeleteList);
+        wsService.sendGroupDeleteEvent(savedGroup, userIdList);
     }
 
 
@@ -96,7 +105,10 @@ public class MemberService {
         groupValidator.validateUpdate(group);
         Group savedGroup = groupRepository.save(group);
 
+        // EVENT
         eventService.sendMemberRoleEvent(savedGroup, userId, editedUserId, permission);
+        // WS
+        wsService.sendMemberRoleEvent(savedGroup, member);
     }
 
     public void leaveGroup(UUID userId, UUID groupId) {
@@ -104,15 +116,21 @@ public class MemberService {
         Group group = groupRepository.findById(groupId).orElseThrow(ModelNotFoundException::new);
 
         List<Member> memberList = group.getMembers();
-        List<Member> memberToDeleteList =
-                memberList.stream().filter(member -> member.getUserId().equals(userId)).toList();
-        memberList.removeAll(memberToDeleteList);
+        Member memberToDelete = memberList.stream()
+                .filter(member -> member.getUserId().equals(userId))
+                .findFirst()
+                .orElseThrow(ModelNotFoundException::new);
+        memberList.remove(memberToDelete);
 
         groupValidator.validateUpdate(group);
         Group savedGroup = groupRepository.save(group);
 
+        // EVENT
         eventService.sendMemberLeaveEvent(savedGroup, userId);
         eventService.deleteGroupEventsForUser(groupId, Collections.singletonList(userId));
+        // WS
+        wsService.sendMemberLeaveEvent(savedGroup, memberToDelete);
+        wsService.sendGroupDeleteEvent(savedGroup, List.of(userId));
     }
 
 }
