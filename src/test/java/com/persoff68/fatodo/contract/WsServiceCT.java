@@ -12,17 +12,17 @@ import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest
-@AutoConfigureStubRunner(ids = {"com.persoff68.fatodo:eventservice:+:stubs"},
+@AutoConfigureStubRunner(ids = {"com.persoff68.fatodo:wsservice:+:stubs"},
         stubsMode = StubRunnerProperties.StubsMode.REMOTE)
 class WsServiceCT {
 
     @Autowired
-    WsServiceClient eventServiceClient;
+    WsServiceClient wsServiceClient;
 
     @Test
     void testSendEvent() {
         WsEventWithUsersDTO dto = TestWsEventWithUsersDTO.defaultBuilder().build();
-        assertDoesNotThrow(() -> eventServiceClient.sendEvent(dto));
+        assertDoesNotThrow(() -> wsServiceClient.sendEvent(dto));
     }
 
 }
