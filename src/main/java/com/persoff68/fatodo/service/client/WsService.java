@@ -11,7 +11,7 @@ import com.persoff68.fatodo.model.constant.WsEventType;
 import com.persoff68.fatodo.model.dto.GroupDTO;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.dto.MemberDTO;
-import com.persoff68.fatodo.model.dto.WsEventWithUsersDTO;
+import com.persoff68.fatodo.model.dto.WsEventDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,76 +32,76 @@ public class WsService {
     public void sendGroupCreateEvent(Group group) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_GROUP_CREATE, groupDTO);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_CREATE, groupDTO);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendGroupUpdateEvent(Group group) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_GROUP_UPDATE, groupDTO);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_UPDATE, groupDTO);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendGroupDeleteEvent(Group group) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_GROUP_DELETE, groupDTO);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_DELETE, groupDTO);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendGroupDeleteEvent(Group group, List<UUID> userIdList) {
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_GROUP_DELETE, groupDTO);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_DELETE, groupDTO);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendItemCreateEvent(Item item) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_CREATE, itemDTO);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_CREATE, itemDTO);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendItemUpdateEvent(Item item) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_UPDATE, itemDTO);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_UPDATE, itemDTO);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendItemDeleteEvent(Item item) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_DELETE, itemDTO);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_DELETE, itemDTO);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendMemberAddEvent(Group group, List<Member> memberList) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         List<MemberDTO> memberDTOList = memberList.stream().map(memberMapper::pojoToDTO).toList();
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_MEMBER_ADD, memberDTOList);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_MEMBER_ADD, memberDTOList);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendMemberDeleteEvent(Group group, List<Member> memberList) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         List<MemberDTO> memberDTOList = memberList.stream().map(memberMapper::pojoToDTO).toList();
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_MEMBER_DELETE, memberDTOList);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_MEMBER_DELETE, memberDTOList);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendMemberLeaveEvent(Group group, Member member) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         MemberDTO memberDTO = memberMapper.pojoToDTO(member);
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_MEMBER_LEAVE, memberDTO);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_MEMBER_LEAVE, memberDTO);
         wsServiceClient.sendEvent(dto);
     }
 
     public void sendMemberRoleEvent(Group group, Member member) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         MemberDTO memberDTO = memberMapper.pojoToDTO(member);
-        WsEventWithUsersDTO dto = new WsEventWithUsersDTO(userIdList, WsEventType.ITEM_MEMBER_ROLE, memberDTO);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_MEMBER_ROLE, memberDTO);
         wsServiceClient.sendEvent(dto);
     }
 

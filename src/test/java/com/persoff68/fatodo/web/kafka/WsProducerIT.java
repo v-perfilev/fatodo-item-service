@@ -10,7 +10,7 @@ import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.config.util.KafkaUtils;
 import com.persoff68.fatodo.model.Group;
-import com.persoff68.fatodo.model.dto.WsEventWithUsersDTO;
+import com.persoff68.fatodo.model.dto.WsEventDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.service.GroupService;
 import com.persoff68.fatodo.service.ItemService;
@@ -77,22 +77,22 @@ class WsProducerIT {
     @SpyBean
     EventServiceClient eventServiceClient;
 
-    private ConcurrentMessageListenerContainer<String, WsEventWithUsersDTO> wsContainer;
-    private BlockingQueue<ConsumerRecord<String, WsEventWithUsersDTO>> wsRecords;
+    private ConcurrentMessageListenerContainer<String, WsEventDTO> wsContainer;
+    private BlockingQueue<ConsumerRecord<String, WsEventDTO>> wsRecords;
 
     @BeforeEach
     void setup() {
         when(permissionService.hasGroupsPermission(any(), any(), any())).thenReturn(true);
         when(permissionService.hasItemsPermission(any(), any(), any())).thenReturn(true);
 
-        startEventAddConsumer();
+        startWsConsumer();
     }
 
     @AfterEach
     void cleanup() {
         groupRepository.deleteAll();
 
-        stopEventAddConsumer();
+        stopWsConsumer();
     }
 
     @Test
@@ -101,26 +101,26 @@ class WsProducerIT {
         Group newGroup = TestGroup.defaultBuilder().build().toParent();
         groupService.create(newGroup, null);
 
-        ConsumerRecord<String, WsEventWithUsersDTO> record = wsRecords.poll(5, TimeUnit.SECONDS);
+        ConsumerRecord<String, WsEventDTO> record = wsRecords.poll(5, TimeUnit.SECONDS);
 
         assertThat(eventServiceClient).isInstanceOf(EventProducer.class);
         assertThat(record).isNotNull();
         verify(eventServiceClient).addItemEvent(any());
     }
 
-    private void startEventAddConsumer() {
-        JavaType javaType = objectMapper.getTypeFactory().constructType(WsEventWithUsersDTO.class);
-        ConcurrentKafkaListenerContainerFactory<String, WsEventWithUsersDTO> stringContainerFactory =
+    private void startWsConsumer() {
+        JavaType javaType = objectMapper.getTypeFactory().constructType(WsEventDTO.class);
+        ConcurrentKafkaListenerContainerFactory<String, WsEventDTO> stringContainerFactory =
                 KafkaUtils.buildJsonContainerFactory(embeddedKafkaBroker.getBrokersAsString(),
                         "test", "earliest", javaType);
         wsContainer = stringContainerFactory.createContainer("event_add");
         wsRecords = new LinkedBlockingQueue<>();
-        wsContainer.setupMessageListener((MessageListener<String, WsEventWithUsersDTO>) wsRecords::add);
+        wsContainer.setupMessageListener((MessageListener<String, WsEventDTO>) wsRecords::add);
         wsContainer.start();
         ContainerTestUtils.waitForAssignment(wsContainer, embeddedKafkaBroker.getPartitionsPerTopic());
     }
 
-    private void stopEventAddConsumer() {
+    private void stopWsConsumer() {
         wsContainer.stop();
     }
 
