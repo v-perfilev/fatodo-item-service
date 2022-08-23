@@ -1,9 +1,7 @@
 package com.persoff68.fatodo.client;
 
 import com.persoff68.fatodo.client.configuration.FeignSystemConfiguration;
-import com.persoff68.fatodo.model.dto.CreateItemEventDTO;
-import com.persoff68.fatodo.model.dto.DeleteEventsDTO;
-import com.persoff68.fatodo.model.dto.DeleteUserEventsDTO;
+import com.persoff68.fatodo.model.dto.EventDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,16 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
         qualifiers = {"feignEventServiceClient"})
 public interface EventServiceClient {
 
-    @PostMapping("/api/event/item")
-    void addItemEvent(@RequestBody CreateItemEventDTO createItemEventDTO);
-
-    @PostMapping("/api/event/group/delete-users")
-    void deleteGroupEventsForUsers(@RequestBody DeleteUserEventsDTO deleteUserEventsDTO);
-
-    @PostMapping("/api/event/group/delete")
-    void deleteGroupEvents(@RequestBody DeleteEventsDTO deleteEventsDTO);
-
-    @PostMapping("/api/event/item/delete")
-    void deleteItemEvents(@RequestBody DeleteEventsDTO deleteEventsDTO);
+    @PostMapping("/api/event")
+    void addEvent(@RequestBody EventDTO eventDTO);
 
 }

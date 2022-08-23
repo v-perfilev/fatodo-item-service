@@ -182,10 +182,10 @@ public class ItemService {
         item.setDeleted(true);
         itemRepository.save(item);
 
+        // EVENT
+        eventService.sendItemDeleteEvent(item);
         // WS
         wsService.sendItemDeleteEvent(item);
-
-        eventService.deleteItemEvents(itemId);
     }
 
     private PageableList<Item> getPageableListForMap(UUID groupId, int size) {

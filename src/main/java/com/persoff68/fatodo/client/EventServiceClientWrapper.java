@@ -1,9 +1,7 @@
 package com.persoff68.fatodo.client;
 
 import com.persoff68.fatodo.exception.ClientException;
-import com.persoff68.fatodo.model.dto.CreateItemEventDTO;
-import com.persoff68.fatodo.model.dto.DeleteEventsDTO;
-import com.persoff68.fatodo.model.dto.DeleteUserEventsDTO;
+import com.persoff68.fatodo.model.dto.EventDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -16,36 +14,9 @@ public class EventServiceClientWrapper implements EventServiceClient {
     private final EventServiceClient eventServiceClient;
 
     @Override
-    public void addItemEvent(CreateItemEventDTO createItemEventDTO) {
+    public void addEvent(EventDTO eventDTO) {
         try {
-            eventServiceClient.addItemEvent(createItemEventDTO);
-        } catch (Exception e) {
-            throw new ClientException();
-        }
-    }
-
-    @Override
-    public void deleteGroupEventsForUsers(DeleteUserEventsDTO deleteUserEventsDTO) {
-        try {
-            eventServiceClient.deleteGroupEventsForUsers(deleteUserEventsDTO);
-        } catch (Exception e) {
-            throw new ClientException();
-        }
-    }
-
-    @Override
-    public void deleteGroupEvents(DeleteEventsDTO deleteEventsDTO) {
-        try {
-            eventServiceClient.deleteGroupEvents(deleteEventsDTO);
-        } catch (Exception e) {
-            throw new ClientException();
-        }
-    }
-
-    @Override
-    public void deleteItemEvents(DeleteEventsDTO deleteEventsDTO) {
-        try {
-            eventServiceClient.deleteItemEvents(deleteEventsDTO);
+            eventServiceClient.addEvent(eventDTO);
         } catch (Exception e) {
             throw new ClientException();
         }

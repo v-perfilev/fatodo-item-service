@@ -153,7 +153,7 @@ public class GroupService {
         configurationService.deleteGroup(group);
 
         // EVENT
-        eventService.deleteGroupEvents(groupId);
+        eventService.sendGroupDeleteEvent(group);
         // WS
         wsService.sendGroupDeleteEvent(group);
 

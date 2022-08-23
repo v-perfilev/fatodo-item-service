@@ -3,9 +3,7 @@ package com.persoff68.fatodo.config;
 import com.persoff68.fatodo.config.annotation.ConditionalOnPropertyNotNull;
 import com.persoff68.fatodo.config.constant.KafkaTopics;
 import com.persoff68.fatodo.config.util.KafkaUtils;
-import com.persoff68.fatodo.model.dto.CreateItemEventDTO;
-import com.persoff68.fatodo.model.dto.DeleteEventsDTO;
-import com.persoff68.fatodo.model.dto.DeleteUserEventsDTO;
+import com.persoff68.fatodo.model.dto.EventDTO;
 import com.persoff68.fatodo.model.dto.WsEventDTO;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,13 +30,8 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public NewTopic eventAddNewTopic() {
-        return KafkaUtils.buildTopic(KafkaTopics.EVENT_ADD.getValue(), partitions);
-    }
-
-    @Bean
-    public NewTopic eventDeleteNewTopic() {
-        return KafkaUtils.buildTopic(KafkaTopics.EVENT_DELETE.getValue(), partitions);
+    public NewTopic eventNewTopic() {
+        return KafkaUtils.buildTopic(KafkaTopics.EVENT.getValue(), partitions);
     }
 
     @Bean
@@ -47,22 +40,7 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public KafkaTemplate<String, CreateItemEventDTO> eventItemKafkaTemplate() {
-        return KafkaUtils.buildJsonKafkaTemplate(bootstrapAddress);
-    }
-
-    @Bean
-    public KafkaTemplate<String, DeleteUserEventsDTO> eventKafkaTemplate() {
-        return KafkaUtils.buildJsonKafkaTemplate(bootstrapAddress);
-    }
-
-    @Bean
-    public KafkaTemplate<String, DeleteEventsDTO> eventDeleteKafkaTemplate() {
-        return KafkaUtils.buildJsonKafkaTemplate(bootstrapAddress);
-    }
-
-    @Bean
-    public KafkaTemplate<String, DeleteUserEventsDTO> eventDeleteUserKafkaTemplate() {
+    public KafkaTemplate<String, EventDTO> eventKafkaTemplate() {
         return KafkaUtils.buildJsonKafkaTemplate(bootstrapAddress);
     }
 

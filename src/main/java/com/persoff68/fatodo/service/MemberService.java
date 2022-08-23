@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,9 +62,9 @@ public class MemberService {
         Group savedGroup = groupRepository.save(group);
 
         // EVENT
-        eventService.sendMemberAddEvent(savedGroup, userId, newMemberList);
+        eventService.sendMemberAddEvent(savedGroup, newMemberList, userId);
         // WS
-        wsService.sendMemberAddEvent(savedGroup, newMemberList);
+        wsService.sendMemberAddEvent(savedGroup, newMemberList, userId);
     }
 
 
@@ -83,11 +82,9 @@ public class MemberService {
         Group savedGroup = groupRepository.save(group);
 
         // EVENT
-        eventService.sendMemberDeleteEvent(savedGroup, userId, memberToDeleteList);
-        eventService.deleteGroupEventsForUser(groupId, userIdList);
+        eventService.sendMemberDeleteEvent(savedGroup, memberToDeleteList, userId);
         // WS
-        wsService.sendMemberDeleteEvent(savedGroup, memberToDeleteList);
-        wsService.sendGroupDeleteEvent(savedGroup, userIdList);
+        wsService.sendMemberDeleteEvent(savedGroup, memberToDeleteList, userId);
     }
 
 
@@ -106,9 +103,9 @@ public class MemberService {
         Group savedGroup = groupRepository.save(group);
 
         // EVENT
-        eventService.sendMemberRoleEvent(savedGroup, userId, editedUserId, permission);
+        eventService.sendMemberRoleEvent(savedGroup, member, userId);
         // WS
-        wsService.sendMemberRoleEvent(savedGroup, member);
+        wsService.sendMemberRoleEvent(savedGroup, member, userId);
     }
 
     public void leaveGroup(UUID userId, UUID groupId) {
@@ -126,11 +123,9 @@ public class MemberService {
         Group savedGroup = groupRepository.save(group);
 
         // EVENT
-        eventService.sendMemberLeaveEvent(savedGroup, userId);
-        eventService.deleteGroupEventsForUser(groupId, Collections.singletonList(userId));
+        eventService.sendMemberLeaveEvent(savedGroup, memberToDelete);
         // WS
         wsService.sendMemberLeaveEvent(savedGroup, memberToDelete);
-        wsService.sendGroupDeleteEvent(savedGroup, List.of(userId));
     }
 
 }
