@@ -64,6 +64,21 @@ public class WsService {
         wsServiceClient.sendEvent(dto);
     }
 
+    public void sendItemUpdateStatusEvent(Item item) {
+        List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
+        ItemDTO itemDTO = itemMapper.pojoToDTO(item);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_UPDATE_STATUS, itemDTO, item.getLastModifiedBy());
+        wsServiceClient.sendEvent(dto);
+    }
+
+    public void sendItemUpdateArchivedEvent(Item item) {
+        List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
+        ItemDTO itemDTO = itemMapper.pojoToDTO(item);
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_UPDATE_ARCHIVED,
+                itemDTO, item.getLastModifiedBy());
+        wsServiceClient.sendEvent(dto);
+    }
+
     public void sendItemDeleteEvent(Item item) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);

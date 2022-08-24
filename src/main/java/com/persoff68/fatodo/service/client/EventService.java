@@ -64,6 +64,20 @@ public class EventService {
         eventServiceClient.addEvent(dto);
     }
 
+    public void sendItemUpdateStatusEvent(Item item) {
+        List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
+        ItemDTO itemDTO = itemMapper.pojoToDTO(item);
+        EventDTO dto = new EventDTO(userIdList, EventType.ITEM_UPDATE_STATUS, itemDTO, item.getLastModifiedBy());
+        eventServiceClient.addEvent(dto);
+    }
+
+    public void sendItemUpdateArchivedEvent(Item item) {
+        List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
+        ItemDTO itemDTO = itemMapper.pojoToDTO(item);
+        EventDTO dto = new EventDTO(userIdList, EventType.ITEM_UPDATE_ARCHIVED, itemDTO, item.getLastModifiedBy());
+        eventServiceClient.addEvent(dto);
+    }
+
     public void sendItemDeleteEvent(Item item) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);

@@ -146,9 +146,9 @@ public class ItemService {
         item = itemRepository.save(item);
 
         // EVENT
-        eventService.sendItemUpdateEvent(item);
+        eventService.sendItemUpdateStatusEvent(item);
         // WS
-        wsService.sendItemUpdateEvent(item);
+        wsService.sendItemUpdateStatusEvent(item);
 
         return item;
     }
@@ -164,9 +164,9 @@ public class ItemService {
         item = itemRepository.save(item);
 
         // EVENT
-        eventService.sendItemUpdateEvent(item);
+        eventService.sendItemUpdateArchivedEvent(item);
         // WS
-        wsService.sendItemUpdateEvent(item);
+        wsService.sendItemUpdateArchivedEvent(item);
 
         return item;
     }
