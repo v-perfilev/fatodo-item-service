@@ -7,7 +7,7 @@ import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.client.EventServiceClient;
 import com.persoff68.fatodo.config.util.KafkaUtils;
 import com.persoff68.fatodo.model.Group;
-import com.persoff68.fatodo.model.dto.EventDTO;
+import com.persoff68.fatodo.model.dto.event.EventDTO;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.service.GroupService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

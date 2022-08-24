@@ -8,6 +8,8 @@ import java.util.UUID;
 @Data
 public class MemberDTO {
 
+    private UUID groupId;
+
     private UUID userId;
 
     private Permission permission;
