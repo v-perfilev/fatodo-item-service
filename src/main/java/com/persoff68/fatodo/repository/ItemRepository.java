@@ -18,16 +18,16 @@ public interface ItemRepository extends JpaRepository<Item, UUID> {
     @Query("""
             select i from Item i
             join Group g on i.group.id = g.id
-            where g.id = :groupId and g.isDeleted = false and i.isDeleted = false and i.isArchived = false
-            order by g.createdAt desc
+            where g.id = :groupId and i.isDeleted = false and i.isArchived = false
+            order by i.createdAt desc
             """)
     Page<Item> findAllByGroupIdPageable(@Param("groupId") UUID groupId, Pageable pageable);
 
     @Query("""
             select i from Item i
             join Group g on i.group.id = g.id
-            where g.id = :groupId and g.isDeleted = false and i.isDeleted = false and i.isArchived = true 
-            order by g.createdAt desc
+            where g.id = :groupId and i.isDeleted = false and i.isArchived = true
+            order by i.createdAt desc
             """)
     Page<Item> findAllArchivedByGroupIdPageable(@Param("groupId") UUID groupId, Pageable pageable);
 
