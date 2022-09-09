@@ -39,7 +39,8 @@ import java.util.stream.Collectors;
 public class ItemController {
     static final String ENDPOINT = "/api/item";
 
-    public static final int DEFAULT_ITEMS_LENGTH = 10;
+    public static final int DEFAULT_ITEMS_LENGTH = 20;
+    public static final int PREVIEW_ITEMS_LENGTH = 5;
 
     private final ItemService itemService;
     private final ItemMapper itemMapper;
@@ -48,7 +49,7 @@ public class ItemController {
     public ResponseEntity<Map<UUID, PageableList<ItemDTO>>> getMapByGroupIds(
             @RequestParam("groupIds") List<UUID> groupIdList) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
-        Map<UUID, PageableList<Item>> pairMap = itemService.getMapByGroupIds(userId, groupIdList, DEFAULT_ITEMS_LENGTH);
+        Map<UUID, PageableList<Item>> pairMap = itemService.getMapByGroupIds(userId, groupIdList, PREVIEW_ITEMS_LENGTH);
         Map<UUID, PageableList<ItemDTO>> pageableListMap = pairMap.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().convert(itemMapper::pojoToDTO)));
         return ResponseEntity.ok(pageableListMap);

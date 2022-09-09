@@ -4,6 +4,7 @@ import com.persoff68.fatodo.client.CommentServiceClient;
 import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
+import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
@@ -17,6 +18,7 @@ import com.persoff68.fatodo.service.exception.ModelInvalidException;
 import com.persoff68.fatodo.service.exception.ModelNotFoundException;
 import com.persoff68.fatodo.service.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,12 +49,17 @@ public class GroupService {
                 .toList();
     }
 
-    public List<Group> getAllByUserId(UUID userId) {
+    public PageableList<Group> getAllByUserId(UUID userId, Pageable pageable) {
         Map<UUID, Integer> orderMap = configurationService.getByUserId(userId).getOrderMap();
         List<Group> groupList = groupRepository.findAllByUserId(userId);
-        return groupList.stream()
+        List<Group> sortedGroupList = groupList.stream()
                 .sorted(Comparator.comparingInt(g -> orderMap.getOrDefault(g.getId(), Integer.MAX_VALUE)))
                 .toList();
+        List<Group> slicedGroupList = pageable.getOffset() > sortedGroupList.size()
+                ? Collections.emptyList()
+                : sortedGroupList.subList((int) pageable.getOffset(),
+                Math.min(sortedGroupList.size(), (int) pageable.getOffset() + pageable.getPageSize()));
+        return PageableList.of(slicedGroupList, sortedGroupList.size());
     }
 
     public List<Group> getAllCommonByUserIds(UUID firstUserId, UUID secondUserId) {

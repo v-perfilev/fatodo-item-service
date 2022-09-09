@@ -1,7 +1,7 @@
 package com.persoff68.fatodo.web.rest;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
 import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
@@ -9,6 +9,7 @@ import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.model.Configuration;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
+import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.GroupDTO;
 import com.persoff68.fatodo.repository.ConfigurationRepository;
@@ -100,13 +101,13 @@ class ConfigurationControllerIT {
         ResultActions resultActions = mvc.perform(get(groupUrl))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, GroupDTO.class);
-        List<GroupDTO> resultDTOList = objectMapper.readValue(resultString, listType);
+        JavaType type = objectMapper.getTypeFactory().constructParametricType(PageableList.class, GroupDTO.class);
+        PageableList<GroupDTO> resultDTOList = objectMapper.readValue(resultString, type);
 
-        assertThat(resultDTOList).hasSize(3);
-        assertThat(resultDTOList.get(0).getId()).isEqualTo(group3.getId());
-        assertThat(resultDTOList.get(1).getId()).isEqualTo(group1.getId());
-        assertThat(resultDTOList.get(2).getId()).isEqualTo(group2.getId());
+        assertThat(resultDTOList.getCount()).isEqualTo(3);
+        assertThat(resultDTOList.getData().get(0).getId()).isEqualTo(group3.getId());
+        assertThat(resultDTOList.getData().get(1).getId()).isEqualTo(group1.getId());
+        assertThat(resultDTOList.getData().get(2).getId()).isEqualTo(group2.getId());
 
         List<Configuration> configurationList = configurationRepository.findAll();
         assertThat(configurationList).hasSize(1);
@@ -126,13 +127,13 @@ class ConfigurationControllerIT {
         ResultActions resultActions = mvc.perform(get(groupUrl))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, GroupDTO.class);
-        List<GroupDTO> resultDTOList = objectMapper.readValue(resultString, listType);
+        JavaType type = objectMapper.getTypeFactory().constructParametricType(PageableList.class, GroupDTO.class);
+        PageableList<GroupDTO> resultDTOList = objectMapper.readValue(resultString, type);
 
-        assertThat(resultDTOList).hasSize(3);
-        assertThat(resultDTOList.get(0).getId()).isEqualTo(group3.getId());
-        assertThat(resultDTOList.get(1).getId()).isEqualTo(group2.getId());
-        assertThat(resultDTOList.get(2).getId()).isEqualTo(group1.getId());
+        assertThat(resultDTOList.getCount()).isEqualTo(3);
+        assertThat(resultDTOList.getData().get(0).getId()).isEqualTo(group3.getId());
+        assertThat(resultDTOList.getData().get(1).getId()).isEqualTo(group2.getId());
+        assertThat(resultDTOList.getData().get(2).getId()).isEqualTo(group1.getId());
     }
 
     @Test

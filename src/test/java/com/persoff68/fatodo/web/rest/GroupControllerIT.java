@@ -1,5 +1,6 @@
 package com.persoff68.fatodo.web.rest;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.persoff68.fatodo.FatodoItemServiceApplication;
@@ -15,6 +16,7 @@ import com.persoff68.fatodo.client.NotificationServiceClient;
 import com.persoff68.fatodo.client.WsServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Member;
+import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.GroupDTO;
 import com.persoff68.fatodo.model.vm.GroupVM;
@@ -119,9 +121,9 @@ class GroupControllerIT {
         ResultActions resultActions = mvc.perform(get(ENDPOINT))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, GroupDTO.class);
-        List<GroupDTO> resultDTOList = objectMapper.readValue(resultString, listType);
-        assertThat(resultDTOList).hasSize(2);
+        JavaType type = objectMapper.getTypeFactory().constructParametricType(PageableList.class, GroupDTO.class);
+        PageableList<GroupDTO> resultDTOList = objectMapper.readValue(resultString, type);
+        assertThat(resultDTOList.getData()).hasSize(2);
     }
 
     @Test

@@ -21,24 +21,28 @@ Contract.make {
             contentType applicationJson()
         }
         body([
-                [
-                        "title"  : "test_value",
-                        "members": [
-                                [
-                                        "userId"    : "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e",
-                                        "permission": "ADMIN"
+                "data" : [
+                        [
+                                "title"  : "test_value",
+                                "members": [
+                                        [
+                                                "userId"    : "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e",
+                                                "permission": "ADMIN"
+                                        ]
+                                ]
+                        ],
+                        [
+                                "title"  : "test_value",
+                                "members": [
+                                        [
+                                                "userId"    : "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e",
+                                                "permission": "ADMIN"
+                                        ]
                                 ]
                         ]
                 ],
-                [
-                        "title"  : "test_value",
-                        "members": [
-                                [
-                                        "userId"    : "8f9a7cae-73c8-4ad6-b135-5bd109b51d2e",
-                                        "permission": "ADMIN"
-                                ]
-                        ]
-                ]
+                "count": 2
         ])
+
     }
 }
