@@ -23,9 +23,10 @@ public class TestItem extends Item {
              DateParams date,
              String description,
              @NotNull ItemStatus status,
+             int remindersCount,
              boolean isArchived,
              boolean isDeleted) {
-        super(group, title, type, priority, status, date, description, isArchived, isDeleted);
+        super(group, title, type, priority, status, date, description, remindersCount, isArchived, isDeleted);
         this.setId(id);
     }
 
@@ -35,7 +36,8 @@ public class TestItem extends Item {
                 .type(ItemType.TASK)
                 .priority(ItemPriority.NORMAL)
                 .description(DEFAULT_VALUE)
-                .status(ItemStatus.CREATED);
+                .status(ItemStatus.CREATED)
+                .remindersCount(0);
     }
 
     public Item toParent() {
@@ -48,6 +50,7 @@ public class TestItem extends Item {
         item.setStatus(getStatus());
         item.setDate(getDate());
         item.setDescription(getDescription());
+        item.setRemindersCount(getRemindersCount());
         item.setArchived(isArchived());
         item.setDeleted(isDeleted());
         return item;

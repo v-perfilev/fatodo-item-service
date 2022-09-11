@@ -314,6 +314,7 @@ class ItemControllerIT {
         assertThat(resultDTO.getId()).isNotNull();
         assertThat(resultDTO.getTitle()).isEqualTo(vm.getTitle());
         assertThat(resultDTO.getDescription()).isEqualTo(vm.getDescription());
+        assertThat(resultDTO.getRemindersCount()).isEqualTo(1);
         assertThat(resultDTO.getGroupId()).isEqualTo(vm.getGroupId());
     }
 

@@ -22,6 +22,8 @@ public class ItemDTO extends AbstractAuditingDTO {
 
     private String title;
 
+    private ItemStatus status;
+
     private ItemType type;
 
     private ItemPriority priority;
@@ -32,7 +34,7 @@ public class ItemDTO extends AbstractAuditingDTO {
 
     private List<String> tags;
 
-    private ItemStatus status;
+    private int remindersCount;
 
     private boolean archived;
 

@@ -98,6 +98,8 @@ public class ItemService {
         Item item = itemRepository.save(newItem);
         if (reminderList != null) {
             notificationServiceClient.setReminders(item.getId(), reminderList);
+            item.setRemindersCount(reminderList.size());
+            itemRepository.save(item);
         }
 
         // EVENT
@@ -124,12 +126,15 @@ public class ItemService {
         item.setDate(newItem.getDate());
         item.setDescription(newItem.getDescription());
 
-        itemRepository.save(item);
         if (reminderList != null) {
             notificationServiceClient.setReminders(item.getId(), reminderList);
+            item.setRemindersCount(reminderList.size());
         } else if (deleteReminders) {
             notificationServiceClient.deleteRemindersByTargetId(item.getId());
+            item.setRemindersCount(0);
         }
+
+        itemRepository.save(item);
 
         // EVENT
         eventService.sendItemUpdateEvent(item);

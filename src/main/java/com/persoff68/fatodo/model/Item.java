@@ -55,6 +55,8 @@ public class Item extends AbstractAuditingModel implements Serializable {
 
     private String description;
 
+    private int remindersCount = 0;
+
     private boolean isArchived;
 
     private boolean isDeleted;

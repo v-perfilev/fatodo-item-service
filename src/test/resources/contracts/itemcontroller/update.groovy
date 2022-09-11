@@ -54,10 +54,11 @@ Contract.make {
         body(
                 "id": "8a51fdaa-189c-4959-9016-ae79adfe0320",
                 "title": "test_title_new",
+                "status": "CREATED",
                 "type": "TASK",
                 "priority": "NORMAL",
                 "description": "test_body",
-                "status": "CREATED",
+                "remindersCount": 0,
                 "groupId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
                 "archived": false
         )
