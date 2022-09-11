@@ -4,6 +4,7 @@ import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Reminder;
 import com.persoff68.fatodo.web.rest.validator.DateParamsConstraint;
 import com.persoff68.fatodo.web.rest.validator.ItemPriorityConstraint;
+import com.persoff68.fatodo.web.rest.validator.ItemStatusConstraint;
 import com.persoff68.fatodo.web.rest.validator.ItemTypeConstraint;
 import com.persoff68.fatodo.web.rest.validator.RemindersConstraint;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,9 @@ public class ItemVM {
 
     @NotNull
     private String title;
+
+    @ItemStatusConstraint
+    private String status;
 
     @ItemTypeConstraint
     private String type;

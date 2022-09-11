@@ -118,6 +118,7 @@ public class ItemService {
         permissionService.checkItemPermission(userId, Permission.EDIT, item.getId());
 
         item.setTitle(newItem.getTitle());
+        item.setStatus(newItem.getStatus());
         item.setType(newItem.getType());
         item.setPriority(newItem.getPriority());
         item.setDate(newItem.getDate());

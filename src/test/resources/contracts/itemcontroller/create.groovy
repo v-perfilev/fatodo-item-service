@@ -20,6 +20,10 @@ Contract.make {
                         consumer(any()),
                         producer("test_title")
                 ),
+                "status": $(
+                        consumer(any()),
+                        producer("CREATED")
+                ),
                 "type": $(
                         consumer(any()),
                         producer("TASK")
@@ -31,10 +35,6 @@ Contract.make {
                 "description": $(
                         consumer(any()),
                         producer("test_body")
-                ),
-                "status": $(
-                        consumer(any()),
-                        producer("CREATED")
                 ),
                 "groupId": $(
                         consumer(any()),

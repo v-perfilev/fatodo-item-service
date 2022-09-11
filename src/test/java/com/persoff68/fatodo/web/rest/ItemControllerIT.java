@@ -363,7 +363,8 @@ class ItemControllerIT {
     @WithCustomSecurityContext
     void testUpdate_ok() throws Exception {
         doReturn(true).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
-        ItemVM vm = TestItemVM.defaultBuilder().id(item1.getId()).groupId(group1.getId()).build().toParent();
+        ItemVM vm = TestItemVM.defaultBuilder()
+                .id(item1.getId()).groupId(group1.getId()).status(ItemStatus.CLOSED.toString()).build().toParent();
         String requestBody = objectMapper.writeValueAsString(vm);
         ResultActions resultActions = mvc.perform(put(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
@@ -372,6 +373,7 @@ class ItemControllerIT {
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
         assertThat(resultDTO.getId()).isNotNull();
         assertThat(resultDTO.getTitle()).isEqualTo(vm.getTitle());
+        assertThat(resultDTO.getStatus()).isEqualTo(ItemStatus.CLOSED);
         assertThat(resultDTO.getDescription()).isEqualTo(vm.getDescription());
         assertThat(resultDTO.getGroupId()).isEqualTo(vm.getGroupId());
     }

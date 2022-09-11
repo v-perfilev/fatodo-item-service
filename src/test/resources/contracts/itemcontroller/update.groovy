@@ -24,6 +24,10 @@ Contract.make {
                         consumer(any()),
                         producer("test_title_new")
                 ),
+                "status": $(
+                        consumer(any()),
+                        producer("CREATED")
+                ),
                 "type": $(
                         consumer(any()),
                         producer("TASK")
