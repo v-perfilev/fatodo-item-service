@@ -99,7 +99,6 @@ public class ItemService {
         if (reminderList != null) {
             notificationServiceClient.setReminders(item.getId(), reminderList);
             item.setRemindersCount(reminderList.size());
-            itemRepository.save(item);
         }
 
         // EVENT

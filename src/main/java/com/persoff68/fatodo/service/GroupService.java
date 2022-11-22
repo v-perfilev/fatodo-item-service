@@ -111,7 +111,6 @@ public class GroupService {
         if (image != null && image.length > 0) {
             String imageFilename = imageService.createGroup(image);
             group.setImageFilename(imageFilename);
-            group = groupRepository.save(group);
         }
 
         // EVENT
