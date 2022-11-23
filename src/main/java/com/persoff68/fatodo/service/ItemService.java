@@ -84,7 +84,7 @@ public class ItemService {
     }
 
     @Transactional
-    public Item create(UUID userId, Item newItem, UUID groupId, List<Reminder> reminderList) {
+    public Item createFirstStep(UUID userId, Item newItem, UUID groupId) {
         if (newItem.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
@@ -92,21 +92,34 @@ public class ItemService {
 
         permissionService.checkGroupPermission(userId, Permission.EDIT, group.getId());
 
-        newItem.setStatus(ItemStatus.CREATED);
         newItem.setGroup(group);
 
-        Item item = itemRepository.save(newItem);
-        if (reminderList != null) {
-            notificationServiceClient.setReminders(item.getId(), reminderList);
-            item.setRemindersCount(reminderList.size());
+        return itemRepository.save(newItem);
+    }
+
+    public Item createSecondStep(Item item, List<Reminder> reminderList) {
+        try {
+            item = itemRepository.findById(item.getId())
+                    .orElseThrow(ModelNotFoundException::new);
+
+            if (reminderList != null) {
+                notificationServiceClient.setReminders(item.getId(), reminderList);
+                item.setRemindersCount(reminderList.size());
+            }
+
+            item = itemRepository.save(item);
+
+            // EVENT
+            eventService.sendItemCreateEvent(item);
+            // WS
+            wsService.sendItemCreateEvent(item);
+
+            return item;
+        } catch (Exception e) {
+            itemRepository.deleteById(item.getId());
+            throw e;
         }
 
-        // EVENT
-        eventService.sendItemCreateEvent(item);
-        // WS
-        wsService.sendItemCreateEvent(item);
-
-        return item;
     }
 
     @Transactional
