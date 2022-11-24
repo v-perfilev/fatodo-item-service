@@ -97,10 +97,11 @@ public class ItemService {
         return itemRepository.save(newItem);
     }
 
-    public Item createSecondStep(Item item, List<Reminder> reminderList) {
+    public Item createSecondStep(UUID itemId, List<Reminder> reminderList) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(ModelNotFoundException::new);
+
         try {
-            item = itemRepository.findById(item.getId())
-                    .orElseThrow(ModelNotFoundException::new);
 
             if (reminderList != null) {
                 notificationServiceClient.setReminders(item.getId(), reminderList);
@@ -116,7 +117,7 @@ public class ItemService {
 
             return item;
         } catch (Exception e) {
-            itemRepository.deleteById(item.getId());
+            itemRepository.deleteById(itemId);
             throw e;
         }
 

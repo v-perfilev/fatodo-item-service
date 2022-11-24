@@ -94,7 +94,7 @@ public class ItemController {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Item item = itemMapper.vmToPojo(itemVM);
         item = itemService.createFirstStep(userId, item, itemVM.getGroupId());
-        item = itemService.createSecondStep(item, itemVM.getReminders());
+        item = itemService.createSecondStep(item.getId(), itemVM.getReminders());
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.status(HttpStatus.CREATED).body(itemDTO);
     }
