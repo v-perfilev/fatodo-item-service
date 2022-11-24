@@ -51,9 +51,10 @@ public class RemindersValidator implements ConstraintValidator<RemindersConstrai
         int date = dateParams.getDate();
         int month = dateParams.getMonth();
         int year = dateParams.getYear();
+        String timezone = dateParams.getTimezone();
         return DateUtils.isTimeValid(time)
                 && DateUtils.isDateValid(date, month, year)
-                && DateUtils.isDateInFuture(time, date, month, year);
+                && DateUtils.isDateInFuture(time, date, month, year, timezone);
     }
 
     private boolean isDailyReminderValid(Reminder reminder) {

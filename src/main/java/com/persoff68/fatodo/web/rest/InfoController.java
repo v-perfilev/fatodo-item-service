@@ -5,10 +5,10 @@ import com.persoff68.fatodo.mapper.ItemMapper;
 import com.persoff68.fatodo.mapper.ReminderMapper;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
-import com.persoff68.fatodo.model.ReminderMailInfo;
+import com.persoff68.fatodo.model.ReminderInfo;
 import com.persoff68.fatodo.model.dto.GroupInfoDTO;
 import com.persoff68.fatodo.model.dto.ItemInfoDTO;
-import com.persoff68.fatodo.model.dto.ReminderMailInfoDTO;
+import com.persoff68.fatodo.model.dto.ReminderInfoDTO;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
 import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.GroupService;
@@ -59,9 +59,9 @@ public class InfoController {
     }
 
     @GetMapping(value = "/item-reminder/{itemId}")
-    public ResponseEntity<ReminderMailInfoDTO> getReminderForItem(@PathVariable UUID itemId) {
-        ReminderMailInfo message = infoService.generateReminderMailInfo(itemId);
-        ReminderMailInfoDTO dto = reminderMapper.pojoToDTO(message);
+    public ResponseEntity<ReminderInfoDTO> getReminderForItem(@PathVariable UUID itemId) {
+        ReminderInfo message = infoService.generateReminderInfo(itemId);
+        ReminderInfoDTO dto = reminderMapper.pojoToDTO(message);
         return ResponseEntity.ok(dto);
     }
 

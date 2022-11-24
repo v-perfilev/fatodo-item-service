@@ -12,7 +12,7 @@ import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.dto.GroupInfoDTO;
 import com.persoff68.fatodo.model.dto.ItemInfoDTO;
-import com.persoff68.fatodo.model.dto.ReminderMailInfoDTO;
+import com.persoff68.fatodo.model.dto.ReminderInfoDTO;
 import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
@@ -124,19 +124,22 @@ class InfoControllerIT {
 
     @Test
     @WithCustomSecurityContext(authority = "ROLE_SYSTEM")
-    void testGetReminderMailInfo_ok() throws Exception {
+    void testGetReminderInfo_ok() throws Exception {
         String url = ENDPOINT + "/item-reminder/" + item.getId();
         ResultActions resultActions = mvc.perform(get(url))
                 .andExpect(status().isOk());
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
-        ReminderMailInfoDTO resultDTO = objectMapper.readValue(resultString, ReminderMailInfoDTO.class);
+        ReminderInfoDTO resultDTO = objectMapper.readValue(resultString, ReminderInfoDTO.class);
+        assertThat(resultDTO.getGroupId()).isNotNull();
+        assertThat(resultDTO.getItemId()).isEqualTo(item.getId());
+        assertThat(resultDTO.getMessage()).isEqualTo(item.getTitle());
         assertThat(resultDTO.getUserIds()).hasSize(2);
         assertThat(resultDTO.getUrl()).contains("/items/");
     }
 
     @Test
     @WithCustomSecurityContext(authority = "ROLE_SYSTEM")
-    void testGetReminderMailInfo_notFound() throws Exception {
+    void testGetReminderInfo_notFound() throws Exception {
         String url = ENDPOINT + "/item-reminder/" + UUID.randomUUID();
         mvc.perform(get(url))
                 .andExpect(status().isNotFound());
@@ -144,7 +147,7 @@ class InfoControllerIT {
 
     @Test
     @WithCustomSecurityContext(authority = "ROLE_USER")
-    void testGetReminderMailInfo_forbidden() throws Exception {
+    void testGetReminderInfo_forbidden() throws Exception {
         String url = ENDPOINT + "/item-reminder/" + item.getId();
         mvc.perform(get(url))
                 .andExpect(status().isForbidden());
@@ -152,7 +155,7 @@ class InfoControllerIT {
 
     @Test
     @WithAnonymousUser
-    void testGetReminderMailInfo_unauthorized() throws Exception {
+    void testGetReminderInfo_unauthorized() throws Exception {
         String url = ENDPOINT + "/item-reminder/" + item.getId();
         mvc.perform(get(url))
                 .andExpect(status().isUnauthorized());

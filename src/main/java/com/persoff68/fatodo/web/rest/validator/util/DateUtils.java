@@ -42,10 +42,11 @@ public class DateUtils {
         return Set.of(TimeZone.getAvailableIDs()).contains(timezone);
     }
 
-    public static boolean isDateInFuture(int time, int date, int month, int year) {
+    public static boolean isDateInFuture(int time, int date, int month, int year, String timezone) {
         int hours = getHours(time);
         int minutes = getMinutes(time);
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone(timezone));
         calendar.set(year, month, date, hours, minutes);
         Instant reminderDate = calendar.toInstant();
         Instant now = Instant.now();

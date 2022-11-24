@@ -3,7 +3,7 @@ package com.persoff68.fatodo.service;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
-import com.persoff68.fatodo.model.ReminderMailInfo;
+import com.persoff68.fatodo.model.ReminderInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +18,13 @@ public class InfoService {
     private final ItemService itemService;
     private final GroupService groupService;
 
-    public ReminderMailInfo generateReminderMailInfo(UUID itemId) {
+    public ReminderInfo generateReminderInfo(UUID itemId) {
         Item item = itemService.getByIdWithoutPermissionCheck(itemId);
         Group group = groupService.getByIdWithoutPermissionCheck(item.getGroup().getId());
         List<UUID> userIdList = getUserIdsFromGroup(group);
         String message = createItemMessage(item);
         String url = createItemUrl(item);
-        return new ReminderMailInfo(message, url, userIdList);
+        return new ReminderInfo(group.getId(), item.getId(), message, url, userIdList);
     }
 
     private String createItemMessage(Item item) {

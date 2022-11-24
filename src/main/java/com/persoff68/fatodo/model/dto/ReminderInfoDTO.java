@@ -8,7 +8,11 @@ import java.util.UUID;
 
 @Data
 @NoArgsConstructor
-public class ReminderMailInfoDTO {
+public class ReminderInfoDTO {
+
+    private UUID groupId;
+
+    private UUID itemId;
 
     private String message;
 

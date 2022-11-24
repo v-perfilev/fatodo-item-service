@@ -10,7 +10,11 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReminderMailInfo {
+public class ReminderInfo {
+
+    private UUID groupId;
+
+    private UUID itemId;
 
     private String message;
 

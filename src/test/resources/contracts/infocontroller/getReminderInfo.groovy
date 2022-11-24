@@ -3,8 +3,8 @@ package contracts.infocontroller
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get reminder mail info by item id'
-    description 'should return status 200 and ReminderMessageDTO'
+    name 'get reminder info by item id'
+    description 'should return status 200 and ReminderInfoDTO'
     request {
         method GET()
         url($(
@@ -24,6 +24,8 @@ Contract.make {
             contentType applicationJson()
         }
         body(
+                "groupId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
+                "itemId": "8a51fdaa-189c-4959-9016-ae79adfe0320",
                 "message": "test_value",
                 "url": "/items/8a51fdaa-189c-4959-9016-ae79adfe0320",
         )
