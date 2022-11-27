@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -107,7 +108,8 @@ public class WsService {
     }
 
     public void sendMemberDeleteEvent(Group group, List<Member> memberList, UUID userId) {
-        List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
+        List<UUID> userIdList = Stream.concat(group.getMembers().stream(), memberList.stream())
+                .map(Member::getUserId).toList();
         List<MemberDTO> memberDTOList = memberList.stream().map(memberMapper::pojoToDTO).toList();
         String payload = serialize(memberDTOList);
         WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_MEMBER_DELETE, payload, userId);
@@ -115,7 +117,8 @@ public class WsService {
     }
 
     public void sendMemberLeaveEvent(Group group, Member member) {
-        List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
+        List<UUID> userIdList = Stream.concat(group.getMembers().stream(), Stream.of(member))
+                .map(Member::getUserId).toList();
         MemberDTO memberDTO = memberMapper.pojoToDTO(member);
         String payload = serialize(memberDTO);
         WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_MEMBER_LEAVE, payload, member.getUserId());
