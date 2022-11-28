@@ -4,6 +4,7 @@ import com.persoff68.fatodo.client.ImageServiceClient;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.dto.ImageDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,6 +37,7 @@ public class ImageService {
         return filename;
     }
 
+    @Async
     public void deleteGroup(Group group) {
         if (group.getImageFilename() != null) {
             imageServiceClient.deleteGroupImage(group.getImageFilename());

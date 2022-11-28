@@ -66,6 +66,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(publicUrls).permitAll()
                 .antMatchers("/api/info/item-reminder/**").hasAuthority(AuthorityType.Constants.SYSTEM_VALUE)
+                .antMatchers("/api/system/**").hasAuthority(AuthorityType.Constants.SYSTEM_VALUE)
                 .anyRequest().authenticated();
     }
 

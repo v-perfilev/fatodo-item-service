@@ -15,4 +15,6 @@ public interface ConfigurationRepository extends JpaRepository<Configuration, UU
 
     Optional<Configuration> findByUserId(UUID userId);
 
+    void deleteByUserId(UUID userId);
+
 }
