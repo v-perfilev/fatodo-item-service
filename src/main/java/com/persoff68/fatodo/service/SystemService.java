@@ -1,10 +1,12 @@
 package com.persoff68.fatodo.service;
 
 import com.persoff68.fatodo.model.Group;
+import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
+import com.persoff68.fatodo.repository.ItemRepository;
 import com.persoff68.fatodo.service.client.ImageService;
 import com.persoff68.fatodo.service.exception.GroupInvalidException;
 import com.persoff68.fatodo.service.validator.GroupValidator;
@@ -22,7 +24,13 @@ public class SystemService {
     private final ImageService imageService;
     private final ConfigurationRepository configurationRepository;
     private final GroupRepository groupRepository;
+    private final ItemRepository itemRepository;
     private final GroupValidator groupValidator;
+
+    @Transactional
+    public List<Item> getAllItemsByIds(List<UUID> itemIdList) {
+        return itemRepository.findAllById(itemIdList);
+    }
 
     @Transactional
     public void deleteAccountPermanently(UUID userId) {
