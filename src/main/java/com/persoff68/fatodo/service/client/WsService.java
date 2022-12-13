@@ -34,68 +34,67 @@ public class WsService {
     private final MemberMapper memberMapper;
     private final ObjectMapper objectMapper;
 
-    public void sendGroupCreateEvent(Group group) {
+    public void sendGroupCreateEvent(Group group, UUID userId) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
         String payload = serialize(groupDTO);
-        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_CREATE, payload, group.getCreatedBy());
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_CREATE, payload, userId);
         wsServiceClient.sendEvent(dto);
     }
 
-    public void sendGroupUpdateEvent(Group group) {
+    public void sendGroupUpdateEvent(Group group, UUID userId) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
         String payload = serialize(groupDTO);
-        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_UPDATE, payload, group.getLastModifiedBy());
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_UPDATE, payload, userId);
         wsServiceClient.sendEvent(dto);
     }
 
-    public void sendGroupDeleteEvent(Group group) {
+    public void sendGroupDeleteEvent(Group group, UUID userId) {
         List<UUID> userIdList = group.getMembers().stream().map(Member::getUserId).toList();
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
         String payload = serialize(groupDTO);
-        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_DELETE, payload, group.getLastModifiedBy());
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_GROUP_DELETE, payload, userId);
         wsServiceClient.sendEvent(dto);
     }
 
-    public void sendItemCreateEvent(Item item) {
+    public void sendItemCreateEvent(Item item, UUID userId) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         String payload = serialize(itemDTO);
-        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_CREATE, payload, item.getCreatedBy());
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_CREATE, payload, userId);
         wsServiceClient.sendEvent(dto);
     }
 
-    public void sendItemUpdateEvent(Item item) {
+    public void sendItemUpdateEvent(Item item, UUID userId) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         String payload = serialize(itemDTO);
-        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_UPDATE, payload, item.getLastModifiedBy());
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_UPDATE, payload, userId);
         wsServiceClient.sendEvent(dto);
     }
 
-    public void sendItemUpdateStatusEvent(Item item) {
+    public void sendItemUpdateStatusEvent(Item item, UUID userId) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         String payload = serialize(itemDTO);
-        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_UPDATE_STATUS, payload, item.getLastModifiedBy());
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_UPDATE_STATUS, payload, userId);
         wsServiceClient.sendEvent(dto);
     }
 
-    public void sendItemUpdateArchivedEvent(Item item) {
+    public void sendItemUpdateArchivedEvent(Item item, UUID userId) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         String payload = serialize(itemDTO);
-        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_UPDATE_ARCHIVED, payload,
-                item.getLastModifiedBy());
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_UPDATE_ARCHIVED, payload, userId);
         wsServiceClient.sendEvent(dto);
     }
 
-    public void sendItemDeleteEvent(Item item) {
+    public void sendItemDeleteEvent(Item item, UUID userId) {
         List<UUID> userIdList = item.getGroup().getMembers().stream().map(Member::getUserId).toList();
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         String payload = serialize(itemDTO);
-        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_DELETE, payload, item.getLastModifiedBy());
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_DELETE, payload, userId);
         wsServiceClient.sendEvent(dto);
     }
 
@@ -116,12 +115,12 @@ public class WsService {
         wsServiceClient.sendEvent(dto);
     }
 
-    public void sendMemberLeaveEvent(Group group, Member member) {
+    public void sendMemberLeaveEvent(Group group, Member member, UUID userId) {
         List<UUID> userIdList = Stream.concat(group.getMembers().stream(), Stream.of(member))
                 .map(Member::getUserId).toList();
         MemberDTO memberDTO = memberMapper.pojoToDTO(member);
         String payload = serialize(memberDTO);
-        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_MEMBER_LEAVE, payload, member.getUserId());
+        WsEventDTO dto = new WsEventDTO(userIdList, WsEventType.ITEM_MEMBER_LEAVE, payload, userId);
         wsServiceClient.sendEvent(dto);
     }
 

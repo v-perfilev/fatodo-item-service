@@ -76,9 +76,10 @@ public class GroupController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<GroupDTO> create(@ModelAttribute @Valid GroupVM groupVM) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Group newGroup = groupMapper.vmToPojo(groupVM);
         byte[] imageContent = getBytesFromMultipartFile(groupVM.getImageContent());
-        Group group = groupService.create(newGroup, imageContent);
+        Group group = groupService.create(userId, newGroup, imageContent);
         GroupDTO groupDTO = groupMapper.pojoToDTO(group);
         return ResponseEntity.status(HttpStatus.CREATED).body(groupDTO);
     }

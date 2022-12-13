@@ -7,8 +7,6 @@ import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
-import com.persoff68.fatodo.security.exception.UnauthorizedException;
-import com.persoff68.fatodo.security.util.SecurityUtils;
 import com.persoff68.fatodo.service.client.EventService;
 import com.persoff68.fatodo.service.client.ImageService;
 import com.persoff68.fatodo.service.client.PermissionService;
@@ -97,12 +95,13 @@ public class GroupService {
     }
 
     @Transactional
-    public Group create(Group groupToCreate, byte[] image) {
+    public Group create(UUID userId, Group groupToCreate, byte[] image) {
         if (groupToCreate.getId() != null) {
             throw new ModelAlreadyExistsException();
         }
 
-        groupToCreate.setMembers(createInitMemberList(groupToCreate));
+        List<Member> memberList = createInitMemberList(groupToCreate, userId);
+        groupToCreate.setMembers(memberList);
         groupToCreate.setImageFilename(null);
         groupValidator.validateCreate(groupToCreate);
         Group group = groupRepository.save(groupToCreate);
@@ -114,9 +113,9 @@ public class GroupService {
         }
 
         // EVENT
-        eventService.sendGroupCreateEvent(group);
+        eventService.sendGroupCreateEvent(group, userId);
         // WS
-        wsService.sendGroupCreateEvent(group);
+        wsService.sendGroupCreateEvent(group, userId);
 
         return group;
     }
@@ -139,9 +138,9 @@ public class GroupService {
         group.setImageFilename(imageFilename);
 
         // EVENT
-        eventService.sendGroupUpdateEvent(group);
+        eventService.sendGroupUpdateEvent(group, userId);
         // WS
-        wsService.sendGroupUpdateEvent(group);
+        wsService.sendGroupUpdateEvent(group, userId);
 
         return groupRepository.save(group);
     }
@@ -159,9 +158,9 @@ public class GroupService {
         configurationService.deleteGroup(group);
 
         // EVENT
-        eventService.sendGroupDeleteEvent(group);
+        eventService.sendGroupDeleteEvent(group, userId);
         // WS
-        wsService.sendGroupDeleteEvent(group);
+        wsService.sendGroupDeleteEvent(group, userId);
 
         group.setDeleted(true);
         group.getItems().forEach(item -> item.setDeleted(true));
@@ -169,9 +168,7 @@ public class GroupService {
     }
 
 
-    private List<Member> createInitMemberList(Group group) {
-        UUID userId = SecurityUtils.getCurrentId()
-                .orElseThrow(UnauthorizedException::new);
+    private List<Member> createInitMemberList(Group group, UUID userId) {
         Member member = Member.adminMember(group, userId);
         return Collections.singletonList(member);
     }

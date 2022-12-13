@@ -97,7 +97,7 @@ public class ItemService {
         return itemRepository.save(newItem);
     }
 
-    public Item createSecondStep(UUID itemId, List<Reminder> reminderList) {
+    public Item createSecondStep(UUID userId, UUID itemId, List<Reminder> reminderList) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(ModelNotFoundException::new);
 
@@ -111,9 +111,9 @@ public class ItemService {
             item = itemRepository.save(item);
 
             // EVENT
-            eventService.sendItemCreateEvent(item);
+            eventService.sendItemCreateEvent(item, userId);
             // WS
-            wsService.sendItemCreateEvent(item);
+            wsService.sendItemCreateEvent(item, userId);
 
             return item;
         } catch (Exception e) {
@@ -150,9 +150,9 @@ public class ItemService {
         itemRepository.save(item);
 
         // EVENT
-        eventService.sendItemUpdateEvent(item);
+        eventService.sendItemUpdateEvent(item, userId);
         // WS
-        wsService.sendItemUpdateEvent(item);
+        wsService.sendItemUpdateEvent(item, userId);
 
         return item;
     }
@@ -165,9 +165,9 @@ public class ItemService {
         item = itemRepository.save(item);
 
         // EVENT
-        eventService.sendItemUpdateStatusEvent(item);
+        eventService.sendItemUpdateStatusEvent(item, userId);
         // WS
-        wsService.sendItemUpdateStatusEvent(item);
+        wsService.sendItemUpdateStatusEvent(item, userId);
 
         return item;
     }
@@ -183,9 +183,9 @@ public class ItemService {
         item = itemRepository.save(item);
 
         // EVENT
-        eventService.sendItemUpdateArchivedEvent(item);
+        eventService.sendItemUpdateArchivedEvent(item, userId);
         // WS
-        wsService.sendItemUpdateArchivedEvent(item);
+        wsService.sendItemUpdateArchivedEvent(item, userId);
 
         return item;
     }
@@ -202,9 +202,9 @@ public class ItemService {
         itemRepository.save(item);
 
         // EVENT
-        eventService.sendItemDeleteEvent(item);
+        eventService.sendItemDeleteEvent(item, userId);
         // WS
-        wsService.sendItemDeleteEvent(item);
+        wsService.sendItemDeleteEvent(item, userId);
     }
 
     private PageableList<Item> getPageableListForMap(UUID groupId, int size) {

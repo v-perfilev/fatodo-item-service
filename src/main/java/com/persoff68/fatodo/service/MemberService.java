@@ -123,9 +123,9 @@ public class MemberService {
         Group savedGroup = groupRepository.save(group);
 
         // EVENT
-        eventService.sendMemberLeaveEvent(savedGroup, memberToDelete);
+        eventService.sendMemberLeaveEvent(savedGroup, memberToDelete, userId);
         // WS
-        wsService.sendMemberLeaveEvent(savedGroup, memberToDelete);
+        wsService.sendMemberLeaveEvent(savedGroup, memberToDelete, userId);
     }
 
 }

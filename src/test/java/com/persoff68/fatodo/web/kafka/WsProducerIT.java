@@ -27,6 +27,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -80,7 +81,7 @@ class WsProducerIT {
     @WithCustomSecurityContext
     void testSendEvent_ok() throws Exception {
         Group newGroup = TestGroup.defaultBuilder().build().toParent();
-        groupService.create(newGroup, null);
+        groupService.create(UUID.randomUUID(), newGroup, null);
 
         ConsumerRecord<String, WsEventDTO> record = wsRecords.poll(5, TimeUnit.SECONDS);
 
