@@ -5,6 +5,7 @@ import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.vm.ItemArchivedVM;
+import com.persoff68.fatodo.model.vm.ItemStatusVM;
 import com.persoff68.fatodo.model.vm.ItemVM;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
@@ -106,12 +107,22 @@ public class ItemController {
         return ResponseEntity.ok(itemDTO);
     }
 
+    @PutMapping(value = "/status")
+    public ResponseEntity<ItemDTO> updateStatus(@RequestBody @Valid ItemStatusVM itemStatusVM) {
+        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
+        UUID itemId = itemStatusVM.getId();
+        boolean isDone = itemStatusVM.isDone();
+        Item item = itemService.updateStatus(userId, itemId, isDone);
+        ItemDTO itemDTO = itemMapper.pojoToDTO(item);
+        return ResponseEntity.ok(itemDTO);
+    }
+
     @PutMapping(value = "/archived")
     public ResponseEntity<ItemDTO> updateArchived(@RequestBody @Valid ItemArchivedVM itemArchivedVM) {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         UUID itemId = itemArchivedVM.getId();
-        boolean archived = itemArchivedVM.isArchived();
-        Item item = itemService.updateArchived(userId, itemId, archived);
+        boolean isArchived = itemArchivedVM.isArchived();
+        Item item = itemService.updateArchived(userId, itemId, isArchived);
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.ok(itemDTO);
     }

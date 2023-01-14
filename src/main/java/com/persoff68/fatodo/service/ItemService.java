@@ -155,6 +155,21 @@ public class ItemService {
     }
 
     @Transactional
+    public Item updateStatus(UUID userId, UUID itemId, boolean isDone) {
+        Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
+        permissionService.checkItemPermission(userId, Permission.EDIT, item.getId());
+        item.setDone(isDone);
+        item = itemRepository.save(item);
+
+        // EVENT
+        eventService.sendItemUpdateStatusEvent(item, userId);
+        // WS
+        wsService.sendItemUpdateStatusEvent(item, userId);
+
+        return item;
+    }
+
+    @Transactional
     public Item updateArchived(UUID userId, UUID itemId, boolean archived) {
         Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
         permissionService.checkItemPermission(userId, Permission.EDIT, item.getId());

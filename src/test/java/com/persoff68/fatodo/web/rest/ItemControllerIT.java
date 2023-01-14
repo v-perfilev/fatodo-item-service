@@ -8,6 +8,7 @@ import com.persoff68.fatodo.annotation.WithCustomSecurityContext;
 import com.persoff68.fatodo.builder.TestGroup;
 import com.persoff68.fatodo.builder.TestItem;
 import com.persoff68.fatodo.builder.TestItemArchivedVM;
+import com.persoff68.fatodo.builder.TestItemStatusVM;
 import com.persoff68.fatodo.builder.TestItemVM;
 import com.persoff68.fatodo.builder.TestMember;
 import com.persoff68.fatodo.client.CommentServiceClient;
@@ -21,6 +22,7 @@ import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.vm.ItemArchivedVM;
+import com.persoff68.fatodo.model.vm.ItemStatusVM;
 import com.persoff68.fatodo.model.vm.ItemVM;
 import com.persoff68.fatodo.repository.ConfigurationRepository;
 import com.persoff68.fatodo.repository.GroupRepository;
@@ -417,6 +419,58 @@ class ItemControllerIT {
                         .contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isUnauthorized());
     }
+
+
+    @Test
+    @WithCustomSecurityContext
+    void testUpdateStatus_ok() throws Exception {
+        doReturn(true).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
+        String url = ENDPOINT + "/status";
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(item1.getId()).done(true).build().toParent();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        ResultActions resultActions = mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk());
+        String resultString = resultActions.andReturn().getResponse().getContentAsString();
+        ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
+        assertThat(resultDTO.getId()).isEqualTo(item1.getId());
+        assertThat(resultDTO.isDone()).isEqualTo(true);
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    void testUpdateStatus_notFound() throws Exception {
+        String url = ENDPOINT + "/status";
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().done(true).build().toParent();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomSecurityContext
+    void testUpdateStatus_forbidden() throws Exception {
+        doReturn(false).when(permissionService).hasItemsPermission(any(), eq(Permission.EDIT), any());
+        String url = ENDPOINT + "/status";
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(item1.getId()).done(true).build().toParent();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void testUpdateStatus_unauthorized() throws Exception {
+        String url = ENDPOINT + "/status";
+        ItemStatusVM vm = TestItemStatusVM.defaultBuilder().id(item1.getId()).done(true).build().toParent();
+        String requestBody = objectMapper.writeValueAsString(vm);
+        mvc.perform(put(url)
+                        .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
     @WithCustomSecurityContext
