@@ -27,7 +27,10 @@
 
         <dropColumn tableName="ftd_item" columnName="priority"/>
 
-        <renameColumn newColumnName="priority" oldColumnName="priority_tmp" tableName="ftd_item"/>
+        <renameColumn newColumnName="priority"
+                      oldColumnName="priority_tmp"
+                      columnDataType="tinyint"
+                      tableName="ftd_item"/>
 
     </changeSet>
 
