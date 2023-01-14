@@ -20,7 +20,7 @@ Contract.make {
                         consumer(any()),
                         producer("8a51fdaa-189c-4959-9016-ae79adfe0320")
                 ),
-                "status": $(
+                "done": $(
                         consumer(anyBoolean()),
                         producer(true)
                 ),
