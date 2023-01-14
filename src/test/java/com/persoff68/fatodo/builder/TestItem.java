@@ -3,7 +3,6 @@ package com.persoff68.fatodo.builder;
 import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Group;
 import com.persoff68.fatodo.model.Item;
-import com.persoff68.fatodo.model.constant.ItemPriority;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.constant.ItemType;
 import lombok.Builder;
@@ -19,7 +18,7 @@ public class TestItem extends Item {
              @NotNull Group group,
              @NotNull String title,
              @NotNull ItemType type,
-             @NotNull ItemPriority priority,
+             @NotNull int priority,
              DateParams date,
              String description,
              @NotNull ItemStatus status,
@@ -34,7 +33,7 @@ public class TestItem extends Item {
         return TestItem.builder()
                 .title(DEFAULT_VALUE)
                 .type(ItemType.TASK)
-                .priority(ItemPriority.NORMAL)
+                .priority(2)
                 .description(DEFAULT_VALUE)
                 .status(ItemStatus.CREATED)
                 .remindersCount(0);

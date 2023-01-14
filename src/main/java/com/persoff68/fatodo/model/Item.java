@@ -1,7 +1,6 @@
 package com.persoff68.fatodo.model;
 
 import com.persoff68.fatodo.config.constant.AppConstants;
-import com.persoff68.fatodo.model.constant.ItemPriority;
 import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.constant.ItemType;
 import com.persoff68.fatodo.model.converter.DataParamsConverter;
@@ -42,9 +41,7 @@ public class Item extends AbstractAuditingModel implements Serializable {
     @Enumerated(EnumType.STRING)
     private ItemType type;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private ItemPriority priority;
+    private int priority;
 
     @NotNull
     @Enumerated(EnumType.STRING)
