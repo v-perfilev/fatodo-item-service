@@ -3,10 +3,8 @@ package com.persoff68.fatodo.web.rest;
 import com.persoff68.fatodo.mapper.ItemMapper;
 import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.PageableList;
-import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.dto.ItemDTO;
 import com.persoff68.fatodo.model.vm.ItemArchivedVM;
-import com.persoff68.fatodo.model.vm.ItemStatusVM;
 import com.persoff68.fatodo.model.vm.ItemVM;
 import com.persoff68.fatodo.repository.OffsetPageRequest;
 import com.persoff68.fatodo.security.exception.UnauthorizedException;
@@ -104,16 +102,6 @@ public class ItemController {
         UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
         Item item = itemMapper.vmToPojo(itemVM);
         item = itemService.update(userId, item, itemVM.getReminders(), itemVM.isDeleteReminders());
-        ItemDTO itemDTO = itemMapper.pojoToDTO(item);
-        return ResponseEntity.ok(itemDTO);
-    }
-
-    @PutMapping(value = "/status")
-    public ResponseEntity<ItemDTO> updateStatus(@RequestBody @Valid ItemStatusVM itemStatusVM) {
-        UUID userId = SecurityUtils.getCurrentId().orElseThrow(UnauthorizedException::new);
-        UUID itemId = itemStatusVM.getId();
-        ItemStatus status = ItemStatus.valueOf(itemStatusVM.getStatus());
-        Item item = itemService.updateStatus(userId, itemId, status);
         ItemDTO itemDTO = itemMapper.pojoToDTO(item);
         return ResponseEntity.ok(itemDTO);
     }

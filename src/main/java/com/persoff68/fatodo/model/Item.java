@@ -1,19 +1,13 @@
 package com.persoff68.fatodo.model;
 
 import com.persoff68.fatodo.config.constant.AppConstants;
-import com.persoff68.fatodo.model.constant.ItemStatus;
-import com.persoff68.fatodo.model.constant.ItemType;
-import com.persoff68.fatodo.model.converter.DataParamsConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -37,22 +31,13 @@ public class Item extends AbstractAuditingModel implements Serializable {
     @NotNull
     private String title;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private ItemType type;
-
     private int priority;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private ItemStatus status;
-
-    @Convert(converter = DataParamsConverter.class)
-    private DateParams date;
 
     private String description;
 
     private int remindersCount = 0;
+
+    private boolean isDone;
 
     private boolean isArchived;
 

@@ -1,16 +1,13 @@
 package com.persoff68.fatodo.model.vm;
 
-import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Reminder;
-import com.persoff68.fatodo.web.rest.validator.DateParamsConstraint;
-import com.persoff68.fatodo.web.rest.validator.ItemPriorityConstraint;
-import com.persoff68.fatodo.web.rest.validator.ItemStatusConstraint;
-import com.persoff68.fatodo.web.rest.validator.ItemTypeConstraint;
 import com.persoff68.fatodo.web.rest.validator.RemindersConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
@@ -28,22 +25,17 @@ public class ItemVM {
     @NotNull
     private String title;
 
-    @ItemStatusConstraint
-    private String status;
-
-    @ItemTypeConstraint
-    private String type;
-
-    @ItemPriorityConstraint
-    private String priority;
-
-    @DateParamsConstraint
-    private DateParams date;
+    @NotNull
+    @Min(1)
+    @Max(3)
+    private int priority;
 
     private String description;
 
     @RemindersConstraint
     private List<Reminder> reminders;
+
+    private boolean done;
 
     private boolean deleteReminders;
 

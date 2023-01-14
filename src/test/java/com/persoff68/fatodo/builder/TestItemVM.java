@@ -1,14 +1,9 @@
 package com.persoff68.fatodo.builder;
 
-import com.persoff68.fatodo.model.DateParams;
 import com.persoff68.fatodo.model.Reminder;
-import com.persoff68.fatodo.model.constant.ItemPriority;
-import com.persoff68.fatodo.model.constant.ItemStatus;
-import com.persoff68.fatodo.model.constant.ItemType;
 import com.persoff68.fatodo.model.vm.ItemVM;
 import lombok.Builder;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -19,15 +14,13 @@ public class TestItemVM extends ItemVM {
     @Builder
     public TestItemVM(UUID id,
                       UUID groupId,
-                      @NotNull String title,
-                      @NotNull String status,
-                      @NotNull String type,
-                      @NotNull String priority,
-                      DateParams date,
+                      String title,
+                      int priority,
                       String description,
                       List<Reminder> reminders,
+                      boolean done,
                       boolean deleteReminders) {
-        super(id, groupId, title, status, type, priority, date, description, reminders, deleteReminders);
+        super(id, groupId, title, priority, description, reminders, done, deleteReminders);
     }
 
     public static TestItemVMBuilder defaultBuilder() {
@@ -36,9 +29,7 @@ public class TestItemVM extends ItemVM {
                 .id(UUID.randomUUID())
                 .groupId(UUID.randomUUID())
                 .title(DEFAULT_VALUE)
-                .status(ItemStatus.CREATED.toString())
-                .type(ItemType.TASK.toString())
-                .priority(ItemPriority.NORMAL.toString())
+                .priority(2)
                 .description(DEFAULT_VALUE)
                 .reminders(Collections.singletonList(reminder));
     }
@@ -48,12 +39,11 @@ public class TestItemVM extends ItemVM {
         vm.setId(getId());
         vm.setGroupId(getGroupId());
         vm.setTitle(getTitle());
-        vm.setStatus(getStatus());
-        vm.setType(getType());
         vm.setPriority(getPriority());
-        vm.setDate(getDate());
         vm.setDescription(getDescription());
         vm.setReminders(getReminders());
+        vm.setDone(isDone());
+        vm.setDeleteReminders(isDeleteReminders());
         return vm;
     }
 

@@ -24,17 +24,9 @@ Contract.make {
                         consumer(any()),
                         producer("test_title_new")
                 ),
-                "status": $(
-                        consumer(any()),
-                        producer("CREATED")
-                ),
-                "type": $(
-                        consumer(any()),
-                        producer("TASK")
-                ),
                 "priority": $(
-                        consumer(any()),
-                        producer("NORMAL")
+                        consumer(anyNumber()),
+                        producer(2)
                 ),
                 "description": $(
                         consumer(any()),
@@ -54,13 +46,12 @@ Contract.make {
         body(
                 "id": "8a51fdaa-189c-4959-9016-ae79adfe0320",
                 "title": "test_title_new",
-                "status": "CREATED",
-                "type": "TASK",
-                "priority": "NORMAL",
+                "priority": 2,
                 "description": "test_body",
                 "remindersCount": 0,
                 "groupId": "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
-                "archived": false
+                "done": false,
+                "archived": false,
         )
     }
 }

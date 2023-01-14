@@ -7,7 +7,6 @@ import com.persoff68.fatodo.model.Item;
 import com.persoff68.fatodo.model.Member;
 import com.persoff68.fatodo.model.PageableList;
 import com.persoff68.fatodo.model.Reminder;
-import com.persoff68.fatodo.model.constant.ItemStatus;
 import com.persoff68.fatodo.model.constant.Permission;
 import com.persoff68.fatodo.repository.GroupRepository;
 import com.persoff68.fatodo.repository.ItemRepository;
@@ -133,11 +132,9 @@ public class ItemService {
         permissionService.checkItemPermission(userId, Permission.EDIT, item.getId());
 
         item.setTitle(newItem.getTitle());
-        item.setStatus(newItem.getStatus());
-        item.setType(newItem.getType());
         item.setPriority(newItem.getPriority());
-        item.setDate(newItem.getDate());
         item.setDescription(newItem.getDescription());
+        item.setDone(newItem.isDone());
 
         if (reminderList != null) {
             notificationServiceClient.setReminders(item.getId(), reminderList);
@@ -153,21 +150,6 @@ public class ItemService {
         eventService.sendItemUpdateEvent(item, userId);
         // WS
         wsService.sendItemUpdateEvent(item, userId);
-
-        return item;
-    }
-
-    @Transactional
-    public Item updateStatus(UUID userId, UUID itemId, ItemStatus status) {
-        Item item = itemRepository.findById(itemId).orElseThrow(ModelNotFoundException::new);
-        permissionService.checkItemPermission(userId, Permission.EDIT, item.getId());
-        item.setStatus(status);
-        item = itemRepository.save(item);
-
-        // EVENT
-        eventService.sendItemUpdateStatusEvent(item, userId);
-        // WS
-        wsService.sendItemUpdateStatusEvent(item, userId);
 
         return item;
     }

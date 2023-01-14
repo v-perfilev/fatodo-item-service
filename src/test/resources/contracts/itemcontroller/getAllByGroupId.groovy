@@ -26,11 +26,10 @@ Contract.make {
         body([
                 "data" : [
                         "title"      : "test_value",
-                        "type"       : "TASK",
-                        "priority"   : "NORMAL",
+                        "priority"   : 2,
                         "description": "test_value",
-                        "status"     : "CREATED",
                         "groupId"    : "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
+                        "done"       : false,
                         "archived"   : false
                 ],
                 "count": 1

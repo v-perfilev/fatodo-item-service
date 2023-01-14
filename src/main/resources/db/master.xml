@@ -9,5 +9,7 @@
     <include file="db/changelog/20220710160020_create_member_schema.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/20220710160030_create_configuration_schema.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/20230114120000_edit_item_structure_step_1.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/20230114120000_edit_item_structure_step_2.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/20230114120000_edit_item_structure_step_3.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

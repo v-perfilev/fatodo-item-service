@@ -1,16 +1,13 @@
-package contracts.itemcontroller
+package contracts.listcontroller
 
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    name 'get archived items by groupId'
+    name 'get items'
     description 'should return status 200 and list of ItemDTOs'
     request {
         method GET()
-        url($(
-                consumer(regex("/api/item/" + uuid().toString() + "/group/archived")),
-                producer("/api/item/12886ad8-f1a2-487c-a5f1-ff71d63a3b52/group/archived")
-        ))
+        url("/api/list")
         headers {
             header 'Authorization': $(
                     consumer(containing("Bearer")),
@@ -26,11 +23,11 @@ Contract.make {
         body([
                 "data" : [
                         "title"      : "test_value",
-                        "priority"   : 2,
+                        "priority"   : "2",
                         "description": "test_value",
                         "groupId"    : "12886ad8-f1a2-487c-a5f1-ff71d63a3b52",
                         "done"       : false,
-                        "archived"   : true
+                        "archived"   : false
                 ],
                 "count": 1
         ])
