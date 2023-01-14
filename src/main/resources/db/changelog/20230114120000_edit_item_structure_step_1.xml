@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet id="00000000000005" author="persoff68">
+
+        <addColumn tableName="ftd_item">
+            <column afterColumn="priority"
+                    name="priority_tmp"
+                    type="tinyint"
+                    defaultValue="2">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <update tableName="ftd_item">
+            <column name="priority" value="1"/>
+            <where>priority = 'LOW'</where>
+        </update>
+
+        <update tableName="ftd_item">
+            <column name="priority" value="3"/>
+            <where>priority = 'HIGH'</where>
+        </update>
+
+        <dropColumn tableName="ftd_item" columnName="priority"/>
+
+        <renameColumn newColumnName="priority" oldColumnName="priority_tmp" tableName="ftd_item"/>
+
+    </changeSet>
+
+</databaseChangeLog>
