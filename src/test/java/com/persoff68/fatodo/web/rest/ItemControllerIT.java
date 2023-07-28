@@ -373,7 +373,7 @@ class ItemControllerIT {
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
         assertThat(resultDTO.getId()).isNotNull();
         assertThat(resultDTO.getTitle()).isEqualTo(vm.getTitle());
-        assertThat(resultDTO.isDone()).isEqualTo(true);
+        assertThat(resultDTO.isDone()).isTrue();
         assertThat(resultDTO.getDescription()).isEqualTo(vm.getDescription());
         assertThat(resultDTO.getGroupId()).isEqualTo(vm.getGroupId());
     }
@@ -434,7 +434,7 @@ class ItemControllerIT {
         String resultString = resultActions.andReturn().getResponse().getContentAsString();
         ItemDTO resultDTO = objectMapper.readValue(resultString, ItemDTO.class);
         assertThat(resultDTO.getId()).isEqualTo(item1.getId());
-        assertThat(resultDTO.isDone()).isEqualTo(true);
+        assertThat(resultDTO.isDone()).isTrue();
     }
 
     @Test
